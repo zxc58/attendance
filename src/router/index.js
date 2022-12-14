@@ -22,14 +22,15 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const isLogin = localStorage.getItem('token')
   if (isLogin) {
-    next()
     if (to.path === '/login') {
-      next('/')
+      return next('/')
     }
+    return next()
   } else {
     if (to.path !== '/login') {
-      next('/login')
-    } else next()
+      return next('/login')
+    }
+    return next()
   }
 })
 

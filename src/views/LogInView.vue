@@ -1,12 +1,20 @@
 <script setup>
 import TopIndex from '../components/TopIndex.vue'
-const signin = (e) => {
+import router from '../router/index'
+import axios from 'axios'
+const signin = async (e) => {
   const inputs = e.target.querySelectorAll('input')
   const data = {}
   inputs.forEach((element) => {
     data[element.name] = element.value
   })
-  console.log(data)
+  const response = await axios.post(`http://localhost:3000/api/signIn`, data)
+  if (response.data.token) {
+    localStorage.setItem('token', response.data.token)
+    router.go('/')
+  } else {
+    alert(response.data.message)
+  }
 }
 </script>
 
