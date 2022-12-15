@@ -8,7 +8,7 @@ const signin = async (e) => {
   inputs.forEach((element) => {
     data[element.name] = element.value
   })
-  const response = await axios.post(`http://localhost:3000/api/signIn`, data)
+  const response = await axios.post(`http://localhost:3000/api/logIn`, data)
   if (response.data.token) {
     localStorage.setItem('token', response.data.token)
     router.go('/')

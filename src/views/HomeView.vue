@@ -2,6 +2,7 @@
 <script setup>
 import TopIndex from '../components/TopIndex.vue'
 import TaipeiClock from '../components/TaipeiClock.vue'
+import PunchBlockVue from '../components/PunchBlock.vue'
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 </script>
@@ -9,6 +10,15 @@ import { RouterLink } from 'vue-router'
 <template>
   <main>
     <TopIndex />
-    <TaipeiClock />
+    <div class="container-lg">
+      <div class="row border border-primary">
+        <TaipeiClock />
+      </div>
+      <div class="row border border-danger">
+        <div class="col"></div>
+        <PunchBlockVue />
+      </div>
+    </div>
   </main>
 </template>
+<style></style>

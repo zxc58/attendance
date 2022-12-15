@@ -1,18 +1,18 @@
 <script setup>
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-import timezone from 'dayjs/plugin/timezone'
+import dayjsTaipei from '../assets/timeHelper'
 import { ref } from 'vue'
-dayjs.extend(utc)
-dayjs.extend(timezone)
-dayjs.tz.setDefault('Asia/Taipei')
-let time = ref(dayjs().format('HH:mm'))
+
+let time = ref(dayjsTaipei().format('HH:mm'))
 const updateTime = () => {
-  time.value = dayjs().format('HH:mm')
+  time.value = dayjsTaipei().format('HH:mm')
 }
 setInterval(updateTime, 1000 * 60)
 </script>
 <template>
-  <h1 class="text-center">{{ time }}</h1>
+  <h1 class="text-center display-1">{{ time }}</h1>
 </template>
-<style scoped></style>
+<style scoped>
+.clock {
+  font-size: 1000%;
+}
+</style>
