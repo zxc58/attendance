@@ -19,7 +19,6 @@ const signin = async (e) => {
 </script>
 
 <template>
-  <TopIndex />
   <form class="container log-in-form" @submit.prevent="signin">
     <fieldset>
       <legend class="text-center fs-1">Log In</legend>

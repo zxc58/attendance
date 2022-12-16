@@ -1,38 +1,78 @@
 <script setup>
+import { useTimeStore } from '../stores/time'
+import { useRecordStore } from '../stores/record'
+import { storeToRefs } from 'pinia'
 import createInstance from '../assets/api'
-import { ref } from 'vue'
 import dayjsTaipei from '../assets/timeHelper'
-const workingHour = ref(null)
-const apiServer = createInstance()
-;(async () => {
-  const personalData = await apiServer.get('api/records/today')
-  const createdAt = personalData?.data?.data?.createdAt
-  if (!createdAt) {
-    workingHour.value = 0
-    return
+const recordStore = useRecordStore()
+const { fetchTodaysRecord } = recordStore
+const { todaysRecord, workingHour } = storeToRefs(recordStore)
+const timeStore = useTimeStore()
+const { leftTime } = storeToRefs(timeStore)
+fetchTodaysRecord()
+const punchIn = async () => {
+  try {
+    const createdAt = dayjsTaipei().startOf('minute').toDate()
+    const api = createInstance()
+    if (!api || !createdAt) {
+      throw new Error()
+    }
+    console.log(`api , createdAt : ${!!api} , ${createdAt}`)
+    await api.post('/api/records', { createdAt })
+  } catch (err) {
+    console.error(err)
+    alert('發生未知錯誤')
   }
-  workingHour.value = dayjsTaipei().diff(dayjsTaipei(createdAt), 'hour')
-})()
+}
+const punchOut = async () => {
+  try {
+    const [api, id] = [createInstance(), todaysRecord.value?.id]
+    const workingHour = dayjsTaipei().diff(
+      dayjsTaipei(todaysRecord.value.createdAt),
+      'h'
+    )
+    if (!api || !id || !workingHour) {
+      throw new Error()
+    }
+    console.log(`api , id , workingHour : ${!!api} , ${id} , ${workingHour}`)
+    await api.put(`/api/records/${id}`, { workingHour })
+  } catch (error) {
+    alert('發生未知錯誤')
+    console.error(error)
+  }
+}
 </script>
+
 <template>
   <div class="col">
-    <div class="top-half py-1">0000</div>
-    <div class="d-grid gap-2 d-lg-block text-end">
-      <button class="btn btn-danger btn-lg">還不行</button>
+    <h3 class="py-1 text-danger">{{ leftTime }}</h3>
+    <div class="d-grid gap-2 d-md-block text-center">
+      <button class="btn btn-danger btn-lg" @click="punchOut" v-if="leftTime">
+        下班(視為缺勤)
+      </button>
+      <button
+        class="btn btn-success btn-lg"
+        @click="punchOut"
+        v-else-if="todaysRecord"
+      >
+        下班
+      </button>
+      <button class="btn btn-danger btn-lg" @click="punchIn" v-else>
+        上班
+      </button>
     </div>
   </div>
 </template>
+
 <style scope>
-.top-half {
-  background-color: aqua;
-  width: 100%;
+@media screen and (min-width: 768px) {
+  h3 {
+    height: 90%;
+    margin-top: 10%;
+  }
+  button {
+    transform: scale(2.5, 2);
+    margin-top: -50%;
+  }
 }
-.bottom-half {
-  background-color: coral;
-  width: 100%;
-}
-/* button {
-  height: 50%;
-  width: 50%;
-} */
 </style>

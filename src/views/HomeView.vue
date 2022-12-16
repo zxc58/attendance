@@ -1,21 +1,29 @@
-<!-- eslint-disable no-unused-vars -->
 <script setup>
+import { onBeforeMount } from 'vue'
 import TopIndex from '../components/TopIndex.vue'
 import TaipeiClock from '../components/TaipeiClock.vue'
 import PunchBlockVue from '../components/PunchBlock.vue'
-import { ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { useUserStore } from '../stores/user'
+const userStore = useUserStore()
+const { fetchUser } = userStore
+onBeforeMount(() => {
+  fetchUser()
+})
+
+const { user, userName } = storeToRefs(userStore)
 </script>
 
 <template>
   <main>
-    <TopIndex />
-    <div class="container-lg">
-      <div class="row border border-primary">
+    <div class="container-md">
+      <div class="row">
         <TaipeiClock />
       </div>
-      <div class="row border border-danger">
-        <div class="col"></div>
+      <div class="row">
+        <div class="col rwd-d-none">
+          <img src="../assets/03.jpg" class="img-fluid" />
+        </div>
         <PunchBlockVue />
       </div>
     </div>
