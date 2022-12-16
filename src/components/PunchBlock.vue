@@ -1,4 +1,5 @@
 <script setup>
+import AttendanceList from './AttendanceList.vue'
 import { useTimeStore } from '../stores/time'
 import { useRecordStore } from '../stores/record'
 import { storeToRefs } from 'pinia'
@@ -45,8 +46,10 @@ const punchOut = async () => {
 
 <template>
   <div class="col">
-    <h3 class="py-1 text-danger">{{ leftTime }}</h3>
-    <div class="d-grid gap-2 d-md-block text-center">
+    <div class="py-0 table-block">
+      <AttendanceList />
+    </div>
+    <div class="d-grid gap-2 d-md-block text-end">
       <button class="btn btn-danger btn-lg" @click="punchOut" v-if="leftTime">
         下班(視為缺勤)
       </button>
@@ -57,22 +60,22 @@ const punchOut = async () => {
       >
         下班
       </button>
-      <button class="btn btn-danger btn-lg" @click="punchIn" v-else>
-        上班
-      </button>
+      <button class="btn btn-info btn-lg" @click="punchIn" v-else>上班</button>
     </div>
   </div>
 </template>
 
 <style scope>
 @media screen and (min-width: 768px) {
-  h3 {
+  .table-block {
     height: 90%;
     margin-top: 10%;
   }
   button {
     transform: scale(2.5, 2);
     margin-top: -50%;
+    right: 15%;
+    position: relative;
   }
 }
 </style>

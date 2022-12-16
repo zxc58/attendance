@@ -6,7 +6,7 @@ import dayjsTaipei from '../assets/timeHelper'
 const api = createInstance()
 
 export const useRecordStore = defineStore('record', () => {
-  const recentRecords = ref(null)
+  const recentRecords = reactive(null)
   const todaysRecord = ref(null)
   const getTodaysRecord = computed(() => todaysRecord.value)
   const workingHour = computed(() =>
