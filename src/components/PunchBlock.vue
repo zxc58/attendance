@@ -50,7 +50,7 @@ const punchOut = async () => {
 
 <template>
   <div class="col">
-    <div class="py-0 table-block">
+    <div class="py-0 table-block overflow-auto">
       <AttendanceList />
     </div>
     <div class="d-grid gap-2 d-md-block text-end btn-block">
@@ -89,6 +89,26 @@ const punchOut = async () => {
 </template>
 
 <style scope>
+::-webkit-scrollbar {
+  width: 7px;
+}
+::-webkit-scrollbar-track {
+  -webkit-border-radius: 10px;
+  background: rgb(241, 254, 2);
+}
+::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 50px;
+  border-radius: 50px;
+  background: rgb(128, 128, 128);
+}
+.table-block {
+  height: 30%;
+  margin-bottom: 10px;
+}
+h3 {
+  color: darkred;
+  font-weight: 700;
+}
 @media screen and (min-width: 768px) {
   .table-block {
     height: 50%;

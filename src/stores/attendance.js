@@ -1,14 +1,15 @@
 import { ref, computed, reactive } from 'vue'
 import { defineStore } from 'pinia'
 import { fetchTodaysAttendance, fetchRecentAttendances } from '../assets/api'
-import dayjsTaipei from '../assets/timeHelper'
+import dayjsTaipei, { countWorkingHour } from '../assets/timeHelper'
 import { useTimeStore } from './time'
 import { storeToRefs } from 'pinia'
 const requiredWorkingHour = import.meta.env.REQUIRED_WORKING_HOUR ?? 8
 
 export const useAttendanceStore = defineStore('attendance', () => {
   const todaysAttendance = ref(null)
-  const recentAttendances = reactive([])
+  const recentAttendances = ref([])
+
   const leftTime = computed(() => {
     if (!todaysAttendance?.value?.punchIn) {
       return null
@@ -24,6 +25,21 @@ export const useAttendanceStore = defineStore('attendance', () => {
     }
     return null
   })
+  const attendanceList = computed(() => {
+    const a = recentAttendances.value.map((e) => {
+      const { punchIn, punchOut, isHoliday } = e
+      const [status, className] = countWorkingHour(e)
+      return {
+        id: e.id,
+        date: dayjsTaipei(e.date).format('MM月DD日'),
+        day: `星期${e.day}`,
+        status,
+        class: className,
+      }
+    })
+    return a
+  })
+
   async function setTodaysAttendance(newRecord) {
     try {
       if (!newRecord) {
@@ -52,6 +68,7 @@ export const useAttendanceStore = defineStore('attendance', () => {
     todaysAttendance,
     recentAttendances,
     leftTime,
+    attendanceList,
     setRecentAttendances,
     setTodaysAttendance,
   }
