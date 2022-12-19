@@ -6,7 +6,31 @@ const createInstance = () =>
     headers: {
       Authorization: 'Bearer ' + localStorage.getItem('token'),
     },
-    timeout: 2000,
+    timeout: 1000,
   })
 
 export default createInstance
+
+export const fetchPersonalData = async () => {
+  const res = await createInstance().get('api/employees')
+  if (res?.data?.employee) {
+    return res?.data?.employee
+  }
+  throw new Error()
+}
+
+export const fetchTodaysAttendance = async () => {
+  const res = await createInstance().get('/api/attendances/today')
+  if (res?.data?.attendance) {
+    return res?.data?.attendance
+  }
+  throw new Error()
+}
+
+export const fetchRecentAttendances = async () => {
+  const res = await createInstance().get('/api/attendances/recent')
+  if (res?.data?.attendances) {
+    return res?.data?.attendances
+  }
+  throw new Error()
+}

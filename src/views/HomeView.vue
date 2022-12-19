@@ -6,9 +6,9 @@ import PunchBlockVue from '../components/PunchBlock.vue'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '../stores/user'
 const userStore = useUserStore()
-const { fetchUser } = userStore
+const { setUser } = userStore
 onBeforeMount(() => {
-  fetchUser()
+  setUser()
 })
 
 const { user, userName } = storeToRefs(userStore)

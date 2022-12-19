@@ -5,7 +5,6 @@ import TopIndex from './components/TopIndex.vue'
 
 <template>
   <TopIndex />
-
   <RouterView />
 </template>
 

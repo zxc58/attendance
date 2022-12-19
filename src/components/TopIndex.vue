@@ -29,7 +29,7 @@ const logOut = () => {
       >
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="navbar-collapse collapse show" id="pageList" v-if="user">
+      <div class="navbar-collapse collapse" id="pageList" v-if="user">
         <ul class="navbar-nav me-auto ms-auto">
           <li
             class="nav-item text-center"

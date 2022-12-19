@@ -1,0 +1,58 @@
+import { ref, computed, reactive } from 'vue'
+import { defineStore } from 'pinia'
+import { fetchTodaysAttendance, fetchRecentAttendances } from '../assets/api'
+import dayjsTaipei from '../assets/timeHelper'
+import { useTimeStore } from './time'
+import { storeToRefs } from 'pinia'
+const requiredWorkingHour = import.meta.env.REQUIRED_WORKING_HOUR ?? 8
+
+export const useAttendanceStore = defineStore('attendance', () => {
+  const todaysAttendance = ref(null)
+  const recentAttendances = reactive([])
+  const leftTime = computed(() => {
+    if (!todaysAttendance?.value?.punchIn) {
+      return null
+    }
+    const now = dayjsTaipei()
+    const timeToPunchOut = dayjsTaipei(todaysAttendance.value.punchIn).add(
+      requiredWorkingHour,
+      'h'
+    )
+    const isPunchOutTime = now.isAfter(timeToPunchOut)
+    if (!isPunchOutTime) {
+      return timeToPunchOut.diff(now, 'm')
+    }
+    return null
+  })
+  async function setTodaysAttendance(newRecord) {
+    try {
+      if (!newRecord) {
+        newRecord = await fetchTodaysAttendance()
+      }
+      todaysAttendance.value = newRecord
+    } catch (err) {
+      alert('發生未知錯誤')
+      console.log(err)
+    }
+  }
+
+  async function setRecentAttendances(newRecords) {
+    try {
+      if (!newRecords) {
+        newRecords = await fetchRecentAttendances()
+      }
+      recentAttendances.value = newRecords
+    } catch (err) {
+      alert('發生未知錯誤')
+      console.error(err)
+    }
+  }
+
+  return {
+    todaysAttendance,
+    recentAttendances,
+    leftTime,
+    setRecentAttendances,
+    setTodaysAttendance,
+  }
+})
