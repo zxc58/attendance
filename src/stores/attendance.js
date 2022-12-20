@@ -15,7 +15,7 @@ export const useAttendanceStore = defineStore('attendance', () => {
     if (!punchIn) {
       return null
     }
-    return dayjsTaipei(punchIn).format('HH:MM')
+    return dayjsTaipei(punchIn).format('HH:mm')
   })
   const leftTime = computed(() => {
     if (!todaysAttendance?.value?.punchIn) {
@@ -28,7 +28,7 @@ export const useAttendanceStore = defineStore('attendance', () => {
     )
     const isPunchOutTime = now.isAfter(timeToPunchOut)
     if (!isPunchOutTime) {
-      return timeToPunchOut.diff(now, 'm')
+      return timeToPunchOut.diff(now, 'm').toString()
     }
     return null
   })

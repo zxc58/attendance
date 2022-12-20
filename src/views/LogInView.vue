@@ -1,31 +1,47 @@
 <script setup>
-import TopIndex from '../components/TopIndex.vue'
 import router from '../router/index'
 import axios from 'axios'
-const signin = async (e) => {
-  const inputs = e.target.querySelectorAll('input')
-  const data = {}
-  inputs.forEach((element) => {
-    data[element.name] = element.value
-  })
-  const response = await axios.post(`http://localhost:3000/api/logIn`, data)
-  if (response.data.token) {
-    localStorage.setItem('token', response.data.token)
-    router.go('/')
-  } else {
-    alert(response.data.message)
+import { useUserStore } from '../stores/user'
+import { ref } from 'vue'
+const userStore = useUserStore()
+const { setUser } = userStore
+const errorMessage = ref('')
+const login = async (e) => {
+  try {
+    const inputs = e.target.querySelectorAll('input')
+    const data = {}
+    inputs.forEach((element) => {
+      data[element.name] = element.value
+    })
+    const response = await axios.post(`http://localhost:3000/api/logIn`, data)
+    if (response?.data?.token) {
+      localStorage.setItem('token', response.data.token)
+      setUser()
+      return router.push('/')
+    } else if (response?.data?.message) {
+      switch (response.data.message) {
+        case 'Wrong times over 5':
+          errorMessage.value = '此帳號已遭鎖定'
+          break
+        default:
+          errorMessage.value = '帳號或密碼錯誤'
+      }
+    }
+  } catch (err) {
+    alert('發生未知錯誤')
   }
 }
 </script>
 
 <template>
-  <form class="container log-in-form" @submit.prevent="signin">
+  <form class="container" @submit.prevent="login">
     <fieldset>
       <legend class="text-center fs-1">Log In</legend>
       <div class="form-group">
         <label for="accountInput" class="form-label mt-4">Account</label>
         <input
-          maxlength="10"
+          minlength="7"
+          maxlength="14"
           name="account"
           required
           type="text"
@@ -38,6 +54,7 @@ const signin = async (e) => {
       <div class="form-group">
         <label for="passwordInput" class="form-label mt-4">Password</label>
         <input
+          minlength="7"
           maxlength="14"
           name="password"
           required
@@ -50,13 +67,16 @@ const signin = async (e) => {
       <br />
       <div class="form-group">
         <button type="submit" class="btn btn-primary">Log in</button>
+        <span class="text-danger fs-5" v-if="errorMessage">
+          {{ errorMessage }}</span
+        >
       </div>
     </fieldset>
   </form>
 </template>
 
-<style>
-.log-in-form {
+<style scoped>
+form {
   max-width: 600px;
 }
 </style>

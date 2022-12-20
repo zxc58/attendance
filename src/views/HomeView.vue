@@ -1,17 +1,6 @@
 <script setup>
-import { onBeforeMount } from 'vue'
-import TopIndex from '../components/TopIndex.vue'
 import TaipeiClock from '../components/TaipeiClock.vue'
 import PunchBlockVue from '../components/PunchBlock.vue'
-import { storeToRefs } from 'pinia'
-import { useUserStore } from '../stores/user'
-const userStore = useUserStore()
-const { setUser } = userStore
-onBeforeMount(() => {
-  setUser()
-})
-
-const { user, userName } = storeToRefs(userStore)
 </script>
 
 <template>

@@ -5,11 +5,14 @@ import { useAttendanceStore } from '../stores/attendance'
 import { storeToRefs } from 'pinia'
 import createInstance from '../assets/api'
 import dayjsTaipei from '../assets/timeHelper'
+import { onBeforeMount } from 'vue'
 const [attendanceStore, timeStore] = [useAttendanceStore(), useTimeStore()]
 const { setTodaysAttendance } = attendanceStore
 const { todaysAttendance, leftTime, formatPunchIn } =
   storeToRefs(attendanceStore)
-setTodaysAttendance()
+onBeforeMount(() => {
+  setTodaysAttendance()
+})
 const punchIn = async () => {
   try {
     const punchIn = dayjsTaipei().startOf('minute').toDate()
@@ -55,12 +58,12 @@ const punchOut = async () => {
       <AttendanceList />
     </div>
     <div class="d-grid gap-2 d-md-block text-end btn-block">
-      <h3 v-if="leftTime >= 0" class="text-center mb-0">
+      <h3 v-if="leftTime" class="text-center mb-0">
         {{
-          leftTime < 10
-            ? 0 < leftTime
+          +leftTime < 10
+            ? 0 < +leftTime
               ? '還有' + leftTime + '分鐘'
-              : '不到1分鐘'
+              : '不到1分鐘' + null >= 0
             : '上班時間 ' + formatPunchIn
         }}
       </h3>
@@ -69,7 +72,7 @@ const punchOut = async () => {
         id="punchOutWarning"
         aria-labelledby="punchOutWarningLabel"
         aria-hidden="true"
-        v-if="leftTime >= 0"
+        v-if="leftTime"
       >
         <div class="modal-dialog" role="document">
           <div class="modal-content">
@@ -112,7 +115,7 @@ const punchOut = async () => {
         class="btn btn-danger btn-lg punch-btn px-1"
         data-bs-toggle="modal"
         data-bs-target="#punchOutWarning"
-        v-if="leftTime >= 0"
+        v-if="leftTime"
       >
         下班<br />
       </button>

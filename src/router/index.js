@@ -16,6 +16,12 @@ const router = createRouter({
       sensitive: true,
       component: () => import('../views/LogInView.vue'),
     },
+    {
+      path: '/setting',
+      name: 'setting',
+      sensitive: true,
+      component: () => import('../views/SettingView.vue'),
+    },
   ],
 })
 

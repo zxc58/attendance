@@ -1,16 +1,29 @@
 <script setup>
+import router from '../router'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '../stores/user'
-import { ref } from 'vue'
-const navItem = ref([
-  { linkClass: 'nav-link active', name: 'Home', onclick: () => {} },
-  { linkClass: 'nav-link', name: 'Setting', onclick: () => {} },
+import { ref, reactive } from 'vue'
+const navItem = reactive([
+  {
+    linkClass: 'nav-link',
+    name: 'Home',
+    onclick: (e) => {
+      router.push('/')
+    },
+  },
+  {
+    linkClass: 'nav-link',
+    name: 'Setting',
+    onclick: (e) => {
+      router.push('/setting')
+    },
+  },
 ])
 const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
 const logOut = () => {
   localStorage.removeItem('token')
-  window.location.href = '/'
+  router.push('/login')
 }
 </script>
 
@@ -37,7 +50,9 @@ const logOut = () => {
             v-for="item in navItem"
             :key="item.name"
           >
-            <a :class="item.linkClass" href="#">{{ item.name }} </a>
+            <a :class="item.linkClass" @click="item.onclick"
+              >{{ item.name }}
+            </a>
           </li>
         </ul>
         <ul class="navbar-nav">
@@ -53,7 +68,7 @@ const logOut = () => {
 .titan-logo {
   user-select: none;
 }
-.logout-btn {
+a {
   cursor: pointer;
 }
 </style>

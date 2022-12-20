@@ -1,13 +1,17 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, onBeforeUnmount } from 'vue'
 import { useTimeStore } from '../stores/time'
 const timeStore = useTimeStore()
-const { initTime } = timeStore
-onBeforeMount(() => {
-  initTime()
-})
+const { setTime } = timeStore
 const { formatTime } = storeToRefs(timeStore)
+let intervalID
+onBeforeMount(() => {
+  intervalID = setInterval(setTime(), 1000 * 2)
+})
+onBeforeUnmount(() => {
+  clearInterval(intervalID)
+})
 </script>
 
 <template>
