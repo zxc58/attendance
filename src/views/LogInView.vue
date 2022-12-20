@@ -8,7 +8,7 @@ const signin = async (e) => {
   inputs.forEach((element) => {
     data[element.name] = element.value
   })
-  const response = await axios.post(`http://localhost:3000/api/signIn`, data)
+  const response = await axios.post(`http://localhost:3000/api/logIn`, data)
   if (response.data.token) {
     localStorage.setItem('token', response.data.token)
     router.go('/')
@@ -19,7 +19,6 @@ const signin = async (e) => {
 </script>
 
 <template>
-  <TopIndex />
   <form class="container log-in-form" @submit.prevent="signin">
     <fieldset>
       <legend class="text-center fs-1">Log In</legend>
@@ -50,7 +49,7 @@ const signin = async (e) => {
       </div>
       <br />
       <div class="form-group">
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">Log in</button>
       </div>
     </fieldset>
   </form>
