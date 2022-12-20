@@ -7,7 +7,8 @@ import createInstance from '../assets/api'
 import dayjsTaipei from '../assets/timeHelper'
 const [attendanceStore, timeStore] = [useAttendanceStore(), useTimeStore()]
 const { setTodaysAttendance } = attendanceStore
-const { todaysAttendance, leftTime } = storeToRefs(attendanceStore)
+const { todaysAttendance, leftTime, formatPunchIn } =
+  storeToRefs(attendanceStore)
 setTodaysAttendance()
 const punchIn = async () => {
   try {
@@ -24,7 +25,7 @@ const punchIn = async () => {
     setTodaysAttendance(response.data.attendance)
   } catch (err) {
     console.error(err)
-    alert('發生未知錯誤')
+    alert('發生未知錯誤，打卡失敗')
   }
 }
 const punchOut = async () => {
@@ -54,19 +55,64 @@ const punchOut = async () => {
       <AttendanceList />
     </div>
     <div class="d-grid gap-2 d-md-block text-end btn-block">
-      <h3 v-if="leftTime ?? null" class="text-center mb-0">
+      <h3 v-if="leftTime >= 0" class="text-center mb-0">
         {{
           leftTime < 10
             ? 0 < leftTime
               ? '還有' + leftTime + '分鐘'
               : '不到1分鐘'
-            : '不到下班時間'
+            : '上班時間 ' + formatPunchIn
         }}
       </h3>
+      <div
+        class="modal"
+        id="punchOutWarning"
+        aria-labelledby="punchOutWarningLabel"
+        aria-hidden="true"
+        v-if="leftTime >= 0"
+      >
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title text-warning">Warning</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="modal-body py-0">
+              <p class="mb-0 text-center">時間沒到</p>
+              <p class="mb-0 text-center">(上班時間: {{ formatPunchIn }})</p>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                關閉
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger"
+                @click="punchOut"
+                data-bs-dismiss="modal"
+              >
+                仍要打卡
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
       <button
         class="btn btn-danger btn-lg punch-btn px-1"
-        @click="punchOut"
-        v-if="leftTime"
+        data-bs-toggle="modal"
+        data-bs-target="#punchOutWarning"
+        v-if="leftTime >= 0"
       >
         下班<br />
       </button>

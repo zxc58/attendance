@@ -9,7 +9,8 @@ export const useUserStore = defineStore('user', () => {
   })
   async function setUser() {
     const response = await fetchPersonalData()
-    user.value = response?.data?.user ?? null
+    console.log(response)
+    user.value = response ?? null
   }
   function clearAuthToken() {
     localStorage.removeItem('token')

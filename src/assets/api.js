@@ -21,8 +21,8 @@ export const fetchPersonalData = async () => {
 
 export const fetchTodaysAttendance = async () => {
   const res = await createInstance().get('/api/attendances/today')
-  if (res?.data?.attendance) {
-    return res?.data?.attendance
+  if (res?.data?.status === true) {
+    return res?.data?.attendance ?? null
   }
   throw new Error()
 }

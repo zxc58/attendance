@@ -10,6 +10,13 @@ export const useAttendanceStore = defineStore('attendance', () => {
   const todaysAttendance = ref(null)
   const recentAttendances = ref([])
 
+  const formatPunchIn = computed(() => {
+    const punchIn = todaysAttendance.value?.punchIn
+    if (!punchIn) {
+      return null
+    }
+    return dayjsTaipei(punchIn).format('HH:MM')
+  })
   const leftTime = computed(() => {
     if (!todaysAttendance?.value?.punchIn) {
       return null
@@ -27,7 +34,6 @@ export const useAttendanceStore = defineStore('attendance', () => {
   })
   const attendanceList = computed(() => {
     const a = recentAttendances.value.map((e) => {
-      const { punchIn, punchOut, isHoliday } = e
       const [status, className] = countWorkingHour(e)
       return {
         id: e.id,
@@ -56,6 +62,14 @@ export const useAttendanceStore = defineStore('attendance', () => {
     try {
       if (!newRecords) {
         newRecords = await fetchRecentAttendances()
+        newRecords = newRecords.map((e) => {
+          const attendances = { ...e.Attendances }
+          delete e.Attendances, e.id
+          return {
+            ...e,
+            ...attendances,
+          }
+        })
       }
       recentAttendances.value = newRecords
     } catch (err) {
@@ -69,6 +83,7 @@ export const useAttendanceStore = defineStore('attendance', () => {
     recentAttendances,
     leftTime,
     attendanceList,
+    formatPunchIn,
     setRecentAttendances,
     setTodaysAttendance,
   }
