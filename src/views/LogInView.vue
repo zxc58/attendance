@@ -5,7 +5,10 @@ import { useUserStore } from '../stores/user'
 import { ref } from 'vue'
 const userStore = useUserStore()
 const { setUser } = userStore
-const errorMessage = ref('')
+const notice = ref({
+  class: 'my-1 invisible',
+  text: 'default',
+})
 const login = async (e) => {
   try {
     const inputs = e.target.querySelectorAll('input')
@@ -21,10 +24,16 @@ const login = async (e) => {
     } else if (response?.data?.message) {
       switch (response.data.message) {
         case 'Wrong times over 5':
-          errorMessage.value = '此帳號已遭鎖定'
+          notice.value = {
+            class: 'my-1 fs-5 text-danger',
+            text: '帳號鎖定',
+          }
           break
         default:
-          errorMessage.value = '帳號或密碼錯誤'
+          notice.value = {
+            class: 'my-1 fs-5 text-danger',
+            text: '帳號或密碼錯誤',
+          }
       }
     }
   } catch (err) {
@@ -65,11 +74,9 @@ const login = async (e) => {
         />
       </div>
       <br />
-      <div class="form-group">
+      <div class="form-group text-center">
+        <p :class="notice.class">{{ notice.text }}</p>
         <button type="submit" class="btn btn-primary">Log in</button>
-        <span class="text-danger fs-5" v-if="errorMessage">
-          {{ errorMessage }}</span
-        >
       </div>
     </fieldset>
   </form>

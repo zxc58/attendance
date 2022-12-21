@@ -48,7 +48,7 @@ const setting = async (e) => {
           maxlength="14"
           name="password"
           required
-          type="text"
+          type="password"
           class="form-control"
           id="passwordInput"
           aria-describedby="passwordHelp"

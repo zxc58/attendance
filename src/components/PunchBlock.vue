@@ -1,12 +1,12 @@
 <script setup>
 import AttendanceList from './AttendanceList.vue'
-import { useTimeStore } from '../stores/time'
 import { useAttendanceStore } from '../stores/attendance'
 import { storeToRefs } from 'pinia'
-import createInstance from '../assets/api'
+import createApiInstance from '../assets/api'
 import dayjsTaipei from '../assets/timeHelper'
 import { onBeforeMount } from 'vue'
-const [attendanceStore, timeStore] = [useAttendanceStore(), useTimeStore()]
+const api = createApiInstance()
+const attendanceStore = useAttendanceStore()
 const { setTodaysAttendance } = attendanceStore
 const { todaysAttendance, leftTime, formatPunchIn } =
   storeToRefs(attendanceStore)
@@ -16,7 +16,6 @@ onBeforeMount(() => {
 const punchIn = async () => {
   try {
     const punchIn = dayjsTaipei().startOf('minute').toDate()
-    const api = createInstance()
     if (!api || !punchIn) {
       throw new Error()
     }
@@ -33,7 +32,7 @@ const punchIn = async () => {
 }
 const punchOut = async () => {
   try {
-    const [api, id] = [createInstance(), todaysAttendance.value?.id]
+    const id = todaysAttendance.value?.id
     const punchOut = dayjsTaipei().startOf('minute').toDate()
 
     if (!api || !id || !punchOut) {
@@ -138,18 +137,6 @@ const punchOut = async () => {
 </template>
 
 <style scope>
-::-webkit-scrollbar {
-  width: 7px;
-}
-::-webkit-scrollbar-track {
-  -webkit-border-radius: 10px;
-  background: rgb(241, 254, 2);
-}
-::-webkit-scrollbar-thumb {
-  -webkit-border-radius: 50px;
-  border-radius: 50px;
-  background: rgb(128, 128, 128);
-}
 .table-block {
   height: 30%;
   margin-bottom: 10px;

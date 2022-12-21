@@ -23,6 +23,7 @@ export const useUserStore = defineStore('user', () => {
       return newUser
     } catch (err) {
       alert('發生未知錯誤')
+      return undefined
     }
   }
   function clearAuthToken() {
