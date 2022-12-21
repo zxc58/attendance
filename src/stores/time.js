@@ -11,16 +11,16 @@ export const useTimeStore = defineStore('time', () => {
     return dayjsTaipei(currentTime.value).format('HH:mm')
   })
 
-  const initTime = () => {
+  const setTime = () => {
     currentTime.value = dayjsTaipei().toDate()
-    setInterval(() => {
-      currentTime.value = dayjsTaipei().toDate()
-    }, 1000 * 5)
+    // setInterval(() => {
+    //   currentTime.value = dayjsTaipei().toDate()
+    // }, 1000 * 5)
   }
 
   return {
     currentTime,
     formatTime,
-    initTime,
+    setTime,
   }
 })

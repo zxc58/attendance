@@ -1,10 +1,13 @@
 <script setup>
 import { storeToRefs } from 'pinia'
+import { onBeforeMount } from 'vue'
 import { useAttendanceStore } from '../stores/attendance'
 const attendanceStore = useAttendanceStore()
 const { setRecentAttendances } = attendanceStore
 const { attendanceList } = storeToRefs(attendanceStore)
-setRecentAttendances()
+onBeforeMount(() => {
+  setRecentAttendances()
+})
 </script>
 
 <template>

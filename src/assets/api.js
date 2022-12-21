@@ -12,6 +12,9 @@ const createInstance = () =>
 export default createInstance
 
 export const fetchPersonalData = async () => {
+  if (!localStorage.getItem('token')) {
+    return null
+  }
   const res = await createInstance().get('api/employees')
   if (res?.data?.employee) {
     return res?.data?.employee
@@ -31,6 +34,14 @@ export const fetchRecentAttendances = async () => {
   const res = await createInstance().get('/api/attendances/recent')
   if (res?.data?.attendances) {
     return res?.data?.attendances
+  }
+  throw new Error()
+}
+
+export const putPersonalData = async (data, id) => {
+  const res = await createInstance().put(`/api/employees/${id}`, data)
+  if (res?.data?.employee) {
+    return res?.data?.employee
   }
   throw new Error()
 }
