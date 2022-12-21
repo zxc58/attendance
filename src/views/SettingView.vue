@@ -1,9 +1,15 @@
 <script setup>
+import router from '../router'
+import { ref } from 'vue'
 import { putPersonalData } from '../assets/api'
 import { useUserStore } from '../stores/user'
 import { storeToRefs } from 'pinia'
 const userStore = useUserStore()
 const { userId } = storeToRefs(userStore)
+const notice = ref({
+  class: 'my-1 invisible',
+  text: 'default',
+})
 const setting = async (e) => {
   try {
     const data = {}
@@ -12,10 +18,19 @@ const setting = async (e) => {
       data[element.name] = element.value
     })
     if (data.password !== data.ensurePassword) {
+      notice.value = {
+        class: 'my-1 text-danger',
+        text: '請確認2次密碼輸入相同',
+      }
       return
     }
-    const newUserData = await putPersonalData(data, userId)
+    const newUserData = await putPersonalData(data, userId.value)
+    notice.value = {
+      class: 'my-1 text-success',
+      text: '更新成功',
+    }
     userStore.setUser(newUserData)
+    inputs.forEach((e) => (e.value = ''))
   } catch (err) {
     alert('更新失敗')
   }
@@ -25,8 +40,9 @@ const setting = async (e) => {
   <form class="container" @submit.prevent="setting">
     <fieldset>
       <legend class="text-center fs-1">Setting</legend>
+
       <div class="form-group">
-        <label for="passwordInput" class="form-label mt-4">New password</label>
+        <label for="passwordInput" class="form-label mt-0">New password</label>
         <input
           minlength="7"
           maxlength="14"
@@ -36,7 +52,7 @@ const setting = async (e) => {
           class="form-control"
           id="passwordInput"
           aria-describedby="passwordHelp"
-          placeholder="Account"
+          placeholder="New password"
         />
       </div>
       <div class="form-group">
@@ -51,12 +67,12 @@ const setting = async (e) => {
           type="password"
           class="form-control"
           id="ensurePasswordInput"
-          placeholder="ensure password"
+          placeholder="Ensure password"
         />
       </div>
-      <br />
-      <div class="form-group">
-        <button type="submit" class="btn btn-primary">Setting</button>
+      <div class="form-group text-center">
+        <p :class="notice.class">{{ notice.text }}</p>
+        <button type="submit" class="btn btn-primary my-1">Setting</button>
       </div>
     </fieldset>
   </form>

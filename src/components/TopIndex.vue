@@ -23,7 +23,7 @@ const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
 const logOut = () => {
   localStorage.removeItem('token')
-  router.push('/login')
+  window.location.assign('/login')
 }
 </script>
 

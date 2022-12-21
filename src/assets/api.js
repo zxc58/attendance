@@ -39,9 +39,9 @@ export const fetchRecentAttendances = async () => {
 }
 
 export const putPersonalData = async (data, id) => {
-  const res = await createInstance().put(`/employee/${id}`, data)
-  if (res) {
-    return res
+  const res = await createInstance().put(`/api/employees/${id}`, data)
+  if (res?.data?.employee) {
+    return res?.data?.employee
   }
   throw new Error()
 }
