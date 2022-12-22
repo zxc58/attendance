@@ -14,7 +14,7 @@ const [attendanceStore, locationStore] = [
 const { setTodaysAttendance } = attendanceStore
 const { todaysAttendance, leftTime, formatPunchIn } =
   storeToRefs(attendanceStore)
-const { isLowAccuracy } = storeToRefs(locationStore)
+const { isLowAccuracy, longitude, latitude } = storeToRefs(locationStore)
 let timeOutId
 onBeforeMount(() => {
   ;(function a() {
@@ -28,11 +28,15 @@ onBeforeUnmount(() => {
 const punchIn = async () => {
   try {
     const punchIn = dayjsTaipei().startOf('minute').toDate()
-    if (!api || !punchIn) {
+    if (!api || !punchIn || !longitude || !latitude) {
       throw new Error()
     }
     console.log(`api , createdAt : ${!!api} , ${punchIn}`)
-    const response = await api.post('/api/attendances', { punchIn })
+    const response = await api.post('/api/attendances', {
+      punchIn,
+      latitude: latitude.value,
+      longitude: longitude.value,
+    })
     if (!response?.data?.attendance) {
       throw new Error('Punch in failed')
     }
@@ -47,11 +51,15 @@ const punchOut = async () => {
     const id = todaysAttendance.value?.id
     const punchOut = dayjsTaipei().startOf('minute').toDate()
 
-    if (!api || !id || !punchOut) {
+    if (!api || !id || !punchOut || !longitude || !latitude) {
       throw new Error()
     }
     console.log(`api , id  : ${!!api} , ${id}`)
-    const response = await api.put(`/api/attendances/${id}`, { punchOut })
+    const response = await api.put(`/api/attendances/${id}`, {
+      punchOut,
+      latitude: latitude.value,
+      longitude: longitude.value,
+    })
     if (!response?.data?.attendance) {
       throw new Error('Punch in failed')
     }

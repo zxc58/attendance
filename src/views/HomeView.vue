@@ -2,10 +2,17 @@
 import TaipeiClock from '../components/TaipeiClock.vue'
 import PunchBlockVue from '../components/PunchBlock.vue'
 import { useLocationStore } from '../stores/location'
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, onBeforeUnmount } from 'vue'
 const locationStore = useLocationStore()
+let watchPositionId
 onBeforeMount(() => {
-  locationStore.setLocation()
+  navigator.geolocation.watchPosition(locationStore.setLocation, null, {
+    timeout: 10 * 1000,
+    enableHighAccuracy: false,
+  })
+})
+onBeforeUnmount(() => {
+  navigator.geolocation.clearWatch(watchPositionId)
 })
 </script>
 

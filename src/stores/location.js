@@ -9,25 +9,20 @@ export const useLocationStore = defineStore('location', () => {
   const accuracy = computed(() => location.value?.accuracy)
   const isLowAccuracy = computed(() => location.value?.accuracy >= 400)
 
-  function setLocation() {
-    console.log('set location')
+  function setLocation(GeolocationPositionObject) {
+    if (GeolocationPositionObject) {
+      location.value = GeolocationPositionObject.coords
+      return
+    }
     const options = {
-      timeout: 10000,
+      timeout: 10 * 1000,
       enableHighAccuracy: false,
     }
-    const successCallback = (e) => {
-      console.log(e.coords.accuracy)
-      console.log('e')
-      location.value = e.coords
+    const successCallback = (GeolocationPositionObject) => {
+      location.value = GeolocationPositionObject.coords
     }
-    const failiureCallback = (f) => {
-      console.log('fail')
-    }
-    navigator.geolocation.getCurrentPosition(
-      successCallback,
-      failiureCallback,
-      options
-    )
+
+    navigator.geolocation.getCurrentPosition(successCallback, null, options)
   }
 
   return {
