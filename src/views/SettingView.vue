@@ -36,10 +36,15 @@ const setting = async (e) => {
   }
 }
 </script>
+
 <template>
   <form class="container" @submit.prevent="setting">
     <fieldset>
       <legend class="text-center fs-1">Setting</legend>
+      <div>
+        <label></label>
+        <input />
+      </div>
 
       <div class="form-group">
         <label for="passwordInput" class="form-label mt-0">New password</label>

@@ -2,13 +2,11 @@
 import TaipeiClock from '../components/TaipeiClock.vue'
 import PunchBlockVue from '../components/PunchBlock.vue'
 import { useLocationStore } from '../stores/location'
-import { storeToRefs } from 'pinia'
 import { onBeforeMount } from 'vue'
 const locationStore = useLocationStore()
 onBeforeMount(() => {
   locationStore.setLocation()
 })
-const { longitude, latitude } = storeToRefs(locationStore)
 </script>
 
 <template>

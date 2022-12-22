@@ -1,17 +1,29 @@
 <script setup>
 import AttendanceList from './AttendanceList.vue'
 import { useAttendanceStore } from '../stores/attendance'
+import { useLocationStore } from '../stores/location'
 import { storeToRefs } from 'pinia'
 import createApiInstance from '../assets/api'
-import dayjsTaipei from '../assets/timeHelper'
-import { onBeforeMount } from 'vue'
+import dayjsTaipei, { getEndTime } from '../assets/timeHelper'
+import { onBeforeMount, onBeforeUnmount } from 'vue'
 const api = createApiInstance()
-const attendanceStore = useAttendanceStore()
+const [attendanceStore, locationStore] = [
+  useAttendanceStore(),
+  useLocationStore(),
+]
 const { setTodaysAttendance } = attendanceStore
 const { todaysAttendance, leftTime, formatPunchIn } =
   storeToRefs(attendanceStore)
+const { isLowAccuracy } = storeToRefs(locationStore)
+let timeOutId
 onBeforeMount(() => {
-  setTodaysAttendance()
+  ;(function a() {
+    setTodaysAttendance()
+    timeOutId = setTimeout(a, getEndTime().diff(dayjsTaipei(), 's') * 1000)
+  })()
+})
+onBeforeUnmount(() => {
+  clearTimeout(timeOutId)
 })
 const punchIn = async () => {
   try {
@@ -56,7 +68,11 @@ const punchOut = async () => {
     <div class="py-0 table-block overflow-auto">
       <AttendanceList />
     </div>
-    <div class="d-grid gap-2 d-md-block text-end btn-block">
+    <h1 v-if="isLowAccuracy">
+      GPS 誤差過高 請改用
+      <button class="btn btn-info btn-lg">QR打卡</button>
+    </h1>
+    <div class="d-grid gap-2 d-md-block text-end btn-block" v-else>
       <h3 v-if="leftTime" class="text-center mb-0">
         {{
           +leftTime < 10
@@ -147,7 +163,7 @@ h3 {
 }
 @media screen and (min-width: 768px) {
   .table-block {
-    height: 50%;
+    height: 52%;
     margin-top: 10%;
     margin-bottom: 10%;
   }
