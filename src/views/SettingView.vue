@@ -24,7 +24,7 @@ const setting = async (e) => {
       }
       return
     }
-    const newUserData = await putPersonalData(data, userId.value)
+    const newUserData = await putPersonalData({ data, id: userId.value })
     notice.value = {
       class: 'my-1 text-success',
       text: '更新成功',
@@ -41,10 +41,7 @@ const setting = async (e) => {
   <form class="container" @submit.prevent="setting">
     <fieldset>
       <legend class="text-center fs-1">Setting</legend>
-      <div>
-        <label></label>
-        <input />
-      </div>
+      <hr />
 
       <div class="form-group">
         <label for="passwordInput" class="form-label mt-0">New password</label>
@@ -77,7 +74,7 @@ const setting = async (e) => {
       </div>
       <div class="form-group text-center">
         <p :class="notice.class">{{ notice.text }}</p>
-        <button type="submit" class="btn btn-primary my-1">Setting</button>
+        <button type="submit" class="btn btn-info my-1">Setting</button>
       </div>
     </fieldset>
   </form>

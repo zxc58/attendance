@@ -14,16 +14,12 @@ export const useUserStore = defineStore('user', () => {
   async function setUser(newUser) {
     try {
       if (!newUser) {
-        if (user.value) {
-          return
-        }
         newUser = await fetchPersonalData()
       }
       user.value = newUser
       return newUser
     } catch (err) {
       alert('發生未知錯誤')
-      return undefined
     }
   }
   function clearAuthToken() {

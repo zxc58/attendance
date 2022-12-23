@@ -19,21 +19,36 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <table class="table table-hover my-0">
-    <thead>
-      <tr class="table-dark">
-        <th scope="col">Date</th>
-        <th scope="col">Day</th>
-        <th scope="col">attendance</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="row in attendanceList" :key="row.id" :class="row.class">
-        <th scope="row">{{ row.date }}</th>
-        <td>{{ row.day }}</td>
-        <td>{{ row.status }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="py-0 table-block overflow-auto">
+    <table class="table table-hover my-0">
+      <thead>
+        <tr class="table-dark">
+          <th scope="col">Date</th>
+          <th scope="col">Day</th>
+          <th scope="col">attendance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="row in attendanceList" :key="row.id" :class="row.class">
+          <th scope="row">{{ row.date }}</th>
+          <td>{{ row.day }}</td>
+          <td>{{ row.status }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
-<style scoped></style>
+<style scoped>
+.table-block {
+  height: 30%;
+  margin-bottom: 10px;
+}
+
+@media screen and (min-width: 768px) {
+  .table-block {
+    height: 52%;
+    margin-top: 10%;
+    margin-bottom: 10%;
+  }
+}
+</style>

@@ -3,10 +3,13 @@ import AttendanceList from './AttendanceList.vue'
 import { useAttendanceStore } from '../stores/attendance'
 import { useLocationStore } from '../stores/location'
 import { storeToRefs } from 'pinia'
-import createApiInstance from '../assets/api'
+import api, {
+  punchIn as punchInApi,
+  punchOut as punchOutApi,
+} from '../assets/api'
 import dayjsTaipei, { getEndTime } from '../assets/timeHelper'
 import { onBeforeMount, onBeforeUnmount } from 'vue'
-const api = createApiInstance()
+// const api = createApiInstance()
 const [attendanceStore, locationStore] = [
   useAttendanceStore(),
   useLocationStore(),
@@ -31,15 +34,13 @@ const punchIn = async () => {
     if (!api || !punchIn || !longitude || !latitude) {
       throw new Error()
     }
-    const response = await api.post('/api/attendances', {
+    const attendance = await punchInApi({
       punchIn,
       latitude: latitude.value,
       longitude: longitude.value,
     })
-    if (!response?.data?.attendance) {
-      throw new Error('Punch in failed')
-    }
-    setTodaysAttendance(response.data.attendance)
+
+    setTodaysAttendance(attendance)
   } catch (err) {
     console.error(err)
     alert('發生未知錯誤，打卡失敗')
@@ -49,19 +50,18 @@ const punchOut = async () => {
   try {
     const id = todaysAttendance.value?.id
     const punchOut = dayjsTaipei().startOf('minute').toDate()
-
     if (!api || !id || !punchOut || !longitude || !latitude) {
       throw new Error()
     }
-    const response = await api.put(`/api/attendances/${id}`, {
+
+    const attendance = await punchOutApi({
+      id,
       punchOut,
       latitude: latitude.value,
       longitude: longitude.value,
     })
-    if (!response?.data?.attendance) {
-      throw new Error('Punch in failed')
-    }
-    setTodaysAttendance(response.data.attendance)
+
+    setTodaysAttendance(attendance)
   } catch (error) {
     alert('發生未知錯誤')
     console.error(error)
@@ -71,9 +71,7 @@ const punchOut = async () => {
 
 <template>
   <div class="col">
-    <div class="py-0 table-block overflow-auto">
-      <AttendanceList />
-    </div>
+    <AttendanceList />
     <h1 v-if="isLowAccuracy">
       GPS 誤差過高 請改用
       <button class="btn btn-info btn-lg">QR打卡</button>
@@ -159,20 +157,11 @@ const punchOut = async () => {
 </template>
 
 <style scope>
-.table-block {
-  height: 30%;
-  margin-bottom: 10px;
-}
 h3 {
   color: darkred;
   font-weight: 700;
 }
 @media screen and (min-width: 768px) {
-  .table-block {
-    height: 52%;
-    margin-top: 10%;
-    margin-bottom: 10%;
-  }
   h3 {
     position: absolute;
     color: darkred;
