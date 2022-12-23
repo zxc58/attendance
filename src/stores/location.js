@@ -1,5 +1,8 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import getDistance from 'geolib/es/getDistance'
+const companyLatitude = Number(import.meta.env.VITE_APP_COMPANY_LATITUDE)
+const companyLongitude = Number(import.meta.env.VITE_APP_COMPANY_LONGITUDE)
 
 export const useLocationStore = defineStore('location', () => {
   const location = ref(null)
@@ -8,6 +11,21 @@ export const useLocationStore = defineStore('location', () => {
   const latitude = computed(() => location.value?.latitude)
   const accuracy = computed(() => location.value?.accuracy)
   const isLowAccuracy = computed(() => location.value?.accuracy >= 400)
+  const distance = computed(() => {
+    const longitude = location.value?.longitude
+    const latitude = location.value?.latitude
+    const accuracy = location.value?.accuracy
+    if (!longitude ?? !latitude ?? !accuracy) {
+      return null
+    }
+    return (
+      accuracy +
+      getDistance(
+        { latitude: companyLatitude, longitude: companyLongitude },
+        { latitude, longitude }
+      )
+    )
+  })
 
   function setLocation(GeolocationPositionObject) {
     if (GeolocationPositionObject) {
@@ -31,6 +49,7 @@ export const useLocationStore = defineStore('location', () => {
     longitude,
     accuracy,
     isLowAccuracy,
+    distance,
     setLocation,
   }
 })

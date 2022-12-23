@@ -1,11 +1,17 @@
 <script setup>
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, onBeforeUnmount } from 'vue'
 import { RouterView, RouterLink } from 'vue-router'
 import TopIndex from './components/TopIndex.vue'
 import { useUserStore } from './stores/user'
+import { useLocationStore } from './stores/location'
 import router from './router'
-const userStore = useUserStore()
+const [userStore, locationStore] = [useUserStore(), useLocationStore()]
+let watchPositionId
 onBeforeMount(async () => {
+  navigator.geolocation.watchPosition(locationStore.setLocation, null, {
+    timeout: 10 * 1000,
+    enableHighAccuracy: false,
+  })
   if (!localStorage.getItem('token')) {
     return router.push('/login')
   }
@@ -14,6 +20,9 @@ onBeforeMount(async () => {
     localStorage.removeItem('token')
     router.push('/login')
   }
+})
+onBeforeUnmount(() => {
+  navigator.geolocation.clearWatch(watchPositionId)
 })
 </script>
 

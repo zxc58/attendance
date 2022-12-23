@@ -31,7 +31,6 @@ const punchIn = async () => {
     if (!api || !punchIn || !longitude || !latitude) {
       throw new Error()
     }
-    console.log(`api , createdAt : ${!!api} , ${punchIn}`)
     const response = await api.post('/api/attendances', {
       punchIn,
       latitude: latitude.value,
@@ -54,7 +53,6 @@ const punchOut = async () => {
     if (!api || !id || !punchOut || !longitude || !latitude) {
       throw new Error()
     }
-    console.log(`api , id  : ${!!api} , ${id}`)
     const response = await api.put(`/api/attendances/${id}`, {
       punchOut,
       latitude: latitude.value,
