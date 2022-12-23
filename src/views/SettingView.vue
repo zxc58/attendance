@@ -1,18 +1,26 @@
 <script setup>
-import router from '../router'
 import { ref } from 'vue'
 import { putPersonalData } from '../assets/api'
 import { useUserStore } from '../stores/user'
+import { useLocationStore } from '../stores/location'
 import { storeToRefs } from 'pinia'
-const userStore = useUserStore()
+const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT)
+const [userStore, locationStore] = [useUserStore(), useLocationStore()]
 const { userId } = storeToRefs(userStore)
+const { distance, location } = storeToRefs(locationStore)
+
 const notice = ref({
   class: 'my-1 invisible',
   text: 'default',
 })
 const setting = async (e) => {
   try {
-    const data = {}
+    if (distance.value >= distanceLimit) {
+      return alert('請親自至公司操作')
+    }
+    const data = {
+      locationss: location.value,
+    }
     const inputs = e.target.querySelectorAll('input')
     inputs.forEach((element) => {
       data[element.name] = element.value

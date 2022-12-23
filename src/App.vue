@@ -1,6 +1,6 @@
 <script setup>
 import { onBeforeMount, onBeforeUnmount } from 'vue'
-import { RouterView, RouterLink } from 'vue-router'
+import { RouterView } from 'vue-router'
 import TopIndex from './components/TopIndex.vue'
 import { useUserStore } from './stores/user'
 import { useLocationStore } from './stores/location'

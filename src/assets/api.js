@@ -63,12 +63,11 @@ export const putPersonalData = async ({ data, id }) => {
   }
 }
 
-export const punchIn = async ({ punchIn, latitude, longitude }) => {
+export const punchIn = async ({ punchIn, location }) => {
   try {
     const response = await api.post('/api/attendances', {
       punchIn,
-      latitude,
-      longitude,
+      location,
     })
     return response.data.attendance
   } catch (axiosError) {
@@ -76,12 +75,12 @@ export const punchIn = async ({ punchIn, latitude, longitude }) => {
   }
 }
 
-export const punchOut = async ({ id, punchOut, latitude, longitude }) => {
+export const punchOut = async ({ id, punchOut, location }) => {
   try {
+    // console.log(location)
     const response = await api.put(`/api/attendances/${id}`, {
       punchOut,
-      latitude,
-      longitude,
+      location,
     })
     return response.data.attendance
   } catch (axiosError) {

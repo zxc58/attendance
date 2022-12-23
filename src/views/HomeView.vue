@@ -1,8 +1,6 @@
 <script setup>
 import TaipeiClock from '../components/TaipeiClock.vue'
 import PunchBlockVue from '../components/PunchBlock.vue'
-import { useLocationStore } from '../stores/location'
-import { onBeforeMount, onBeforeUnmount } from 'vue'
 </script>
 
 <template>

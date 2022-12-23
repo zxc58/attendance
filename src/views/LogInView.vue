@@ -1,6 +1,5 @@
 <script setup>
 import router from '../router/index'
-import axios from 'axios'
 import { useUserStore } from '../stores/user'
 import { useLocationStore } from '../stores/location'
 import { ref } from 'vue'
@@ -9,8 +8,7 @@ import { storeToRefs } from 'pinia'
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT)
 
 const [userStore, locationStore] = [useUserStore(), useLocationStore()]
-const { latitude, longitude, accuracy, isLowAccuracy, distance } =
-  storeToRefs(locationStore)
+const { location, distance } = storeToRefs(locationStore)
 const notice = ref({
   class: 'my-1 invisible',
   text: 'default',
@@ -46,12 +44,11 @@ const inputs = [
 const submit = async (e) => {
   try {
     if (distance.value >= distanceLimit) {
-      return alert('請親自至公司打卡')
+      return alert('請親自至公司操作')
     }
     const inputs = e.target.querySelectorAll('input')
     const data = {
-      latitude: latitude.value,
-      longitude: longitude.value,
+      location: location.value,
     }
     inputs.forEach((element) => {
       data[element.name] = element.value

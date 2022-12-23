@@ -3,13 +3,10 @@ import AttendanceList from './AttendanceList.vue'
 import { useAttendanceStore } from '../stores/attendance'
 import { useLocationStore } from '../stores/location'
 import { storeToRefs } from 'pinia'
-import api, {
-  punchIn as punchInApi,
-  punchOut as punchOutApi,
-} from '../assets/api'
+import { punchIn as punchInApi, punchOut as punchOutApi } from '../assets/api'
 import dayjsTaipei, { getEndTime } from '../assets/timeHelper'
 import { onBeforeMount, onBeforeUnmount } from 'vue'
-// const api = createApiInstance()
+const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT)
 const [attendanceStore, locationStore] = [
   useAttendanceStore(),
   useLocationStore(),
@@ -17,7 +14,7 @@ const [attendanceStore, locationStore] = [
 const { setTodaysAttendance } = attendanceStore
 const { todaysAttendance, leftTime, formatPunchIn } =
   storeToRefs(attendanceStore)
-const { isLowAccuracy, longitude, latitude } = storeToRefs(locationStore)
+const { getLocation, distance } = storeToRefs(locationStore)
 let timeOutId
 onBeforeMount(() => {
   ;(function a() {
@@ -30,14 +27,16 @@ onBeforeUnmount(() => {
 })
 const punchIn = async () => {
   try {
+    if (distance.value >= distanceLimit) {
+      return alert('請親自至公司操作')
+    }
     const punchIn = dayjsTaipei().startOf('minute').toDate()
-    if (!api || !punchIn || !longitude || !latitude) {
+    if (!punchIn || !getLocation.value) {
       throw new Error()
     }
     const attendance = await punchInApi({
       punchIn,
-      latitude: latitude.value,
-      longitude: longitude.value,
+      location: getLocation.value,
     })
 
     setTodaysAttendance(attendance)
@@ -48,17 +47,20 @@ const punchIn = async () => {
 }
 const punchOut = async () => {
   try {
-    const id = todaysAttendance.value?.id
+    // console.log(distance.value)
+    if (distance.value >= distanceLimit) {
+      return alert('請親自至公司操作')
+    }
+    const id = todaysAttendance.value.id
     const punchOut = dayjsTaipei().startOf('minute').toDate()
-    if (!api || !id || !punchOut || !longitude || !latitude) {
+    if (!id || !punchOut || !getLocation.value) {
       throw new Error()
     }
 
     const attendance = await punchOutApi({
       id,
       punchOut,
-      latitude: latitude.value,
-      longitude: longitude.value,
+      location: getLocation.value,
     })
 
     setTodaysAttendance(attendance)
@@ -72,11 +74,8 @@ const punchOut = async () => {
 <template>
   <div class="col">
     <AttendanceList />
-    <h1 v-if="isLowAccuracy">
-      GPS 誤差過高 請改用
-      <button class="btn btn-info btn-lg">QR打卡</button>
-    </h1>
-    <div class="d-grid gap-2 d-md-block text-end btn-block" v-else>
+
+    <div class="d-grid gap-2 d-md-block text-end btn-block">
       <h3 v-if="leftTime" class="text-center mb-0">
         {{
           +leftTime < 10
@@ -87,8 +86,9 @@ const punchOut = async () => {
         }}
       </h3>
       <div
-        class="modal"
+        class="modal fade"
         id="punchOutWarning"
+        tabindex="-1"
         aria-labelledby="punchOutWarningLabel"
         aria-hidden="true"
         v-if="leftTime"

@@ -1,9 +1,7 @@
-import { ref, computed, reactive } from 'vue'
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { fetchTodaysAttendance, fetchRecentAttendances } from '../assets/api'
 import dayjsTaipei, { countWorkingHour } from '../assets/timeHelper'
-import { useTimeStore } from './time'
-import { storeToRefs } from 'pinia'
 const requiredWorkingHour = Number(
   import.meta.env.VITE_APP_REQUIRED_WORKING_HOUR ?? 8
 )

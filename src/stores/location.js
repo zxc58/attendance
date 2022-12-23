@@ -7,24 +7,23 @@ const companyLongitude = Number(import.meta.env.VITE_APP_COMPANY_LONGITUDE)
 export const useLocationStore = defineStore('location', () => {
   const location = ref(null)
 
-  const longitude = computed(() => location.value?.longitude)
-  const latitude = computed(() => location.value?.latitude)
-  const accuracy = computed(() => location.value?.accuracy)
-  const isLowAccuracy = computed(() => location.value?.accuracy >= 400)
   const distance = computed(() => {
-    const longitude = location.value?.longitude
-    const latitude = location.value?.latitude
-    const accuracy = location.value?.accuracy
-    if (!longitude ?? !latitude ?? !accuracy) {
+    if (!location.value) {
       return null
     }
-    return (
-      accuracy +
-      getDistance(
-        { latitude: companyLatitude, longitude: companyLongitude },
-        { latitude, longitude }
-      )
+    const { accuracy, latitude, longitude } = location.value
+    const b = getDistance(
+      { latitude: companyLatitude, longitude: companyLongitude },
+      { latitude, longitude }
     )
+    return accuracy + b
+  })
+  const getLocation = computed(() => {
+    if (!location.value) {
+      return null
+    }
+    const { accuracy, latitude, longitude } = location.value
+    return { accuracy, latitude, longitude }
   })
 
   function setLocation(GeolocationPositionObject) {
@@ -36,19 +35,12 @@ export const useLocationStore = defineStore('location', () => {
       timeout: 10 * 1000,
       enableHighAccuracy: false,
     }
-    const successCallback = (GeolocationPositionObject) => {
-      location.value = GeolocationPositionObject.coords
-    }
-
-    navigator.geolocation.getCurrentPosition(successCallback, null, options)
+    navigator.geolocation.getCurrentPosition(setLocation, null, options)
   }
 
   return {
     location,
-    latitude,
-    longitude,
-    accuracy,
-    isLowAccuracy,
+    getLocation,
     distance,
     setLocation,
   }
