@@ -10,6 +10,13 @@ export const useAttendanceStore = defineStore('attendance', () => {
   const todaysAttendance = ref(null)
   const recentAttendances = ref([])
 
+  const formatPunchOut = computed(() => {
+    const punchOut = todaysAttendance.value?.punchOut
+    if (!punchOut) {
+      return null
+    }
+    return dayjsTaipei(punchOut).format('HH:mm')
+  })
   const formatPunchIn = computed(() => {
     const punchIn = todaysAttendance.value?.punchIn
     if (!punchIn) {
@@ -28,7 +35,14 @@ export const useAttendanceStore = defineStore('attendance', () => {
     )
     const isPunchOutTime = now.isAfter(timeToPunchOut)
     if (!isPunchOutTime) {
-      return timeToPunchOut.diff(now, 'm').toString()
+      const left = timeToPunchOut.diff(now, 'm')
+      if (left === 0) {
+        return '不到一分鐘'
+      }
+      if (left >= 10) {
+        return '還不到下班時間'
+      }
+      return `還有${left + 1}分鐘`
     }
     return null
   })
@@ -84,6 +98,7 @@ export const useAttendanceStore = defineStore('attendance', () => {
     leftTime,
     attendanceList,
     formatPunchIn,
+    formatPunchOut,
     setRecentAttendances,
     setTodaysAttendance,
   }

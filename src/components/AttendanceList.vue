@@ -19,8 +19,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="py-0 table-block overflow-auto">
-    <table class="table table-hover my-0">
+  <div class="py-0 overflow-auto">
+    <table class="table my-0">
       <thead>
         <tr class="table-dark">
           <th scope="col">Date</th>
@@ -39,16 +39,14 @@ onBeforeUnmount(() => {
   </div>
 </template>
 <style scoped>
-.table-block {
-  height: 30%;
-  margin-bottom: 10px;
+div {
+  margin-bottom: 1rem;
 }
 
-@media screen and (min-width: 768px) {
-  .table-block {
-    height: 52%;
-    margin-top: 10%;
-    margin-bottom: 10%;
+@media screen and (max-width: 768px) {
+  div {
+    height: 10rem;
+    margin-bottom: 1rem;
   }
 }
 </style>

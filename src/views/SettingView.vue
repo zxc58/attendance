@@ -48,11 +48,11 @@ const setting = async (e) => {
 <template>
   <form class="container" @submit.prevent="setting">
     <fieldset>
-      <legend class="text-center fs-1">Setting</legend>
+      <div class="text-center display-5">設定資料</div>
       <hr />
 
       <div class="form-group">
-        <label for="passwordInput" class="form-label mt-0">New password</label>
+        <label for="passwordInput" class="form-label mt-0">設定新密碼</label>
         <input
           minlength="7"
           maxlength="14"
@@ -62,12 +62,12 @@ const setting = async (e) => {
           class="form-control"
           id="passwordInput"
           aria-describedby="passwordHelp"
-          placeholder="New password"
+          placeholder="新密碼"
         />
       </div>
       <div class="form-group">
         <label for="ensurePasswordInput" class="form-label mt-4"
-          >Ensure password</label
+          >確認密碼</label
         >
         <input
           minlength="7"
@@ -77,12 +77,12 @@ const setting = async (e) => {
           type="password"
           class="form-control"
           id="ensurePasswordInput"
-          placeholder="Ensure password"
+          placeholder="確定密碼"
         />
       </div>
       <div class="form-group text-center">
         <p :class="notice.class">{{ notice.text }}</p>
-        <button type="submit" class="btn btn-info my-1">Setting</button>
+        <button type="submit" class="btn btn-info my-1">套用</button>
       </div>
     </fieldset>
   </form>

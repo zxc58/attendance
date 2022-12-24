@@ -27,11 +27,23 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <div class="alert-block">
+    <div class="alert alert-primary" id="ga" role="alert">
+      A simple primary alert—check it out!
+    </div>
+  </div>
+  <div id="hg"></div>
   <TopIndex />
   <RouterView />
 </template>
 
 <style>
+.alert-block {
+  background-color: aqua;
+  position: fixed;
+  top: 100px;
+  left: 40%;
+}
 ::-webkit-scrollbar {
   width: 7px;
 }
@@ -43,8 +55,13 @@ onBeforeUnmount(() => {
   border-radius: 50px;
   background: rgb(128, 128, 128);
 }
+@media screen and (min-width: 768px) {
+  .d-less-bp {
+    display: none;
+  }
+}
 @media screen and (max-width: 768px) {
-  .rwd-d-none {
+  .d-over-bp {
     display: none;
   }
 }

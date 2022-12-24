@@ -5,10 +5,13 @@ export const useUserStore = defineStore('user', () => {
   const user = ref(null)
 
   const userName = computed(() => {
-    return user.value?.name
+    return user.value?.name ?? null
   })
   const userId = computed(() => {
-    return user.value?.id
+    return user.value?.id ?? null
+  })
+  const userAvatar = computed(() => {
+    return user.value?.avatar ?? '../../avatar.png'
   })
 
   async function setUser(newUser) {
@@ -26,5 +29,5 @@ export const useUserStore = defineStore('user', () => {
     localStorage.removeItem('token')
     user.value = null
   }
-  return { user, setUser, clearAuthToken, userName, userId }
+  return { user, setUser, clearAuthToken, userName, userId, userAvatar }
 })

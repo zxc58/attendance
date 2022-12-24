@@ -7,7 +7,11 @@ const { setTime } = timeStore
 const { formatTime } = storeToRefs(timeStore)
 let intervalID
 onBeforeMount(() => {
-  intervalID = setInterval(setTime(), 1000 * 2)
+  setTime()
+  intervalID = setInterval(() => {
+    console.log('interval')
+    setTime()
+  }, 1000 * 2)
 })
 onBeforeUnmount(() => {
   clearInterval(intervalID)
