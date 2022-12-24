@@ -1,18 +1,26 @@
 <script setup>
-import router from '../router'
 import { ref } from 'vue'
 import { putPersonalData } from '../assets/api'
 import { useUserStore } from '../stores/user'
+import { useLocationStore } from '../stores/location'
 import { storeToRefs } from 'pinia'
-const userStore = useUserStore()
+const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT)
+const [userStore, locationStore] = [useUserStore(), useLocationStore()]
 const { userId } = storeToRefs(userStore)
+const { distance, location } = storeToRefs(locationStore)
+
 const notice = ref({
   class: 'my-1 invisible',
   text: 'default',
 })
 const setting = async (e) => {
   try {
-    const data = {}
+    if (distance.value >= distanceLimit) {
+      return alert('請親自至公司操作')
+    }
+    const data = {
+      locationss: location.value,
+    }
     const inputs = e.target.querySelectorAll('input')
     inputs.forEach((element) => {
       data[element.name] = element.value
@@ -24,7 +32,7 @@ const setting = async (e) => {
       }
       return
     }
-    const newUserData = await putPersonalData(data, userId.value)
+    const newUserData = await putPersonalData({ data, id: userId.value })
     notice.value = {
       class: 'my-1 text-success',
       text: '更新成功',
@@ -36,10 +44,12 @@ const setting = async (e) => {
   }
 }
 </script>
+
 <template>
   <form class="container" @submit.prevent="setting">
     <fieldset>
       <legend class="text-center fs-1">Setting</legend>
+      <hr />
 
       <div class="form-group">
         <label for="passwordInput" class="form-label mt-0">New password</label>
@@ -48,7 +58,7 @@ const setting = async (e) => {
           maxlength="14"
           name="password"
           required
-          type="text"
+          type="password"
           class="form-control"
           id="passwordInput"
           aria-describedby="passwordHelp"
@@ -72,7 +82,7 @@ const setting = async (e) => {
       </div>
       <div class="form-group text-center">
         <p :class="notice.class">{{ notice.text }}</p>
-        <button type="submit" class="btn btn-primary my-1">Setting</button>
+        <button type="submit" class="btn btn-info my-1">Setting</button>
       </div>
     </fieldset>
   </form>

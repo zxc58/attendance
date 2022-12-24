@@ -2,19 +2,19 @@
 import router from '../router'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '../stores/user'
-import { ref, reactive } from 'vue'
+import { reactive } from 'vue'
 const navItem = reactive([
   {
     linkClass: 'nav-link',
     name: 'Home',
-    onclick: (e) => {
+    onclick: () => {
       router.push('/')
     },
   },
   {
     linkClass: 'nav-link',
     name: 'Setting',
-    onclick: (e) => {
+    onclick: () => {
       router.push('/setting')
     },
   },

@@ -1,16 +1,28 @@
 <script setup>
-import { onBeforeMount } from 'vue'
-import { RouterView, RouterLink } from 'vue-router'
+import { onBeforeMount, onBeforeUnmount } from 'vue'
+import { RouterView } from 'vue-router'
 import TopIndex from './components/TopIndex.vue'
 import { useUserStore } from './stores/user'
+import { useLocationStore } from './stores/location'
 import router from './router'
-const userStore = useUserStore()
+const [userStore, locationStore] = [useUserStore(), useLocationStore()]
+let watchPositionId
 onBeforeMount(async () => {
+  navigator.geolocation.watchPosition(locationStore.setLocation, null, {
+    timeout: 10 * 1000,
+    enableHighAccuracy: false,
+  })
+  if (!localStorage.getItem('token')) {
+    return router.push('/login')
+  }
   const isLogin = await userStore.setUser()
   if (!isLogin) {
     localStorage.removeItem('token')
     router.push('/login')
   }
+})
+onBeforeUnmount(() => {
+  navigator.geolocation.clearWatch(watchPositionId)
 })
 </script>
 
@@ -20,6 +32,17 @@ onBeforeMount(async () => {
 </template>
 
 <style>
+::-webkit-scrollbar {
+  width: 7px;
+}
+::-webkit-scrollbar-track {
+  -webkit-border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 50px;
+  border-radius: 50px;
+  background: rgb(128, 128, 128);
+}
 @media screen and (max-width: 768px) {
   .rwd-d-none {
     display: none;

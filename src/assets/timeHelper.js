@@ -4,9 +4,14 @@ import timezone from 'dayjs/plugin/timezone'
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.tz.setDefault('Asia/Taipei')
-
+const dividedHour = Number(import.meta.env.VITE_APP_DIVIDED_HOUR ?? 5)
 export default dayjs
-
+export const getEndTime = function () {
+  return dayjs()
+    .add(24 - dividedHour, 'h')
+    .startOf('day')
+    .add(dividedHour, 'h')
+}
 export const countWorkingHour = ({ punchIn, punchOut, isHoliday, leaveId }) => {
   if (isHoliday) {
     return ['假日', 'table-secondary']

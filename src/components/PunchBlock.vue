@@ -1,31 +1,45 @@
 <script setup>
 import AttendanceList from './AttendanceList.vue'
-import { useTimeStore } from '../stores/time'
 import { useAttendanceStore } from '../stores/attendance'
+import { useLocationStore } from '../stores/location'
 import { storeToRefs } from 'pinia'
-import createInstance from '../assets/api'
-import dayjsTaipei from '../assets/timeHelper'
-import { onBeforeMount } from 'vue'
-const [attendanceStore, timeStore] = [useAttendanceStore(), useTimeStore()]
+import { punchIn as punchInApi, punchOut as punchOutApi } from '../assets/api'
+import dayjsTaipei, { getEndTime } from '../assets/timeHelper'
+import { onBeforeMount, onBeforeUnmount } from 'vue'
+const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT)
+const [attendanceStore, locationStore] = [
+  useAttendanceStore(),
+  useLocationStore(),
+]
 const { setTodaysAttendance } = attendanceStore
 const { todaysAttendance, leftTime, formatPunchIn } =
   storeToRefs(attendanceStore)
+const { getLocation, distance } = storeToRefs(locationStore)
+let timeOutId
 onBeforeMount(() => {
-  setTodaysAttendance()
+  ;(function a() {
+    setTodaysAttendance()
+    timeOutId = setTimeout(a, getEndTime().diff(dayjsTaipei(), 's') * 1000)
+  })()
+})
+onBeforeUnmount(() => {
+  clearTimeout(timeOutId)
 })
 const punchIn = async () => {
   try {
+    if (distance.value >= distanceLimit) {
+      return alert('請親自至公司操作')
+    }
     const punchIn = dayjsTaipei().startOf('minute').toDate()
-    const api = createInstance()
-    if (!api || !punchIn) {
+    if (!punchIn || !getLocation.value) {
       throw new Error()
     }
-    console.log(`api , createdAt : ${!!api} , ${punchIn}`)
-    const response = await api.post('/api/attendances', { punchIn })
-    if (!response?.data?.attendance) {
-      throw new Error('Punch in failed')
-    }
-    setTodaysAttendance(response.data.attendance)
+    const attendance = await punchInApi({
+      punchIn,
+      location: getLocation.value,
+    })
+
+    setTodaysAttendance(attendance)
   } catch (err) {
     console.error(err)
     alert('發生未知錯誤，打卡失敗')
@@ -33,18 +47,23 @@ const punchIn = async () => {
 }
 const punchOut = async () => {
   try {
-    const [api, id] = [createInstance(), todaysAttendance.value?.id]
+    // console.log(distance.value)
+    if (distance.value >= distanceLimit) {
+      return alert('請親自至公司操作')
+    }
+    const id = todaysAttendance.value.id
     const punchOut = dayjsTaipei().startOf('minute').toDate()
-
-    if (!api || !id || !punchOut) {
+    if (!id || !punchOut || !getLocation.value) {
       throw new Error()
     }
-    console.log(`api , id  : ${!!api} , ${id}`)
-    const response = await api.put(`/api/attendances/${id}`, { punchOut })
-    if (!response?.data?.attendance) {
-      throw new Error('Punch in failed')
-    }
-    setTodaysAttendance(response.data.attendance)
+
+    const attendance = await punchOutApi({
+      id,
+      punchOut,
+      location: getLocation.value,
+    })
+
+    setTodaysAttendance(attendance)
   } catch (error) {
     alert('發生未知錯誤')
     console.error(error)
@@ -54,9 +73,8 @@ const punchOut = async () => {
 
 <template>
   <div class="col">
-    <div class="py-0 table-block overflow-auto">
-      <AttendanceList />
-    </div>
+    <AttendanceList />
+
     <div class="d-grid gap-2 d-md-block text-end btn-block">
       <h3 v-if="leftTime" class="text-center mb-0">
         {{
@@ -68,8 +86,9 @@ const punchOut = async () => {
         }}
       </h3>
       <div
-        class="modal"
+        class="modal fade"
         id="punchOutWarning"
+        tabindex="-1"
         aria-labelledby="punchOutWarningLabel"
         aria-hidden="true"
         v-if="leftTime"
@@ -138,32 +157,11 @@ const punchOut = async () => {
 </template>
 
 <style scope>
-::-webkit-scrollbar {
-  width: 7px;
-}
-::-webkit-scrollbar-track {
-  -webkit-border-radius: 10px;
-  background: rgb(241, 254, 2);
-}
-::-webkit-scrollbar-thumb {
-  -webkit-border-radius: 50px;
-  border-radius: 50px;
-  background: rgb(128, 128, 128);
-}
-.table-block {
-  height: 30%;
-  margin-bottom: 10px;
-}
 h3 {
   color: darkred;
   font-weight: 700;
 }
 @media screen and (min-width: 768px) {
-  .table-block {
-    height: 50%;
-    margin-top: 10%;
-    margin-bottom: 10%;
-  }
   h3 {
     position: absolute;
     color: darkred;
