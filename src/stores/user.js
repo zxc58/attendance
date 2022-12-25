@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { fetchPersonalData } from '../assets/api'
+import { flash } from '../assets/flash'
 export const useUserStore = defineStore('user', () => {
   const user = ref(null)
 
@@ -22,7 +23,7 @@ export const useUserStore = defineStore('user', () => {
       user.value = newUser
       return newUser
     } catch (err) {
-      alert('發生未知錯誤')
+      flash({ variant: 'danger', message: '發生未知錯誤，請重新嘗試' })
     }
   }
   function clearAuthToken() {

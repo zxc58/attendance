@@ -1,46 +1,37 @@
 <script setup>
-import { ref } from 'vue'
 import { putPersonalData } from '../assets/api'
 import { useUserStore } from '../stores/user'
 import { useLocationStore } from '../stores/location'
 import { storeToRefs } from 'pinia'
+import { flash } from '../assets/flash'
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT)
 const [userStore, locationStore] = [useUserStore(), useLocationStore()]
 const { userId } = storeToRefs(userStore)
 const { distance, location } = storeToRefs(locationStore)
-
-const notice = ref({
-  class: 'my-1 invisible',
-  text: 'default',
-})
 const setting = async (e) => {
   try {
     if (distance.value >= distanceLimit) {
-      return alert('請親自至公司操作')
+      return flash({ variant: 'warning', message: '請親自至公司操作' })
     }
     const data = {
       locationss: location.value,
     }
     const inputs = e.target.querySelectorAll('input')
     inputs.forEach((element) => {
-      data[element.name] = element.value
+      if (element.value) {
+        data[element.name] = element.value
+      }
     })
     if (data.password !== data.ensurePassword) {
-      notice.value = {
-        class: 'my-1 text-danger',
-        text: '請確認2次密碼輸入相同',
-      }
+      flash({ variant: 'danger', message: '請確定2組新密碼相同' })
       return
     }
     const newUserData = await putPersonalData({ data, id: userId.value })
-    notice.value = {
-      class: 'my-1 text-success',
-      text: '更新成功',
-    }
     userStore.setUser(newUserData)
     inputs.forEach((e) => (e.value = ''))
+    flash({ variant: 'success', message: '成功更新' })
   } catch (err) {
-    alert('更新失敗')
+    flash({ variant: 'danger', message: '發生未知錯誤，更新失敗' })
   }
 }
 </script>
@@ -81,7 +72,6 @@ const setting = async (e) => {
         />
       </div>
       <div class="form-group text-center">
-        <p :class="notice.class">{{ notice.text }}</p>
         <button type="submit" class="btn btn-info my-1">套用</button>
       </div>
     </fieldset>

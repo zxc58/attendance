@@ -27,22 +27,34 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="alert-block">
-    <div class="alert alert-primary" id="ga" role="alert">
-      A simple primary alert—check it out!
-    </div>
-  </div>
-  <div id="hg"></div>
+  <div class="flash-container"></div>
   <TopIndex />
   <RouterView />
 </template>
 
 <style>
-.alert-block {
-  background-color: aqua;
+@keyframes example {
+  from {
+    top: 0px;
+  }
+  to {
+    top: 100px;
+  }
+}
+.flash {
+  margin-top: 0px;
+  margin-bottom: 1px;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  animation-name: example;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+}
+.flash-container {
   position: fixed;
-  top: 100px;
-  left: 40%;
+  left: 45%;
+  z-index: 1100;
+  /* top: 100px; */
 }
 ::-webkit-scrollbar {
   width: 7px;

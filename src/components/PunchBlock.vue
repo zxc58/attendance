@@ -1,4 +1,5 @@
 <script setup>
+import { flash } from '../assets/flash'
 import AttendanceList from './AttendanceList.vue'
 import { useAttendanceStore } from '../stores/attendance'
 import { useLocationStore } from '../stores/location'
@@ -28,7 +29,7 @@ onBeforeUnmount(() => {
 const punchIn = async () => {
   try {
     if (distance.value >= distanceLimit) {
-      return alert('請親自至公司操作')
+      return flash({ variant: 'warning', message: '請親自至公司操作' })
     }
     const punchIn = dayjsTaipei().startOf('minute').toDate()
     if (!punchIn || !getLocation.value) {
@@ -38,17 +39,17 @@ const punchIn = async () => {
       punchIn,
       location: getLocation.value,
     })
-
+    flash({ variant: 'success', message: '成功打卡' })
     setTodaysAttendance(attendance)
   } catch (err) {
     console.error(err)
-    alert('發生未知錯誤，打卡失敗')
+    flash({ variant: 'danger', message: '發生未知錯誤，打卡失敗' })
   }
 }
 const punchOut = async () => {
   try {
     if (distance.value >= distanceLimit) {
-      return alert('請親自至公司操作')
+      return flash({ variant: 'warning', message: '請親自至公司操作' })
     }
     const id = todaysAttendance.value.id
     const punchOut = dayjsTaipei().startOf('minute').toDate()
@@ -63,10 +64,10 @@ const punchOut = async () => {
       punchOut,
       location: getLocation.value,
     })
-
     setTodaysAttendance(attendance)
+    flash({ variant: 'success', message: '成功打卡' })
   } catch (error) {
-    alert('發生未知錯誤')
+    flash({ variant: 'danger', message: '發生未知錯誤，打卡失敗' })
     console.error(error)
   }
 }
