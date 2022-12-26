@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { fetchTodaysAttendance, fetchRecentAttendances } from '../assets/api'
 import dayjsTaipei, { countWorkingHour } from '../assets/timeHelper'
+import { flash } from '../assets/flash'
 const requiredWorkingHour = Number(
   import.meta.env.VITE_APP_REQUIRED_WORKING_HOUR ?? 8
 )
@@ -10,6 +11,13 @@ export const useAttendanceStore = defineStore('attendance', () => {
   const todaysAttendance = ref(null)
   const recentAttendances = ref([])
 
+  const formatPunchOut = computed(() => {
+    const punchOut = todaysAttendance.value?.punchOut
+    if (!punchOut) {
+      return null
+    }
+    return dayjsTaipei(punchOut).format('HH:mm')
+  })
   const formatPunchIn = computed(() => {
     const punchIn = todaysAttendance.value?.punchIn
     if (!punchIn) {
@@ -28,7 +36,14 @@ export const useAttendanceStore = defineStore('attendance', () => {
     )
     const isPunchOutTime = now.isAfter(timeToPunchOut)
     if (!isPunchOutTime) {
-      return timeToPunchOut.diff(now, 'm').toString()
+      const left = timeToPunchOut.diff(now, 'm')
+      if (left === 0) {
+        return '不到一分鐘'
+      }
+      if (left >= 10) {
+        return '還不到下班時間'
+      }
+      return `還有${left + 1}分鐘`
     }
     return null
   })
@@ -53,7 +68,7 @@ export const useAttendanceStore = defineStore('attendance', () => {
       }
       todaysAttendance.value = newRecord
     } catch (err) {
-      alert('發生未知錯誤')
+      flash({ variant: 'danger', message: '發生未知錯誤，請重新嘗試' })
       console.log(err)
     }
   }
@@ -73,7 +88,7 @@ export const useAttendanceStore = defineStore('attendance', () => {
       }
       recentAttendances.value = newRecords
     } catch (err) {
-      alert('發生未知錯誤')
+      flash({ variant: 'danger', message: '發生未知錯誤，請重新嘗試' })
       console.error(err)
     }
   }
@@ -84,6 +99,7 @@ export const useAttendanceStore = defineStore('attendance', () => {
     leftTime,
     attendanceList,
     formatPunchIn,
+    formatPunchOut,
     setRecentAttendances,
     setTodaysAttendance,
   }

@@ -1,4 +1,5 @@
 <script setup>
+import { flash } from '../assets/flash'
 import AttendanceList from './AttendanceList.vue'
 import { useAttendanceStore } from '../stores/attendance'
 import { useLocationStore } from '../stores/location'
@@ -28,7 +29,7 @@ onBeforeUnmount(() => {
 const punchIn = async () => {
   try {
     if (distance.value >= distanceLimit) {
-      return alert('請親自至公司操作')
+      return flash({ variant: 'warning', message: '請親自至公司操作' })
     }
     const punchIn = dayjsTaipei().startOf('minute').toDate()
     if (!punchIn || !getLocation.value) {
@@ -38,23 +39,24 @@ const punchIn = async () => {
       punchIn,
       location: getLocation.value,
     })
-
+    flash({ variant: 'success', message: '成功打卡' })
     setTodaysAttendance(attendance)
   } catch (err) {
     console.error(err)
-    alert('發生未知錯誤，打卡失敗')
+    flash({ variant: 'danger', message: '發生未知錯誤，打卡失敗' })
   }
 }
 const punchOut = async () => {
   try {
-    // console.log(distance.value)
     if (distance.value >= distanceLimit) {
-      return alert('請親自至公司操作')
+      return flash({ variant: 'warning', message: '請親自至公司操作' })
     }
     const id = todaysAttendance.value.id
     const punchOut = dayjsTaipei().startOf('minute').toDate()
     if (!id || !punchOut || !getLocation.value) {
-      throw new Error()
+      throw new Error(
+        `id,punchOut,location: [${!!id},${!!punchOut},${!!getLocation.value}]`
+      )
     }
 
     const attendance = await punchOutApi({
@@ -62,29 +64,20 @@ const punchOut = async () => {
       punchOut,
       location: getLocation.value,
     })
-
     setTodaysAttendance(attendance)
+    flash({ variant: 'success', message: '成功打卡' })
   } catch (error) {
-    alert('發生未知錯誤')
+    flash({ variant: 'danger', message: '發生未知錯誤，打卡失敗' })
     console.error(error)
   }
 }
 </script>
 
 <template>
-  <div class="col">
+  <div class="col-md">
     <AttendanceList />
 
-    <div class="d-grid gap-2 d-md-block text-end btn-block">
-      <h3 v-if="leftTime" class="text-center mb-0">
-        {{
-          +leftTime < 10
-            ? 0 < +leftTime
-              ? '還有' + leftTime + '分鐘'
-              : '不到1分鐘' + null >= 0
-            : '上班時間 ' + formatPunchIn
-        }}
-      </h3>
+    <div class="d-grid gap-2 d-md-block text-end">
       <div
         class="modal fade"
         id="punchOutWarning"
@@ -136,7 +129,7 @@ const punchOut = async () => {
         data-bs-target="#punchOutWarning"
         v-if="leftTime"
       >
-        下班<br />
+        下班<span class="d-less-bp"> ( {{ leftTime }} )</span>
       </button>
       <button
         class="btn btn-success btn-lg punch-btn px-1"
@@ -156,19 +149,12 @@ const punchOut = async () => {
   </div>
 </template>
 
-<style scope>
-h3 {
-  color: darkred;
-  font-weight: 700;
-}
+<style scoped>
 @media screen and (min-width: 768px) {
-  h3 {
-    position: absolute;
-    color: darkred;
-    font-weight: 700;
-  }
   .punch-btn {
-    transform: scale(2.5, 2);
+    text-indent: 1rem;
+    letter-spacing: 1rem;
+    font-size: 3rem;
     max-width: 400px;
   }
 }

@@ -1,14 +1,18 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { fetchPersonalData } from '../assets/api'
+import { flash } from '../assets/flash'
 export const useUserStore = defineStore('user', () => {
   const user = ref(null)
 
   const userName = computed(() => {
-    return user.value?.name
+    return user.value?.name ?? null
   })
   const userId = computed(() => {
-    return user.value?.id
+    return user.value?.id ?? null
+  })
+  const userAvatar = computed(() => {
+    return user.value?.avatar ?? '../../avatar.png'
   })
 
   async function setUser(newUser) {
@@ -19,12 +23,12 @@ export const useUserStore = defineStore('user', () => {
       user.value = newUser
       return newUser
     } catch (err) {
-      alert('發生未知錯誤')
+      flash({ variant: 'danger', message: '發生未知錯誤，請重新嘗試' })
     }
   }
   function clearAuthToken() {
     localStorage.removeItem('token')
     user.value = null
   }
-  return { user, setUser, clearAuthToken, userName, userId }
+  return { user, setUser, clearAuthToken, userName, userId, userAvatar }
 })

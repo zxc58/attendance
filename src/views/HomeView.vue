@@ -1,6 +1,7 @@
 <script setup>
 import TaipeiClock from '../components/TaipeiClock.vue'
-import PunchBlockVue from '../components/PunchBlock.vue'
+import PunchBlock from '../components/PunchBlock.vue'
+import DataBlock from '../components/DataBlock.vue'
 </script>
 
 <template>
@@ -10,10 +11,8 @@ import PunchBlockVue from '../components/PunchBlock.vue'
         <TaipeiClock />
       </div>
       <div class="row">
-        <div class="col rwd-d-none">
-          <img src="../assets/03.jpg" class="img-fluid" />
-        </div>
-        <PunchBlockVue />
+        <DataBlock />
+        <PunchBlock />
       </div>
     </div>
   </main>

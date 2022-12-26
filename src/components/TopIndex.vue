@@ -5,15 +5,15 @@ import { useUserStore } from '../stores/user'
 import { reactive } from 'vue'
 const navItem = reactive([
   {
-    linkClass: 'nav-link',
-    name: 'Home',
+    linkClass: 'nav-link fs-5',
+    name: '考勤',
     onclick: () => {
       router.push('/')
     },
   },
   {
-    linkClass: 'nav-link',
-    name: 'Setting',
+    linkClass: 'nav-link fs-5',
+    name: '設定',
     onclick: () => {
       router.push('/setting')
     },
@@ -46,7 +46,7 @@ const logOut = () => {
       <div class="navbar-collapse collapse" id="pageList" v-if="user">
         <ul class="navbar-nav me-auto ms-auto">
           <li
-            class="nav-item text-center"
+            class="nav-item text-center px-1"
             v-for="item in navItem"
             :key="item.name"
           >

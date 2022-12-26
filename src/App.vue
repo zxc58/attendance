@@ -27,11 +27,35 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <div class="flash-container"></div>
   <TopIndex />
   <RouterView />
 </template>
 
 <style>
+@keyframes example {
+  from {
+    top: 0px;
+  }
+  to {
+    top: 100px;
+  }
+}
+.flash {
+  margin-top: 0px;
+  margin-bottom: 1px;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  animation-name: example;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+}
+.flash-container {
+  position: fixed;
+  left: 45%;
+  z-index: 1100;
+  /* top: 100px; */
+}
 ::-webkit-scrollbar {
   width: 7px;
 }
@@ -43,8 +67,13 @@ onBeforeUnmount(() => {
   border-radius: 50px;
   background: rgb(128, 128, 128);
 }
+@media screen and (min-width: 768px) {
+  .d-less-bp {
+    display: none;
+  }
+}
 @media screen and (max-width: 768px) {
-  .rwd-d-none {
+  .d-over-bp {
     display: none;
   }
 }

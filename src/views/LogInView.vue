@@ -2,17 +2,14 @@
 import router from '../router/index'
 import { useUserStore } from '../stores/user'
 import { useLocationStore } from '../stores/location'
-import { ref } from 'vue'
 import { login } from '../assets/api'
 import { storeToRefs } from 'pinia'
+import { flash } from '../assets/flash'
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT)
 
 const [userStore, locationStore] = [useUserStore(), useLocationStore()]
-const { location, distance } = storeToRefs(locationStore)
-const notice = ref({
-  class: 'my-1 invisible',
-  text: 'default',
-})
+const { getLocation, distance } = storeToRefs(locationStore)
+
 const inputs = [
   {
     key: 'accountDiv',
@@ -44,11 +41,11 @@ const inputs = [
 const submit = async (e) => {
   try {
     if (distance.value >= distanceLimit) {
-      return alert('請親自至公司操作')
+      return flash({ variant: 'warning', message: '請親自至公司操作' })
     }
     const inputs = e.target.querySelectorAll('input')
     const data = {
-      location: location.value,
+      location: getLocation.value,
     }
     inputs.forEach((element) => {
       data[element.name] = element.value
@@ -57,24 +54,18 @@ const submit = async (e) => {
     if (res.token) {
       localStorage.setItem('token', res.token)
       await userStore.setUser()
-      return router.push('/')
+      router.push('/')
     } else {
       switch (res.message) {
         case 'Wrong times over 5':
-          notice.value = {
-            class: 'my-1 fs-5 text-danger',
-            text: '帳號鎖定',
-          }
+          flash({ variant: 'danger', message: '帳號已被鎖定' })
           break
         default:
-          notice.value = {
-            class: 'my-1 fs-5 text-danger',
-            text: '帳號或密碼錯誤',
-          }
+          flash({ variant: 'danger', message: '帳號或密碼錯誤' })
       }
     }
   } catch (err) {
-    alert('發生未知錯誤，請重新整理')
+    flash({ variant: 'danger', message: '發生未知錯誤' })
     console.error(err)
   }
 }
@@ -101,7 +92,6 @@ const submit = async (e) => {
       </div>
       <br />
       <div class="form-group text-center">
-        <p :class="notice.class">{{ notice.text }}</p>
         <button type="submit" class="btn btn-primary">Log in</button>
       </div>
     </fieldset>
