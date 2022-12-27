@@ -4,7 +4,7 @@ const backendURL =
 
 const api = axios.create({
   baseURL: backendURL,
-  timeout: 1000,
+  timeout: 3000,
 })
 api.interceptors.request.use(
   (config) => {

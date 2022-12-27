@@ -12,17 +12,20 @@ export const useLocationStore = defineStore('location', () => {
       return null
     }
     const { accuracy, latitude, longitude } = location.value
-    const b = getDistance(
+    const d = getDistance(
       { latitude: companyLatitude, longitude: companyLongitude },
       { latitude, longitude }
     )
-    return accuracy + b
+    return accuracy + d
   })
   const getLocation = computed(() => {
     if (!location.value) {
       return null
     }
     const { accuracy, latitude, longitude } = location.value
+    if (!accuracy || !latitude || !longitude) {
+      return null
+    }
     return { accuracy, latitude, longitude }
   })
 

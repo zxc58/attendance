@@ -24,6 +24,7 @@ onBeforeMount(async () => {
 onBeforeUnmount(() => {
   navigator.geolocation.clearWatch(watchPositionId)
 })
+console.log(import.meta.env)
 </script>
 
 <template>

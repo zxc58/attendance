@@ -14,7 +14,7 @@ const { formatPunchIn, formatPunchOut } = storeToRefs(attendanceStore)
       class="img-fluid rounded-circle img-thumbnail d-over-bp"
       alt="Avatar"
     />
-    <p class="display-6 mt-0">{{ userName }}</p>
+    <p class="display-6 mt-0 d-over-bp">{{ userName }}</p>
     <ul class="my-0 fw-bold fs-4">
       <li class="text-success">上班時間: {{ formatPunchIn }}</li>
       <li class="text-danger">下班時間: {{ formatPunchOut }}</li>

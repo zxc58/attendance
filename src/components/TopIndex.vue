@@ -2,6 +2,7 @@
 import router from '../router'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '../stores/user'
+import { useAttendanceStore } from '../stores/attendance'
 import { reactive } from 'vue'
 const navItem = reactive([
   {
@@ -19,11 +20,13 @@ const navItem = reactive([
     },
   },
 ])
-const userStore = useUserStore()
+const [userStore, attendanceStore] = [useUserStore(), useAttendanceStore()]
 const { user } = storeToRefs(userStore)
 const logOut = () => {
+  userStore.$patch({ user: null })
+  attendanceStore.$patch({ todaysAttendance: null, recentAttendances: [] })
   localStorage.removeItem('token')
-  window.location.assign('/login')
+  router.push('login')
 }
 </script>
 
@@ -57,7 +60,7 @@ const logOut = () => {
         </ul>
         <ul class="navbar-nav">
           <li class="nav-item text-center logout-btn">
-            <a class="nav-link" @click="logOut">Log out</a>
+            <a class="nav-link" @click="logOut">登出</a>
           </li>
         </ul>
       </div>
