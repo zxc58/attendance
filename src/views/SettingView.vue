@@ -7,14 +7,14 @@ import { flash } from '../assets/flash'
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT)
 const [userStore, locationStore] = [useUserStore(), useLocationStore()]
 const { userId } = storeToRefs(userStore)
-const { distance, location } = storeToRefs(locationStore)
+const { distance, getLocation } = storeToRefs(locationStore)
 const setting = async (e) => {
   try {
     if (distance.value >= distanceLimit) {
       return flash({ variant: 'warning', message: '請親自至公司操作' })
     }
     const data = {
-      locationss: location.value,
+      location: getLocation.value,
     }
     const inputs = e.target.querySelectorAll('input')
     inputs.forEach((element) => {
@@ -26,11 +26,13 @@ const setting = async (e) => {
       flash({ variant: 'danger', message: '請確定2組新密碼相同' })
       return
     }
+    console.log(data)
     const newUserData = await putPersonalData({ data, id: userId.value })
     userStore.setUser(newUserData)
     inputs.forEach((e) => (e.value = ''))
     flash({ variant: 'success', message: '成功更新' })
   } catch (err) {
+    console.error(err)
     flash({ variant: 'danger', message: '發生未知錯誤，更新失敗' })
   }
 }
@@ -71,8 +73,16 @@ const setting = async (e) => {
           placeholder="確定密碼"
         />
       </div>
+      <br />
       <div class="form-group text-center">
-        <button type="submit" class="btn btn-info my-1">套用</button>
+        <button
+          type="submit"
+          :class="
+            distance <= 400 ? 'btn btn-info' : 'btn btn-secondary disabled'
+          "
+        >
+          套用
+        </button>
       </div>
     </fieldset>
   </form>

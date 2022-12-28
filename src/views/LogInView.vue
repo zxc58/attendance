@@ -14,7 +14,7 @@ const inputs = [
   {
     key: 'accountDiv',
     id: 'accountInput',
-    label: 'Account',
+    label: '帳號',
     name: 'account',
     minLength: 7,
     maxLength: 14,
@@ -27,7 +27,7 @@ const inputs = [
   {
     key: 'passwordDiv',
     id: 'passwordInput',
-    label: 'Password',
+    label: '密碼',
     name: 'password',
     minLength: 7,
     maxLength: 14,
@@ -74,7 +74,7 @@ const submit = async (e) => {
 <template>
   <form class="container" @submit.prevent="submit">
     <fieldset>
-      <legend class="text-center display-5">Log in</legend>
+      <legend class="text-center display-5">登入</legend>
       <div class="form-group" v-for="input in inputs" :key="input.key">
         <label :for="input.id" :class="input.labelClass">{{
           input.label
@@ -92,7 +92,14 @@ const submit = async (e) => {
       </div>
       <br />
       <div class="form-group text-center">
-        <button type="submit" class="btn btn-primary">Log in</button>
+        <button
+          type="submit"
+          :class="
+            distance <= 400 ? 'btn btn-info' : 'btn btn-secondary disabled'
+          "
+        >
+          登入
+        </button>
       </div>
     </fieldset>
   </form>

@@ -22,6 +22,12 @@ const router = createRouter({
       sensitive: true,
       component: () => import('../views/SettingView.vue'),
     },
+    {
+      path: '/qrcode',
+      name: 'qrcode',
+      sensitive: true,
+      component: () => import('../views/QrOunchView.vue'),
+    },
   ],
 })
 

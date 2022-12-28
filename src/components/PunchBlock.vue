@@ -125,9 +125,9 @@ const punchOut = async () => {
       </div>
       <button
         :class="
-          getLocation
+          distance <= 400
             ? 'btn btn-danger btn-lg punch-btn px-1'
-            : 'btn btn-danger btn-lg punch-btn px-1 disabled'
+            : 'btn btn-secondary btn-lg punch-btn px-1 disabled'
         "
         data-bs-toggle="modal"
         data-bs-target="#punchOutWarning"
@@ -137,9 +137,9 @@ const punchOut = async () => {
       </button>
       <button
         :class="
-          getLocation
+          distance <= 400
             ? 'btn btn-success btn-lg punch-btn px-1'
-            : 'btn btn-success btn-lg punch-btn px-1 disabled'
+            : 'btn btn-secondary btn-lg punch-btn px-1 disabled'
         "
         @click="punchOut"
         v-else-if="todaysAttendance"
@@ -148,9 +148,9 @@ const punchOut = async () => {
       </button>
       <button
         :class="
-          getLocation
+          distance <= 400
             ? 'btn btn-info btn-lg punch-btn px-1'
-            : 'btn btn-info btn-lg punch-btn px-1 disabled'
+            : 'btn btn-secondary btn-lg punch-btn px-1 disabled'
         "
         @click="punchIn"
         v-else
