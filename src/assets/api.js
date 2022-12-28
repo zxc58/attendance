@@ -87,3 +87,12 @@ export const punchOut = async ({ id, punchOut, location }) => {
     return Promise.reject(axiosError.message)
   }
 }
+
+export const qrPunch = async (data) => {
+  try {
+    const response = await api.post('/api/qrcode/punch', data)
+    return response.data.message
+  } catch (axiosError) {
+    return Promise.reject(axiosError.message)
+  }
+}
