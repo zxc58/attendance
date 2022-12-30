@@ -18,7 +18,7 @@ onBeforeMount(async () => {
   const isLogin = await userStore.setUser()
   if (!isLogin) {
     localStorage.removeItem('token')
-    router.push('login')
+    router.push('/login')
   }
 })
 onBeforeUnmount(() => {

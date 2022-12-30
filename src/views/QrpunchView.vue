@@ -1,10 +1,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { qrPunch } from '../assets/api'
 import { flash } from '../assets/flash'
 import dayjsTaipei from '../assets/timeHelper'
-const route = useRoute()
+const [route, router] = [useRoute(), useRouter()]
 const status = ref(null)
 onMounted(async () => {
   try {
@@ -15,8 +15,11 @@ onMounted(async () => {
     const data = { punch, punchQrId }
     const message = await qrPunch(data)
     status.value = message ? '打卡成功' : ''
+    setTimeout(() => {
+      router.push('/')
+    }, 2 * 1000)
   } catch (err) {
-    flash({ variant: 'danger', message: '未知錯誤 請稍後嘗試' })
+    flash({ variant: 'danger', message: JSON.stringify(err) })
   }
 })
 </script>

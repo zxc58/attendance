@@ -45,7 +45,7 @@ div {
 
 @media screen and (max-width: 768px) {
   div {
-    height: 10rem;
+    height: 20rem;
     margin-bottom: 1rem;
   }
 }
