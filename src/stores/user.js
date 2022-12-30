@@ -13,7 +13,7 @@ export const useUserStore = defineStore('user', () => {
     return user.value?.id ?? null
   })
   const userAvatar = computed(() => {
-    return user.value?.avatar ?? avatarUrl //'../avatar.png'
+    return user.value ? user.value?.avatar ?? avatarUrl : null
   })
 
   async function setUser(newUser) {
@@ -27,9 +27,6 @@ export const useUserStore = defineStore('user', () => {
       flash({ variant: 'danger', message: '發生未知錯誤，請重新嘗試' })
     }
   }
-  function clearAuthToken() {
-    localStorage.removeItem('token')
-    user.value = null
-  }
-  return { user, setUser, clearAuthToken, userName, userId, userAvatar }
+
+  return { user, setUser, userName, userId, userAvatar }
 })

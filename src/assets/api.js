@@ -4,7 +4,7 @@ const backendURL =
 
 const api = axios.create({
   baseURL: backendURL,
-  timeout: 1000,
+  timeout: 3000,
 })
 api.interceptors.request.use(
   (config) => {
@@ -77,12 +77,31 @@ export const punchIn = async ({ punchIn, location }) => {
 
 export const punchOut = async ({ id, punchOut, location }) => {
   try {
-    // console.log(location)
     const response = await api.put(`/api/attendances/${id}`, {
       punchOut,
       location,
     })
     return response.data.attendance
+  } catch (axiosError) {
+    return Promise.reject(axiosError.message)
+  }
+}
+
+export const qrPunch = async (data) => {
+  try {
+    const response = await api.post('/api/qrcode/punch', data)
+    return response.data.message
+  } catch (axiosError) {
+    return Promise.reject(axiosError.message)
+  }
+}
+
+export const getQrId = async (location) => {
+  try {
+    const response = await api.get('/api/qrcode', {
+      params: { location },
+    })
+    return response.data.punchQrId
   } catch (axiosError) {
     return Promise.reject(axiosError.message)
   }

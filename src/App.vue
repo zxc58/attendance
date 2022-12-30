@@ -1,10 +1,10 @@
 <script setup>
 import { onBeforeMount, onBeforeUnmount } from 'vue'
-import { RouterView } from 'vue-router'
+import { RouterView, useRouter } from 'vue-router'
 import TopIndex from './components/TopIndex.vue'
 import { useUserStore } from './stores/user'
 import { useLocationStore } from './stores/location'
-import router from './router'
+const router = useRouter()
 const [userStore, locationStore] = [useUserStore(), useLocationStore()]
 let watchPositionId
 onBeforeMount(async () => {
@@ -13,12 +13,12 @@ onBeforeMount(async () => {
     enableHighAccuracy: false,
   })
   if (!localStorage.getItem('token')) {
-    return router.push('/login')
+    return router.push('login')
   }
   const isLogin = await userStore.setUser()
   if (!isLogin) {
     localStorage.removeItem('token')
-    router.push('/login')
+    router.push('login')
   }
 })
 onBeforeUnmount(() => {
@@ -33,7 +33,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style>
-@keyframes example {
+@keyframes flash-ani {
   from {
     top: 0px;
   }
@@ -46,7 +46,7 @@ onBeforeUnmount(() => {
   margin-bottom: 1px;
   padding-top: 0.2rem;
   padding-bottom: 0.2rem;
-  animation-name: example;
+  animation-name: flash-ani;
   animation-duration: 1s;
   animation-fill-mode: forwards;
 }

@@ -8,10 +8,7 @@ const { formatTime } = storeToRefs(timeStore)
 let intervalID
 onBeforeMount(() => {
   setTime()
-  intervalID = setInterval(() => {
-    console.log('interval')
-    setTime()
-  }, 1000 * 2)
+  intervalID = setInterval(setTime, 1000 * 2)
 })
 onBeforeUnmount(() => {
   clearInterval(intervalID)
@@ -19,7 +16,18 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="text-center display-1">{{ formatTime }}</div>
+  <div>
+    <p class="text-center display-1 py-0 my-0">
+      {{ formatTime }}
+    </p>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+p::before {
+  content: '現在時間:';
+  font-size: 1rem;
+  position: fixed;
+  right: 65%;
+}
+</style>

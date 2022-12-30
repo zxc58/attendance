@@ -7,7 +7,7 @@ import { storeToRefs } from 'pinia'
 import { punchIn as punchInApi, punchOut as punchOutApi } from '../assets/api'
 import dayjsTaipei, { getEndTime } from '../assets/timeHelper'
 import { onBeforeMount, onBeforeUnmount } from 'vue'
-const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT)
+const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
 const [attendanceStore, locationStore] = [
   useAttendanceStore(),
   useLocationStore(),
@@ -33,7 +33,7 @@ const punchIn = async () => {
     }
     const punchIn = dayjsTaipei().startOf('minute').toDate()
     if (!punchIn || !getLocation.value) {
-      throw new Error()
+      throw new Error(`punchIn,location: [${!!punchIn},${!!getLocation.value}]`)
     }
     const attendance = await punchInApi({
       punchIn,
@@ -124,7 +124,11 @@ const punchOut = async () => {
         </div>
       </div>
       <button
-        class="btn btn-danger btn-lg punch-btn px-1"
+        :class="
+          distance <= 400
+            ? 'btn btn-danger btn-lg punch-btn px-1'
+            : 'btn btn-secondary btn-lg punch-btn px-1 disabled'
+        "
         data-bs-toggle="modal"
         data-bs-target="#punchOutWarning"
         v-if="leftTime"
@@ -132,14 +136,22 @@ const punchOut = async () => {
         下班<span class="d-less-bp"> ( {{ leftTime }} )</span>
       </button>
       <button
-        class="btn btn-success btn-lg punch-btn px-1"
+        :class="
+          distance <= 400
+            ? 'btn btn-success btn-lg punch-btn px-1'
+            : 'btn btn-secondary btn-lg punch-btn px-1 disabled'
+        "
         @click="punchOut"
         v-else-if="todaysAttendance"
       >
         下班
       </button>
       <button
-        class="btn btn-info btn-lg punch-btn px-1"
+        :class="
+          distance <= 400
+            ? 'btn btn-info btn-lg punch-btn px-1'
+            : 'btn btn-secondary btn-lg punch-btn px-1 disabled'
+        "
         @click="punchIn"
         v-else
       >
