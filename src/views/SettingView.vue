@@ -26,7 +26,6 @@ const setting = async (e) => {
       flash({ variant: 'danger', message: '請確定2組新密碼相同' })
       return
     }
-    console.log(data)
     const newUserData = await putPersonalData({ data, id: userId.value })
     userStore.setUser(newUserData)
     inputs.forEach((e) => (e.value = ''))

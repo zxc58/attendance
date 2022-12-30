@@ -30,7 +30,6 @@ export const useLocationStore = defineStore('location', () => {
   })
 
   function setLocation(GeolocationPositionObject) {
-    console.log('set location')
     if (GeolocationPositionObject) {
       location.value = GeolocationPositionObject.coords
       return

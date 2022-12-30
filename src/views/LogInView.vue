@@ -1,13 +1,21 @@
 <script setup>
-import router from '../router/index'
+import qricon from '../assets/qricon.png'
+import { ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { useLocationStore } from '../stores/location'
-import { login } from '../assets/api'
+import { login, getQrId } from '../assets/api'
 import { storeToRefs } from 'pinia'
 import { flash } from '../assets/flash'
+import QrcodeVue from 'qrcode.vue'
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT)
-
-const [userStore, locationStore] = [useUserStore(), useLocationStore()]
+const qr = ref('')
+const [userStore, locationStore, router, route] = [
+  useUserStore(),
+  useLocationStore(),
+  useRouter(),
+  useRoute(),
+]
 const { getLocation, distance } = storeToRefs(locationStore)
 
 const inputs = [
@@ -69,12 +77,43 @@ const submit = async (e) => {
     console.error(err)
   }
 }
+
+const showQr = async () => {
+  if (!(distance.value <= distanceLimit)) {
+    return flash({
+      variant: 'warning',
+      message: '請親自至公司操作' + distance.value,
+    })
+  }
+  const punchQrId = await getQrId(getLocation.value)
+  const qrURL = `${location.protocol}//${location.host}/attendance/qrcode?punchQrId=${punchQrId}`
+  console.log(qrURL)
+  qr.value = qrURL
+  window.addEventListener(
+    'click',
+    () => {
+      qr.value = ''
+    },
+    { once: true }
+  )
+}
 </script>
 
 <template>
   <form class="container" @submit.prevent="submit">
     <fieldset>
-      <legend class="text-center display-5">登入</legend>
+      <legend class="text-center display-5 my-0">登入</legend>
+      <div class="d-flex">
+        <qrcode-vue
+          v-if="qr"
+          class="qr-code"
+          :value="qr"
+          :size="300"
+          level="H"
+        ></qrcode-vue>
+        <img @click="showQr" :src="qricon" alt="qr" />
+        <span class="text-info" v-if="!qr"> 掃描打卡</span>
+      </div>
       <div class="form-group" v-for="input in inputs" :key="input.key">
         <label :for="input.id" :class="input.labelClass">{{
           input.label
@@ -108,5 +147,21 @@ const submit = async (e) => {
 <style scoped>
 form {
   max-width: 600px;
+}
+img {
+  max-width: 20px;
+}
+img:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+  background-color: rgba(209, 209, 209, 0);
+}
+.qr-code {
+  position: fixed;
+  border-style: solid;
+  padding: 8px;
+  background-color: antiquewhite;
+  border-width: 1px;
+  border-radius: 10px;
 }
 </style>

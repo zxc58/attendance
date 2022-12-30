@@ -1,9 +1,10 @@
 <script setup>
-import router from '../router'
+import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '../stores/user'
 import { useAttendanceStore } from '../stores/attendance'
 import { reactive } from 'vue'
+const router = useRouter()
 const navItem = reactive([
   {
     linkClass: 'nav-link fs-5',
@@ -26,7 +27,7 @@ const logOut = () => {
   userStore.$patch({ user: null })
   attendanceStore.$patch({ todaysAttendance: null, recentAttendances: [] })
   localStorage.removeItem('token')
-  router.push('login')
+  router.push('/login')
 }
 </script>
 
