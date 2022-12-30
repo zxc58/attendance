@@ -13,7 +13,7 @@ onBeforeMount(async () => {
     enableHighAccuracy: false,
   })
   if (!localStorage.getItem('token')) {
-    return router.push('login')
+    return router.push('/login')
   }
   const isLogin = await userStore.setUser()
   if (!isLogin) {

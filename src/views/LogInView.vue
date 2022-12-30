@@ -8,7 +8,7 @@ import { login, getQrId } from '../assets/api'
 import { storeToRefs } from 'pinia'
 import { flash } from '../assets/flash'
 import QrcodeVue from 'qrcode.vue'
-const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT)
+const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
 const qr = ref('')
 const [userStore, locationStore, router, route] = [
   useUserStore(),
@@ -86,8 +86,9 @@ const showQr = async () => {
     })
   }
   const punchQrId = await getQrId(getLocation.value)
+  // const qrURL = `${location.protocol}//${location.host}/attendance/qrcode?punchQrId=${punchQrId}`
   const qrURL = `${location.protocol}//${location.host}/attendance/qrcode?punchQrId=${punchQrId}`
-  console.log(qrURL)
+  console.log(punchQrId)
   qr.value = qrURL
   window.addEventListener(
     'click',
@@ -112,7 +113,7 @@ const showQr = async () => {
           level="H"
         ></qrcode-vue>
         <img @click="showQr" :src="qricon" alt="qr" />
-        <span class="text-info" v-if="!qr"> 掃描打卡</span>
+        <span class="text-info" v-if="!qr">掃描打卡</span>
       </div>
       <div class="form-group" v-for="input in inputs" :key="input.key">
         <label :for="input.id" :class="input.labelClass">{{
@@ -134,7 +135,9 @@ const showQr = async () => {
         <button
           type="submit"
           :class="
-            distance <= 400 ? 'btn btn-info' : 'btn btn-secondary disabled'
+            distance <= distanceLimit
+              ? 'btn btn-info'
+              : 'btn btn-secondary disabled'
           "
         >
           登入

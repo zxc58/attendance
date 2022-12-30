@@ -9,7 +9,7 @@ export const useLocationStore = defineStore('location', () => {
 
   const distance = computed(() => {
     if (!location.value) {
-      return null
+      return NaN
     }
     const { accuracy, latitude, longitude } = location.value
     const d = getDistance(
