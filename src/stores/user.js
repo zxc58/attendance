@@ -13,7 +13,7 @@ export const useUserStore = defineStore('user', () => {
     return user.value?.id ?? null
   })
   const userAvatar = computed(() => {
-    return user.value ? user.value?.avatar ?? avatarUrl : null
+    return user?.value?.avatar ?? avatarUrl
   })
 
   async function setUser(newUser) {
