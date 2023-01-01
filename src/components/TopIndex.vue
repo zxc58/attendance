@@ -27,8 +27,6 @@ const navItem = reactive([
 const [userStore, attendanceStore] = [useUserStore(), useAttendanceStore()]
 const { user } = storeToRefs(userStore)
 const logOut = () => {
-  userStore.$patch({ user: null })
-  attendanceStore.$patch({ todaysAttendance: null, recentAttendances: [] })
   localStorage.removeItem('token')
   router.push('/login')
 }

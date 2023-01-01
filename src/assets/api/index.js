@@ -1,4 +1,7 @@
 import axios from 'axios'
+import dayjsTaipei from '../helpers/timeHelper'
+import { storeJWT } from '../helpers/jwtHelper'
+import { bringJWT } from './interceptors'
 const backendURL =
   import.meta.env.VITE_APP_BACKEND_URL ?? 'http://localhost:3000'
 
@@ -6,16 +9,10 @@ const api = axios.create({
   baseURL: backendURL,
   timeout: 3000,
 })
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (err) => Promise.reject(err)
-)
+api.interceptors.request.use(bringJWT, (err) => {
+  return Promise.reject(err)
+})
+
 export default api
 
 export const login = async (data) => {

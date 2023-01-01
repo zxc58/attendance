@@ -5,16 +5,21 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { useLocationStore } from '../stores/location'
 import { login, getQrId } from '../assets/api'
+import { useAttendanceStore } from '../stores/attendance'
 import { storeToRefs } from 'pinia'
 import { flash } from '../assets/flash'
 import QrcodeVue from 'qrcode.vue'
+import { storeJWT } from '../helpers/jwtHelper'
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
 const qr = ref('')
-const [userStore, locationStore, router] = [
+const [userStore, locationStore, router, attendanceStore] = [
   useUserStore(),
   useLocationStore(),
   useRouter(),
+  useAttendanceStore(),
 ]
+userStore.$patch({ user: null })
+attendanceStore.$patch({ todaysAttendance: null, recentAttendances: [] })
 const { getLocation, distance } = storeToRefs(locationStore)
 
 const inputs = [
@@ -53,8 +58,8 @@ const submit = async (e) => {
       data[element.name] = element.value
     })
     const res = await login(data)
-    if (res.token) {
-      localStorage.setItem('token', res.token)
+    if (res) {
+      storeJWT(res)
       await userStore.setUser()
       router.push('/')
     } else {
@@ -73,7 +78,6 @@ const submit = async (e) => {
 }
 
 const showQr = async () => {
-  console.log('show qr')
   if (!(distance.value <= distanceLimit)) {
     return flash({
       variant: 'warning',
@@ -87,7 +91,6 @@ const showQr = async () => {
   window.addEventListener(
     'click',
     () => {
-      console.log('ok')
       qr.value = ''
     },
     { once: true, capture: true }

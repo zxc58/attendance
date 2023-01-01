@@ -32,7 +32,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const isLogin = localStorage.getItem('token')
+  const isLogin = localStorage.getItem('access_token')
   if (isLogin) {
     if (to.path === '/login') {
       return next('/')

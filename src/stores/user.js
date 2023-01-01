@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { fetchPersonalData } from '../assets/api'
-import { flash } from '../assets/flash'
+import { flash } from '../assets/helpers/flashHelper'
 import avatarUrl from '../assets/avatar.png'
 export const useUserStore = defineStore('user', () => {
   const user = ref(null)
