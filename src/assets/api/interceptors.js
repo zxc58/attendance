@@ -1,7 +1,6 @@
 import axios from 'axios'
 import dayjsTaipei from '../helpers/timeHelper'
-import { storeJWT } from '../helpers/jwtHelper'
-import router from '../../router'
+import { storeJWT, removeTokensAndRedirect } from '../helpers/jwtHelper'
 const backendURL =
   import.meta.env.VITE_APP_BACKEND_URL ?? 'http://localhost:3000'
 let requireNewTokenPromise = null
@@ -44,9 +43,6 @@ async function requireNewToken() {
     localStorage.setItem('access_token', access_token)
     return accessToken
   } catch (axiosError) {
-    console.log(axiosError)
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('refresh_token')
-    router.push('/login')
+    removeTokensAndRedirect()
   }
 }

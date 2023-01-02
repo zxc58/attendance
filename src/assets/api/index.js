@@ -18,6 +18,7 @@ export default api
 export const login = async (data) => {
   try {
     const response = await api.post('/api/logIn', data)
+    console.log(response.data)
     return response.data
   } catch (axiosError) {
     return Promise.reject(axiosError.message)

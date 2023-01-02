@@ -2,8 +2,8 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { qrPunch } from '../assets/api'
-import { flash } from '../assets/flash'
-import dayjsTaipei from '../assets/timeHelper'
+import { flash } from '../assets/helpers/flashHelper'
+import dayjsTaipei from '../assets/helpers/timeHelper'
 const [route, router] = [useRoute(), useRouter()]
 const status = ref(null)
 onMounted(async () => {

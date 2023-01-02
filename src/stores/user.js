@@ -22,6 +22,7 @@ export const useUserStore = defineStore('user', () => {
         newUser = await fetchPersonalData()
       }
       user.value = newUser
+      console.log(newUser)
       return newUser
     } catch (err) {
       flash({ variant: 'danger', message: '發生未知錯誤，請重新嘗試' })
