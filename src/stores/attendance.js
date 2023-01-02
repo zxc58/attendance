@@ -69,7 +69,7 @@ export const useAttendanceStore = defineStore('attendance', () => {
       todaysAttendance.value = newRecord
     } catch (err) {
       flash({ variant: 'danger', message: '發生未知錯誤，請重新嘗試' })
-      console.log(err)
+      console.error(err)
     }
   }
 

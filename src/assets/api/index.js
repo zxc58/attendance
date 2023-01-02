@@ -1,7 +1,7 @@
 import axios from 'axios'
 import dayjsTaipei from '../helpers/timeHelper'
 import { storeJWT } from '../helpers/jwtHelper'
-import { bringJWT } from './interceptors'
+import { bringJWT, responseHandler, axiosErrorHandler } from './interceptors'
 const backendURL =
   import.meta.env.VITE_APP_BACKEND_URL ?? 'http://localhost:3000'
 
@@ -12,14 +12,15 @@ const api = axios.create({
 api.interceptors.request.use(bringJWT, (err) => {
   return Promise.reject(err)
 })
-
+api.interceptors.response.use(responseHandler, axiosErrorHandler)
 export default api
 
 export const login = async (data) => {
   try {
     const response = await api.post('/api/logIn', data)
-    console.log(response.data)
-    return response.data
+    console.log('in api')
+    console.log(response)
+    return response
   } catch (axiosError) {
     return Promise.reject(axiosError.message)
   }

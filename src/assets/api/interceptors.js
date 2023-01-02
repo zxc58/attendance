@@ -29,6 +29,18 @@ export const bringJWT = async (config) => {
     console.error(err)
   }
 }
+export const axiosErrorHandler = (error) => {
+  const { message } = error.message
+  const { status, data } = error.response
+  return Promise.reject({
+    status,
+    message: data?.message ? data.message : message,
+  })
+}
+export const responseHandler = (response) => {
+  console.log(response.data)
+  return response.data
+}
 async function requireNewToken() {
   try {
     const { refreshToken } = JSON.parse(localStorage.getItem('refresh_token'))
