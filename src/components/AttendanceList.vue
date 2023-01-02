@@ -2,7 +2,7 @@
 import { storeToRefs } from 'pinia'
 import { onBeforeMount, onBeforeUnmount } from 'vue'
 import { useAttendanceStore } from '../stores/attendance'
-import dayjsTaipei, { getEndTime } from '../assets/timeHelper'
+import dayjsTaipei, { getEndTime } from '../assets/helpers/timeHelper'
 const attendanceStore = useAttendanceStore()
 const { setRecentAttendances } = attendanceStore
 const { attendanceList } = storeToRefs(attendanceStore)
@@ -45,7 +45,7 @@ div {
 
 @media screen and (max-width: 768px) {
   div {
-    height: 10rem;
+    height: 20rem;
     margin-bottom: 1rem;
   }
 }

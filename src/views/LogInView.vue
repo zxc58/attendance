@@ -1,21 +1,25 @@
 <script setup>
 import qricon from '../assets/qricon.png'
 import { ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { useLocationStore } from '../stores/location'
 import { login, getQrId } from '../assets/api'
+import { useAttendanceStore } from '../stores/attendance'
 import { storeToRefs } from 'pinia'
 import { flash } from '../assets/flash'
 import QrcodeVue from 'qrcode.vue'
-const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT)
+import { storeJWT } from '../helpers/jwtHelper'
+const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
 const qr = ref('')
-const [userStore, locationStore, router, route] = [
+const [userStore, locationStore, router, attendanceStore] = [
   useUserStore(),
   useLocationStore(),
   useRouter(),
-  useRoute(),
+  useAttendanceStore(),
 ]
+userStore.$patch({ user: null })
+attendanceStore.$patch({ todaysAttendance: null, recentAttendances: [] })
 const { getLocation, distance } = storeToRefs(locationStore)
 
 const inputs = [
@@ -48,19 +52,14 @@ const inputs = [
 ]
 const submit = async (e) => {
   try {
-    if (distance.value >= distanceLimit) {
-      return flash({ variant: 'warning', message: '請親自至公司操作' })
-    }
     const inputs = e.target.querySelectorAll('input')
-    const data = {
-      location: getLocation.value,
-    }
+    const data = {}
     inputs.forEach((element) => {
       data[element.name] = element.value
     })
     const res = await login(data)
-    if (res.token) {
-      localStorage.setItem('token', res.token)
+    if (res) {
+      storeJWT(res)
       await userStore.setUser()
       router.push('/')
     } else {
@@ -87,14 +86,14 @@ const showQr = async () => {
   }
   const punchQrId = await getQrId(getLocation.value)
   const qrURL = `${location.protocol}//${location.host}/attendance/qrcode?punchQrId=${punchQrId}`
-  console.log(qrURL)
+
   qr.value = qrURL
   window.addEventListener(
     'click',
     () => {
       qr.value = ''
     },
-    { once: true }
+    { once: true, capture: true }
   )
 }
 </script>
@@ -103,16 +102,21 @@ const showQr = async () => {
   <form class="container" @submit.prevent="submit">
     <fieldset>
       <legend class="text-center display-5 my-0">登入</legend>
-      <div class="d-flex">
+      <div class="d-over-bp">
         <qrcode-vue
           v-if="qr"
           class="qr-code"
           :value="qr"
-          :size="300"
+          :size="400"
           level="H"
         ></qrcode-vue>
         <img @click="showQr" :src="qricon" alt="qr" />
-        <span class="text-info" v-if="!qr"> 掃描打卡</span>
+        <span
+          :class="distance <= distanceLimit ? 'text-info' : 'text-secondary'"
+          v-if="!qr"
+        >
+          {{ distance <= distanceLimit ? '掃描打卡' : '請至公司取得qr code' }}
+        </span>
       </div>
       <div class="form-group" v-for="input in inputs" :key="input.key">
         <label :for="input.id" :class="input.labelClass">{{
@@ -134,7 +138,9 @@ const showQr = async () => {
         <button
           type="submit"
           :class="
-            distance <= 400 ? 'btn btn-info' : 'btn btn-secondary disabled'
+            distance <= distanceLimit
+              ? 'btn btn-info'
+              : 'btn btn-secondary disabled'
           "
         >
           登入

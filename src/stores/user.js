@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { fetchPersonalData } from '../assets/api'
-import { flash } from '../assets/flash'
+import { flash } from '../assets/helpers/flashHelper'
 import avatarUrl from '../assets/avatar.png'
 export const useUserStore = defineStore('user', () => {
   const user = ref(null)
@@ -13,7 +13,7 @@ export const useUserStore = defineStore('user', () => {
     return user.value?.id ?? null
   })
   const userAvatar = computed(() => {
-    return user.value ? user.value?.avatar ?? avatarUrl : null
+    return user?.value?.avatar ?? avatarUrl
   })
 
   async function setUser(newUser) {

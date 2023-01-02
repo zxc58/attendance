@@ -7,7 +7,7 @@ import DataBlock from '../components/DataBlock.vue'
 <template>
   <main>
     <div class="container-md">
-      <div class="row">
+      <div class="row d-over-bp">
         <TaipeiClock />
       </div>
       <div class="row">

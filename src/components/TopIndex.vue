@@ -3,13 +3,15 @@ import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '../stores/user'
 import { useAttendanceStore } from '../stores/attendance'
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
+const buttonCollapse = ref(null)
 const router = useRouter()
 const navItem = reactive([
   {
     linkClass: 'nav-link fs-5',
     name: '考勤',
     onclick: () => {
+      buttonCollapse.value.click()
       router.push('/')
     },
   },
@@ -17,6 +19,7 @@ const navItem = reactive([
     linkClass: 'nav-link fs-5',
     name: '設定',
     onclick: () => {
+      buttonCollapse.value.click()
       router.push('/setting')
     },
   },
@@ -24,8 +27,6 @@ const navItem = reactive([
 const [userStore, attendanceStore] = [useUserStore(), useAttendanceStore()]
 const { user } = storeToRefs(userStore)
 const logOut = () => {
-  userStore.$patch({ user: null })
-  attendanceStore.$patch({ todaysAttendance: null, recentAttendances: [] })
   localStorage.removeItem('token')
   router.push('/login')
 }
@@ -37,6 +38,7 @@ const logOut = () => {
       <span class="navbar-brand fs-3 titan-logo">鈦坦科技</span>
       <button
         v-if="user"
+        ref="buttonCollapse"
         class="navbar-toggler"
         type="button"
         data-bs-toggle="collapse"

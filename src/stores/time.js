@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import dayjsTaipei from '../assets/timeHelper'
+import dayjsTaipei from '../assets/helpers/timeHelper'
 
 export const useTimeStore = defineStore('time', () => {
   const currentTime = ref(null)
