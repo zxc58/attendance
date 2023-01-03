@@ -34,9 +34,9 @@ const inputs = [
     maxLength: 14,
     isRequired: true,
     type: 'text',
-    labelClass: 'form-label mt-4',
+    labelClass: 'form-label mt-4 fw-bold',
     inputClass: 'form-control',
-    placeholder: 'Enter account,length 7~14',
+    placeholder: '長度7~14',
   },
   {
     key: 'passwordDiv',
@@ -47,9 +47,9 @@ const inputs = [
     maxLength: 14,
     isRequired: true,
     type: 'password',
-    labelClass: 'form-label mt-4',
+    labelClass: 'form-label mt-4 fw-bold',
     inputClass: 'form-control',
-    placeholder: 'Enter account,length 7~14',
+    placeholder: '長度7~14',
   },
 ]
 const submit = async (e) => {

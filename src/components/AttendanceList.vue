@@ -23,9 +23,9 @@ onBeforeUnmount(() => {
     <table class="table my-0">
       <thead>
         <tr class="table-dark">
-          <th scope="col">Date</th>
-          <th scope="col">Day</th>
-          <th scope="col">attendance</th>
+          <th scope="col">日期</th>
+          <th scope="col">星期</th>
+          <th scope="col">出勤</th>
         </tr>
       </thead>
       <tbody>
@@ -41,8 +41,12 @@ onBeforeUnmount(() => {
 <style scoped>
 div {
   margin-bottom: 1rem;
+  max-height: 330px;
 }
-
+thead th {
+  position: sticky;
+  top: 0;
+}
 @media screen and (max-width: 768px) {
   div {
     height: 20rem;
