@@ -12,7 +12,9 @@ const navItem = reactive([
     linkClass: 'nav-link fs-5',
     name: '考勤',
     onclick: () => {
-      buttonCollapse.value.click()
+      if (window.innerWidth < 768) {
+        buttonCollapse.value.click()
+      }
       router.push('/')
     },
   },
@@ -20,7 +22,9 @@ const navItem = reactive([
     linkClass: 'nav-link fs-5',
     name: '設定',
     onclick: () => {
-      buttonCollapse.value.click()
+      if (window.innerWidth < 768) {
+        buttonCollapse.value.click()
+      }
       router.push('/setting')
     },
   },

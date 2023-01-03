@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { defineStore } from 'pinia'
 import { fetchTodaysAttendance, fetchRecentAttendances } from '../assets/api'
 import dayjsTaipei, { countWorkingHour } from '../assets/helpers/timeHelper'
@@ -9,7 +9,8 @@ const requiredWorkingHour = Number(
 
 export const useAttendanceStore = defineStore('attendance', () => {
   const todaysAttendance = ref(null)
-  const recentAttendances = ref([])
+  const details = ref(null)
+  const recentAttendances = ref(null)
 
   const formatPunchOut = computed(() => {
     const punchOut = todaysAttendance.value?.punchOut
@@ -48,17 +49,40 @@ export const useAttendanceStore = defineStore('attendance', () => {
     return null
   })
   const attendanceList = computed(() => {
-    const a = recentAttendances.value.map((e) => {
-      const [status, className] = countWorkingHour(e)
+    if (!recentAttendances.value) {
+      return null
+    }
+    const list = recentAttendances.value.map((e) => {
+      const [status, color, details] = countWorkingHour(e)
       return {
-        id: e.id,
+        id: e.dateId,
         date: dayjsTaipei(e.date).format('MM月DD日'),
         day: `星期${e.day}`,
         status,
-        class: className,
+        class: `table-${color}${details ? ' row-details' : ''}`,
+        showDetails: details
+          ? () => {
+              setDetails(e.dateId)
+            }
+          : null,
       }
     })
-    return a
+    return list
+  })
+  const formatDetails = computed(() => {
+    if (!details?.value) {
+      return null
+    }
+    const [status, color] = countWorkingHour(details.value)
+    const { punchIn, punchOut, date, day } = details.value
+    return {
+      punchIn: punchIn ? dayjsTaipei(punchIn).format('HH:mm') : '無紀錄',
+      punchOut: punchOut ? dayjsTaipei(punchOut).format('HH:mm') : '無紀錄',
+      date: dayjsTaipei(date).format('YYYY年MM月DD日'),
+      day: `星期${day}`,
+      status,
+      color,
+    }
   })
 
   async function setTodaysAttendance(newRecord) {
@@ -77,14 +101,15 @@ export const useAttendanceStore = defineStore('attendance', () => {
     try {
       if (!newRecords) {
         newRecords = await fetchRecentAttendances()
-        newRecords = newRecords.map((e) => {
-          const attendances = { ...e.Attendances }
-          delete e.Attendances, e.id
-          return {
-            ...e,
-            ...attendances,
-          }
-        })
+        newRecords = newRecords.map((e) => ({
+          dateId: e.id,
+          date: e.date,
+          day: e.day,
+          isHoliday: e.isHoliday,
+          attendanceId: e?.Attendances?.id,
+          punchIn: e?.Attendances?.punchIn,
+          punchOut: e?.Attendances?.punchOut,
+        }))
       }
       recentAttendances.value = newRecords
     } catch (err) {
@@ -92,14 +117,20 @@ export const useAttendanceStore = defineStore('attendance', () => {
       console.error(err)
     }
   }
+  function setDetails(dateId) {
+    details.value = recentAttendances.value.find((e) => e.dateId === dateId)
+  }
 
   return {
     todaysAttendance,
     recentAttendances,
+    details,
     leftTime,
     attendanceList,
     formatPunchIn,
     formatPunchOut,
+    formatDetails,
+    setDetails,
     setRecentAttendances,
     setTodaysAttendance,
   }
