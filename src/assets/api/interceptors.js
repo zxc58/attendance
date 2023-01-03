@@ -38,8 +38,7 @@ export const axiosErrorHandler = (error) => {
   })
 }
 export const responseHandler = (response) => {
-  console.log(response.data)
-  return response.data
+  return { ...response.data, status: response.status }
 }
 async function requireNewToken() {
   try {

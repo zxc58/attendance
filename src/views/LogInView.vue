@@ -60,20 +60,12 @@ const submit = async (e) => {
       data[element.name] = element.value
     })
     const responseData = await login(data)
-    console.log(responseData)
-    if (responseData) {
-      storeJWT(responseData)
-      await userStore.setUser()
-      router.push('/')
-    } else {
-      switch (responseData.message) {
-        case 'Wrong times over 5':
-          flash({ variant: 'danger', message: '帳號已被鎖定' })
-          break
-        default:
-          flash({ variant: 'danger', message: '帳號或密碼錯誤' })
-      }
+    if (!responseData) {
+      return
     }
+    storeJWT(responseData)
+    await userStore.setUser()
+    router.push('/')
   } catch (err) {
     flash({ variant: 'danger', message: '發生未知錯誤' })
     console.error(err)
