@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import { useUserStore } from '../stores/user'
 import { useAttendanceStore } from '../stores/attendance'
 import { reactive, ref } from 'vue'
+import { removeTokensAndRedirect } from '../assets/helpers/jwtHelper'
 const buttonCollapse = ref(null)
 const router = useRouter()
 const navItem = reactive([
@@ -11,7 +12,9 @@ const navItem = reactive([
     linkClass: 'nav-link fs-5',
     name: '考勤',
     onclick: () => {
-      buttonCollapse.value.click()
+      if (window.innerWidth < 768) {
+        buttonCollapse.value.click()
+      }
       router.push('/')
     },
   },
@@ -19,7 +22,9 @@ const navItem = reactive([
     linkClass: 'nav-link fs-5',
     name: '設定',
     onclick: () => {
-      buttonCollapse.value.click()
+      if (window.innerWidth < 768) {
+        buttonCollapse.value.click()
+      }
       router.push('/setting')
     },
   },
@@ -27,8 +32,7 @@ const navItem = reactive([
 const [userStore, attendanceStore] = [useUserStore(), useAttendanceStore()]
 const { user } = storeToRefs(userStore)
 const logOut = () => {
-  localStorage.removeItem('token')
-  router.push('/login')
+  return removeTokensAndRedirect()
 }
 </script>
 

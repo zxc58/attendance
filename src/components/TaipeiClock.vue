@@ -27,7 +27,7 @@ onBeforeUnmount(() => {
 p::before {
   content: '現在時間:';
   font-size: 1rem;
-  position: fixed;
+  position: absolute;
   right: 65%;
 }
 </style>

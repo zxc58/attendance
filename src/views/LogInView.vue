@@ -7,9 +7,9 @@ import { useLocationStore } from '../stores/location'
 import { login, getQrId } from '../assets/api'
 import { useAttendanceStore } from '../stores/attendance'
 import { storeToRefs } from 'pinia'
-import { flash } from '../assets/flash'
+import { flash } from '../assets/helpers/flashHelper'
 import QrcodeVue from 'qrcode.vue'
-import { storeJWT } from '../helpers/jwtHelper'
+import { storeJWT } from '../assets/helpers/jwtHelper'
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
 const qr = ref('')
 const [userStore, locationStore, router, attendanceStore] = [
@@ -20,6 +20,8 @@ const [userStore, locationStore, router, attendanceStore] = [
 ]
 userStore.$patch({ user: null })
 attendanceStore.$patch({ todaysAttendance: null, recentAttendances: [] })
+localStorage.removeItem('access_token')
+localStorage.removeItem('refresh_token')
 const { getLocation, distance } = storeToRefs(locationStore)
 
 const inputs = [
@@ -32,9 +34,9 @@ const inputs = [
     maxLength: 14,
     isRequired: true,
     type: 'text',
-    labelClass: 'form-label mt-4',
+    labelClass: 'form-label mt-4 fw-bold',
     inputClass: 'form-control',
-    placeholder: 'Enter account,length 7~14',
+    placeholder: '長度7~14',
   },
   {
     key: 'passwordDiv',
@@ -45,9 +47,9 @@ const inputs = [
     maxLength: 14,
     isRequired: true,
     type: 'password',
-    labelClass: 'form-label mt-4',
+    labelClass: 'form-label mt-4 fw-bold',
     inputClass: 'form-control',
-    placeholder: 'Enter account,length 7~14',
+    placeholder: '長度7~14',
   },
 ]
 const submit = async (e) => {
@@ -57,20 +59,13 @@ const submit = async (e) => {
     inputs.forEach((element) => {
       data[element.name] = element.value
     })
-    const res = await login(data)
-    if (res) {
-      storeJWT(res)
-      await userStore.setUser()
-      router.push('/')
-    } else {
-      switch (res.message) {
-        case 'Wrong times over 5':
-          flash({ variant: 'danger', message: '帳號已被鎖定' })
-          break
-        default:
-          flash({ variant: 'danger', message: '帳號或密碼錯誤' })
-      }
+    const responseData = await login(data)
+    if (!responseData) {
+      return
     }
+    storeJWT(responseData)
+    await userStore.setUser()
+    router.push('/')
   } catch (err) {
     flash({ variant: 'danger', message: '發生未知錯誤' })
     console.error(err)

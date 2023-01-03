@@ -4,6 +4,7 @@ import { RouterView, useRouter } from 'vue-router'
 import TopIndex from './components/TopIndex.vue'
 import { useUserStore } from './stores/user'
 import { useLocationStore } from './stores/location'
+import { removeTokensAndRedirect } from './assets/helpers/jwtHelper'
 const router = useRouter()
 const [userStore, locationStore] = [useUserStore(), useLocationStore()]
 let watchPositionId
@@ -12,13 +13,12 @@ onBeforeMount(async () => {
     timeout: 10 * 1000,
     enableHighAccuracy: false,
   })
-  if (!localStorage.getItem('token')) {
-    return router.push('/login')
+  if (!localStorage.getItem('access_token')) {
+    return removeTokensAndRedirect()
   }
   const isLogin = await userStore.setUser()
   if (!isLogin) {
-    localStorage.removeItem('token')
-    router.push('/login')
+    return removeTokensAndRedirect()
   }
 })
 onBeforeUnmount(() => {

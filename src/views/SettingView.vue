@@ -3,7 +3,7 @@ import { putPersonalData } from '../assets/api'
 import { useUserStore } from '../stores/user'
 import { useLocationStore } from '../stores/location'
 import { storeToRefs } from 'pinia'
-import { flash } from '../assets/flash'
+import { flash } from '../assets/helpers/flashHelper'
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT)
 const [userStore, locationStore] = [useUserStore(), useLocationStore()]
 const { userId } = storeToRefs(userStore)

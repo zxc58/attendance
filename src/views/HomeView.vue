@@ -2,6 +2,7 @@
 import TaipeiClock from '../components/TaipeiClock.vue'
 import PunchBlock from '../components/PunchBlock.vue'
 import DataBlock from '../components/DataBlock.vue'
+import PunchingDetails from '../components/PunchingDetails.vue'
 </script>
 
 <template>
@@ -13,6 +14,10 @@ import DataBlock from '../components/DataBlock.vue'
       <div class="row">
         <DataBlock />
         <PunchBlock />
+      </div>
+      <br />
+      <div class="row">
+        <PunchingDetails />
       </div>
     </div>
   </main>
