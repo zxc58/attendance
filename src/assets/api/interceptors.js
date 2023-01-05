@@ -1,6 +1,6 @@
 import axios from 'axios'
 import dayjsTaipei from '../helpers/timeHelper'
-import { storeJWT, removeTokensAndRedirect } from '../helpers/jwtHelper'
+import { removeTokensAndRedirect } from '../helpers/jwtHelper'
 const backendURL =
   import.meta.env.VITE_APP_BACKEND_URL ?? 'http://localhost:3000'
 let requireNewTokenPromise = null
@@ -43,7 +43,7 @@ export const responseHandler = (response) => {
 async function requireNewToken() {
   try {
     const { refreshToken } = JSON.parse(localStorage.getItem('refresh_token'))
-    const response = await axios.post(`${backendURL}/api/refresh`, {
+    const response = await axios.post(`${backendURL}/auth/refresh`, {
       refreshToken,
     })
     const { accessToken, accessTokenExpiredTime } = response.data

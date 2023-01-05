@@ -1,11 +1,10 @@
 <script setup>
 import { onBeforeMount, onBeforeUnmount } from 'vue'
-import { RouterView, useRouter } from 'vue-router'
+import { RouterView } from 'vue-router'
 import TopIndex from './components/TopIndex.vue'
 import { useUserStore } from './stores/user'
 import { useLocationStore } from './stores/location'
 import { removeTokensAndRedirect } from './assets/helpers/jwtHelper'
-const router = useRouter()
 const [userStore, locationStore] = [useUserStore(), useLocationStore()]
 let watchPositionId
 onBeforeMount(async () => {

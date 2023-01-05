@@ -2,7 +2,6 @@
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '../stores/user'
-import { useAttendanceStore } from '../stores/attendance'
 import { reactive, ref } from 'vue'
 import { removeTokensAndRedirect } from '../assets/helpers/jwtHelper'
 const buttonCollapse = ref(null)
@@ -29,7 +28,7 @@ const navItem = reactive([
     },
   },
 ])
-const [userStore, attendanceStore] = [useUserStore(), useAttendanceStore()]
+const [userStore] = [useUserStore()]
 const { user } = storeToRefs(userStore)
 const logOut = () => {
   return removeTokensAndRedirect()

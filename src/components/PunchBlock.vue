@@ -1,5 +1,4 @@
 <script setup>
-import PunchingDetails from './PunchingDetails.vue'
 import { flash } from '../assets/helpers/flashHelper'
 import AttendanceList from './AttendanceList.vue'
 import { useAttendanceStore } from '../stores/attendance'

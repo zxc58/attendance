@@ -1,7 +1,5 @@
 import axios from 'axios'
 import { flash } from '../helpers/flashHelper'
-import dayjsTaipei from '../helpers/timeHelper'
-import { storeJWT } from '../helpers/jwtHelper'
 import { bringJWT, responseHandler, axiosErrorHandler } from './interceptors'
 const backendURL =
   import.meta.env.VITE_APP_BACKEND_URL ?? 'http://localhost:3000'
@@ -18,7 +16,7 @@ export default api
 
 export const login = async (data) => {
   try {
-    const responseData = await api.post('/api/logIn', data)
+    const responseData = await api.post('/auth/login', data)
     return responseData
   } catch ({ status, message }) {
     switch (message) {
@@ -40,7 +38,8 @@ export const login = async (data) => {
 
 export const fetchPersonalData = async () => {
   try {
-    const responseData = await api.get('/api/employees')
+    const userId = localStorage.getItem('userId')
+    const responseData = await api.get(`/employees/${userId}`)
     return responseData.employee
   } catch ({ status, message }) {
     switch (message) {
@@ -52,8 +51,11 @@ export const fetchPersonalData = async () => {
 
 export const fetchTodaysAttendance = async () => {
   try {
-    const responseData = await api.get('/api/attendances/today')
-    return responseData.attendance
+    const userId = localStorage.getItem('userId')
+    const responseData = await api.get(`/employees/${userId}/attendances`, {
+      params: { date: 'today' },
+    })
+    return responseData.attendances
   } catch ({ status, message }) {
     switch (message) {
       case 'You have not punched in yet':
@@ -66,7 +68,10 @@ export const fetchTodaysAttendance = async () => {
 
 export const fetchRecentAttendances = async () => {
   try {
-    const responseData = await api.get('/api/attendances/recent')
+    const userId = localStorage.getItem('userId')
+    const responseData = await api.get(`/employees/${userId}/attendances`, {
+      params: { date: 'recent' },
+    })
     return responseData.attendances
   } catch ({ status, message }) {
     switch (message) {
@@ -76,9 +81,10 @@ export const fetchRecentAttendances = async () => {
   }
 }
 
-export const putPersonalData = async ({ data, id }) => {
+export const updatePersonalData = async ({ data }) => {
   try {
-    const responseData = await api.put(`/api/employees/${id}`, data)
+    const userId = localStorage.getItem('userId')
+    const responseData = await api.patch(`/employees/${userId}`, data)
     return responseData.employee
   } catch ({ status, message }) {
     switch (message) {
@@ -90,8 +96,9 @@ export const putPersonalData = async ({ data, id }) => {
 
 export const punchIn = async ({ punchIn, location }) => {
   try {
+    const userId = localStorage.getItem('userId')
     const responseData = await api.post(
-      '/api/attendances',
+      `employees/${userId}/attendances`,
       {
         punchIn,
       },
@@ -108,8 +115,9 @@ export const punchIn = async ({ punchIn, location }) => {
 
 export const punchOut = async ({ id, punchOut, location }) => {
   try {
-    const responseData = await api.put(
-      `/api/attendances/${id}`,
+    const userId = localStorage.getItem('userId')
+    const responseData = await api.patch(
+      `/employees/${userId}/attendances/${id}`,
       {
         punchOut,
       },
@@ -126,7 +134,7 @@ export const punchOut = async ({ id, punchOut, location }) => {
 
 export const qrPunch = async (data) => {
   try {
-    const responseData = await api.post('/api/qrcode/punch', data)
+    const responseData = await api.post('/attendances/qrcode', data)
     return responseData.message
   } catch ({ status, message }) {
     switch (message) {
@@ -140,7 +148,7 @@ export const qrPunch = async (data) => {
 
 export const getQrId = async (location) => {
   try {
-    const responseData = await api.get('/api/qrcode', {
+    const responseData = await api.get('/attendances/qrcode', {
       params: { location },
     })
     return responseData.punchQrId
