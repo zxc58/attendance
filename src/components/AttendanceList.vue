@@ -4,7 +4,7 @@ import { onBeforeMount, onBeforeUnmount } from 'vue'
 import { useAttendanceStore } from '../stores/attendance'
 import dayjsTaipei, { getEndTime } from '../assets/helpers/timeHelper'
 const attendanceStore = useAttendanceStore()
-const { setRecentAttendances, setDetails } = attendanceStore
+const { setRecentAttendances } = attendanceStore
 const { attendanceList } = storeToRefs(attendanceStore)
 let timeOutId
 onBeforeMount(() => {

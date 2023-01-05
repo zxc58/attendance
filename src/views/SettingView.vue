@@ -1,12 +1,11 @@
 <script setup>
-import { putPersonalData } from '../assets/api'
+import { updatePersonalData } from '../assets/api'
 import { useUserStore } from '../stores/user'
 import { useLocationStore } from '../stores/location'
 import { storeToRefs } from 'pinia'
 import { flash } from '../assets/helpers/flashHelper'
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT)
 const [userStore, locationStore] = [useUserStore(), useLocationStore()]
-const { userId } = storeToRefs(userStore)
 const { distance, getLocation } = storeToRefs(locationStore)
 const setting = async (e) => {
   try {
@@ -26,7 +25,7 @@ const setting = async (e) => {
       flash({ variant: 'danger', message: '請確定2組新密碼相同' })
       return
     }
-    const newUserData = await putPersonalData({ data, id: userId.value })
+    const newUserData = await updatePersonalData({ data })
     userStore.setUser(newUserData)
     inputs.forEach((e) => (e.value = ''))
     flash({ variant: 'success', message: '成功更新' })
