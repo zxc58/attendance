@@ -6,9 +6,11 @@ import { reactive, ref } from 'vue'
 import { removeTokensAndRedirect } from '../assets/helpers/jwtHelper'
 const buttonCollapse = ref(null)
 const router = useRouter()
+const [userStore] = [useUserStore()]
+const { user, isAdmin } = storeToRefs(userStore)
+
 const navItem = reactive([
   {
-    linkClass: 'nav-link fs-5',
     name: '考勤',
     onclick: () => {
       if (window.innerWidth < 768) {
@@ -18,7 +20,6 @@ const navItem = reactive([
     },
   },
   {
-    linkClass: 'nav-link fs-5',
     name: '設定',
     onclick: () => {
       if (window.innerWidth < 768) {
@@ -28,8 +29,7 @@ const navItem = reactive([
     },
   },
 ])
-const [userStore] = [useUserStore()]
-const { user } = storeToRefs(userStore)
+
 const logOut = () => {
   return removeTokensAndRedirect()
 }
@@ -59,9 +59,18 @@ const logOut = () => {
             v-for="item in navItem"
             :key="item.name"
           >
-            <a :class="item.linkClass" @click="item.onclick"
-              >{{ item.name }}
-            </a>
+            <a class="nav-link fs-5" @click="item.onclick">{{ item.name }} </a>
+          </li>
+          <li class="nav-item text-center px-1" v-if="isAdmin">
+            <a
+              class="nav-link fs-5"
+              @click="
+                () => {
+                  router.push('/admin')
+                }
+              "
+              >管理</a
+            >
           </li>
         </ul>
         <ul class="navbar-nav">

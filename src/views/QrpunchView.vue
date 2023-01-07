@@ -14,7 +14,7 @@ onMounted(async () => {
     ]
     const data = { punch, punchQrId }
     const message = await qrPunch(data)
-    status.value = message ? '打卡成功' : ''
+    status.value = message ? '打卡成功 2秒後跳轉' : ''
     setTimeout(() => {
       router.push('/')
     }, 2 * 1000)

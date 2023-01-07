@@ -159,3 +159,64 @@ export const getQrId = async (location) => {
     }
   }
 }
+
+export const getUnworking = async () => {
+  try {
+    const responseData = await api.get('/admin/unworking')
+    return responseData.employees
+  } catch ({ status, message }) {
+    switch (message) {
+      default:
+        return Promise.reject({ status, message })
+    }
+  }
+}
+
+export const getLockedAccount = async () => {
+  try {
+    const responseData = await api.get('/admin/locked')
+    return responseData.employees
+  } catch ({ status, message }) {
+    switch (message) {
+      default:
+        return Promise.reject({ status, message })
+    }
+  }
+}
+
+export const unlockedAccount = async (id) => {
+  try {
+    const responseData = await api.patch(`/admin/unlock`, {
+      id,
+    })
+    return responseData.employee
+  } catch ({ status, message }) {
+    switch (message) {
+      default:
+        return Promise.reject({ status, message })
+    }
+  }
+}
+
+export const getAbsenteeism = async () => {
+  try {
+    const responseData = await api.get(`/admin/absenteeism`)
+    return responseData.attendances
+  } catch ({ status, message }) {
+    switch (message) {
+      default:
+        return Promise.reject({ status, message })
+    }
+  }
+}
+export const patchAttendance = async (attendanceId) => {
+  try {
+    const responseData = await api.patch(`/admin/attendances/${attendanceId}`)
+    return responseData
+  } catch ({ status, message }) {
+    switch (message) {
+      default:
+        return Promise.reject({ status, message })
+    }
+  }
+}

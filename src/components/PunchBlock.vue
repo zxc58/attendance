@@ -78,6 +78,7 @@ const punchOut = async () => {
     <AttendanceList />
 
     <div class="d-grid gap-2 d-md-block text-end">
+      <!-- modal -->
       <div
         class="modal fade"
         id="punchOutWarning"
@@ -123,11 +124,26 @@ const punchOut = async () => {
           </div>
         </div>
       </div>
+      <span
+        :class="
+          distance <= distanceLimit ? 'd-none' : 'd-over-bp fs-4 text-danger'
+        "
+        >請至公司操作</span
+      >
+      <small
+        :class="
+          distance <= distanceLimit
+            ? 'd-none'
+            : 'text-center d-less-bp  text-danger'
+        "
+        >請至公司操作</small
+      >
+      <!-- button -->
       <button
         :class="
-          distance <= 400
-            ? 'btn btn-danger btn-lg punch-btn px-1'
-            : 'btn btn-secondary btn-lg punch-btn px-1 disabled'
+          distance <= distanceLimit
+            ? 'btn btn-lg punch-btn px-1 btn-danger'
+            : 'btn btn-lg punch-btn px-1 btn-secondary disabled ms-1'
         "
         data-bs-toggle="modal"
         data-bs-target="#punchOutWarning"
@@ -137,9 +153,9 @@ const punchOut = async () => {
       </button>
       <button
         :class="
-          distance <= 400
-            ? 'btn btn-success btn-lg punch-btn px-1'
-            : 'btn btn-secondary btn-lg punch-btn px-1 disabled'
+          distance <= distanceLimit
+            ? 'btn btn-lg punch-btn px-1 btn-success'
+            : 'btn btn-lg punch-btn px-1 btn-secondary disabled ms-1'
         "
         @click="punchOut"
         v-else-if="todaysAttendance"
@@ -148,9 +164,9 @@ const punchOut = async () => {
       </button>
       <button
         :class="
-          distance <= 400
-            ? 'btn btn-info btn-lg punch-btn px-1'
-            : 'btn btn-secondary btn-lg punch-btn px-1 disabled'
+          distance <= distanceLimit
+            ? 'btn btn-lg punch-btn px-1 btn-info'
+            : 'btn btn-lg punch-btn px-1 btn-secondary disabled ms-1'
         "
         @click="punchIn"
         v-else
