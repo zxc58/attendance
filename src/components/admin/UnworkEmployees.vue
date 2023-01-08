@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getUnworking } from '../assets/api'
+import { getUnworking } from '../../assets/api'
 const unworkEmployees = ref(null)
 onMounted(async () => {
   try {

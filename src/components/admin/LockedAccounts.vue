@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getLockedAccount, unlockedAccount } from '../assets/api'
-import { flash } from '../assets/helpers/flashHelper'
+import { getLockedAccount, unlockedAccount } from '../../assets/api'
+import { flash } from '../../assets/helpers/flashHelper'
 const lockedAccount = ref([])
 onMounted(async () => {
   try {

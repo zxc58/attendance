@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getAbsenteeism, patchAttendance } from '../assets/api'
-import { flash } from '../assets/helpers/flashHelper'
-import dayjsTaipei from '../assets/helpers/timeHelper'
+import { getAbsenteeism, patchAttendance } from '../../assets/api'
+import { flash } from '../../assets/helpers/flashHelper'
+import dayjsTaipei from '../../assets/helpers/timeHelper'
 const absenteeismEmployees = ref([])
 onMounted(async () => {
   try {

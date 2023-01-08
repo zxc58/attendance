@@ -3,9 +3,9 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { storeToRefs } from 'pinia'
 import { reactive } from 'vue'
-import UnworkEmployeesVue from '../components/UnworkEmployees.vue'
-import LockedAccountsVue from '../components/LockedAccounts.vue'
-import AbsenteeismEmployeesVue from '../components/AbsenteeismEmployees.vue'
+import UnworkEmployeesVue from '../components/admin/UnworkEmployees.vue'
+import LockedAccountsVue from '../components/admin/LockedAccounts.vue'
+import AbsenteeismEmployeesVue from '../components/admin/AbsenteeismEmployees.vue'
 const [router, userStore] = [useRouter(), useUserStore()]
 
 const { isAdmin } = storeToRefs(userStore)
