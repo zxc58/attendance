@@ -28,6 +28,12 @@ const router = createRouter({
       sensitive: true,
       component: () => import('../views/QrpunchView.vue'),
     },
+    {
+      path: '/admin',
+      name: 'admin',
+      sensitive: true,
+      component: () => import('../views/AdminView.vue'),
+    },
   ],
 })
 

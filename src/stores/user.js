@@ -15,6 +15,9 @@ export const useUserStore = defineStore('user', () => {
   const userAvatar = computed(() => {
     return user?.value?.avatar ?? avatarUrl
   })
+  const isAdmin = computed(() => {
+    return user.value?.isAdmin ?? false
+  })
 
   async function setUser(newUser) {
     try {
@@ -28,5 +31,5 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  return { user, setUser, userName, userId, userAvatar }
+  return { user, setUser, userName, userId, userAvatar, isAdmin }
 })

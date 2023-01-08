@@ -30,13 +30,13 @@ const inputs = [
     id: 'accountInput',
     label: '帳號',
     name: 'account',
-    minLength: 7,
+    minLength: 5,
     maxLength: 14,
     isRequired: true,
     type: 'text',
     labelClass: 'form-label mt-4 fw-bold',
     inputClass: 'form-control',
-    placeholder: '長度7~14',
+    placeholder: '長度5~14',
   },
   {
     key: 'passwordDiv',
@@ -94,7 +94,7 @@ const showQr = async () => {
 </script>
 
 <template>
-  <form class="container" @submit.prevent="submit">
+  <form class="container-md" @submit.prevent="submit">
     <fieldset>
       <legend class="text-center display-5 my-0">登入</legend>
       <div class="d-over-bp">
@@ -130,16 +130,7 @@ const showQr = async () => {
       </div>
       <br />
       <div class="form-group text-center">
-        <button
-          type="submit"
-          :class="
-            distance <= distanceLimit
-              ? 'btn btn-info'
-              : 'btn btn-secondary disabled'
-          "
-        >
-          登入
-        </button>
+        <button type="submit" class="btn btn-info">登入</button>
       </div>
     </fieldset>
   </form>
