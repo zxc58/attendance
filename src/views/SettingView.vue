@@ -1,20 +1,13 @@
 <script setup>
 import { updatePersonalData } from '../assets/api'
 import { useUserStore } from '../stores/user'
-import { useLocationStore } from '../stores/location'
 import { storeToRefs } from 'pinia'
 import { flash } from '../assets/helpers/flashHelper'
-const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT)
-const [userStore, locationStore] = [useUserStore(), useLocationStore()]
-const { distance, getLocation } = storeToRefs(locationStore)
+const userStore = useUserStore()
+const { user } = storeToRefs(userStore)
 const setting = async (e) => {
   try {
-    if (distance.value >= distanceLimit) {
-      return flash({ variant: 'warning', message: '請親自至公司操作' })
-    }
-    const data = {
-      location: getLocation.value,
-    }
+    const data = {}
     const inputs = e.target.querySelectorAll('input')
     inputs.forEach((element) => {
       if (element.value) {
@@ -27,7 +20,16 @@ const setting = async (e) => {
     }
     const newUserData = await updatePersonalData({ data })
     userStore.setUser(newUserData)
-    inputs.forEach((e) => (e.value = ''))
+    inputs.forEach((element) => {
+      if (element.value) {
+        data[element.name] = element.value
+      }
+    })
+    inputs.forEach((element) => {
+      if (element.name === 'password' || element.name === 'ensurePassword') {
+        element.value = ''
+      }
+    })
     flash({ variant: 'success', message: '成功更新' })
   } catch (err) {
     console.error(err)
@@ -41,19 +43,43 @@ const setting = async (e) => {
     <fieldset>
       <div class="text-center display-5">設定資料</div>
       <hr />
-
       <div class="form-group">
-        <label for="passwordInput" class="form-label mt-0">設定新密碼</label>
+        <label for="phoneInput" class="form-label">新電話號碼</label>
+        <input
+          :value="user.phone"
+          class="form-control"
+          name="phone"
+          type="text"
+          minlength="5"
+          maxlength="20"
+          id="phoneInput"
+          aria-describedby="phoneHelp"
+          placeholder="新號碼"
+        />
+      </div>
+      <div class="form-group">
+        <label for="emailInput" class="form-label mt-4">新Email</label>
+        <input
+          :value="user.email"
+          class="form-control"
+          name="email"
+          type="email"
+          id="emailInput"
+          aria-describedby="emailHelp"
+          placeholder="新Email"
+        />
+      </div>
+      <div class="form-group">
+        <label for="passwordInput" class="form-label mt-4">新密碼</label>
         <input
           minlength="7"
           maxlength="14"
           name="password"
-          required
           type="password"
           class="form-control"
           id="passwordInput"
           aria-describedby="passwordHelp"
-          placeholder="新密碼"
+          placeholder="新密碼 7~14"
         />
       </div>
       <div class="form-group">
@@ -64,7 +90,6 @@ const setting = async (e) => {
           minlength="7"
           maxlength="14"
           name="ensurePassword"
-          required
           type="password"
           class="form-control"
           id="ensurePasswordInput"
@@ -73,14 +98,7 @@ const setting = async (e) => {
       </div>
       <br />
       <div class="form-group text-center">
-        <button
-          type="submit"
-          :class="
-            distance <= 400 ? 'btn btn-info' : 'btn btn-secondary disabled'
-          "
-        >
-          套用
-        </button>
+        <button type="submit" class="btn btn-lg btn-info">套用</button>
       </div>
     </fieldset>
   </form>

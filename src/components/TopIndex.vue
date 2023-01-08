@@ -29,7 +29,12 @@ const navItem = reactive([
     },
   },
 ])
-
+const directToManagement = () => {
+  if (window.innerWidth < 768) {
+    buttonCollapse.value.click()
+  }
+  router.push('/admin')
+}
 const logOut = () => {
   return removeTokensAndRedirect()
 }
@@ -62,15 +67,7 @@ const logOut = () => {
             <a class="nav-link fs-5" @click="item.onclick">{{ item.name }} </a>
           </li>
           <li class="nav-item text-center px-1" v-if="isAdmin">
-            <a
-              class="nav-link fs-5"
-              @click="
-                () => {
-                  router.push('/admin')
-                }
-              "
-              >管理</a
-            >
+            <a class="nav-link fs-5" @click="directToManagement">管理</a>
           </li>
         </ul>
         <ul class="navbar-nav">

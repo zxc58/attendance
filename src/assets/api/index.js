@@ -159,10 +159,10 @@ export const getQrId = async (location) => {
     }
   }
 }
-
+// Admin
 export const getUnworking = async () => {
   try {
-    const responseData = await api.get('/admin/unworking')
+    const responseData = await api.get('/admin/employees/unworking')
     return responseData.employees
   } catch ({ status, message }) {
     switch (message) {
@@ -174,7 +174,7 @@ export const getUnworking = async () => {
 
 export const getLockedAccount = async () => {
   try {
-    const responseData = await api.get('/admin/locked')
+    const responseData = await api.get('/admin/employees/locked')
     return responseData.employees
   } catch ({ status, message }) {
     switch (message) {
@@ -186,9 +186,7 @@ export const getLockedAccount = async () => {
 
 export const unlockedAccount = async (id) => {
   try {
-    const responseData = await api.patch(`/admin/unlock`, {
-      id,
-    })
+    const responseData = await api.patch(`/admin/employees/${id}/unlock`)
     return responseData.employee
   } catch ({ status, message }) {
     switch (message) {
@@ -200,7 +198,7 @@ export const unlockedAccount = async (id) => {
 
 export const getAbsenteeism = async () => {
   try {
-    const responseData = await api.get(`/admin/absenteeism`)
+    const responseData = await api.get(`/admin/employees/absenteeism`)
     return responseData.attendances
   } catch ({ status, message }) {
     switch (message) {

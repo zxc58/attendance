@@ -6,7 +6,7 @@ import { useLocationStore } from '../stores/location'
 import { storeToRefs } from 'pinia'
 import { punchIn as punchInApi, punchOut as punchOutApi } from '../assets/api'
 import dayjsTaipei, { getEndTime } from '../assets/helpers/timeHelper'
-import { onBeforeMount, onBeforeUnmount } from 'vue'
+import { onMounted, onBeforeUnmount } from 'vue'
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
 const [attendanceStore, locationStore] = [
   useAttendanceStore(),
@@ -17,7 +17,7 @@ const { todaysAttendance, leftTime, formatPunchIn } =
   storeToRefs(attendanceStore)
 const { getLocation, distance } = storeToRefs(locationStore)
 let timeOutId
-onBeforeMount(() => {
+onMounted(() => {
   ;(function a() {
     setTodaysAttendance()
     timeOutId = setTimeout(a, getEndTime().diff(dayjsTaipei(), 's') * 1000)
