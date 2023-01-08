@@ -10,7 +10,7 @@ let watchPositionId
 onBeforeMount(async () => {
   navigator.geolocation.watchPosition(locationStore.setLocation, null, {
     timeout: 10 * 1000,
-    enableHighAccuracy: false,
+    enableHighAccuracy: true,
   })
   if (!localStorage.getItem('access_token')) {
     return removeTokensAndRedirect()
