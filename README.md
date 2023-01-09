@@ -1,6 +1,6 @@
 # Attendance
 範例網址 : https://zxc58.github.io/attendance/
-![image](https://github.com/zxc58/attendance/blob/main/public/demo_pic.png)
+![image](https://github.com/zxc58/attendance/blob/preview/public/demo_pic.png)
 ### 專案使用框架
 VUE3<br/>
 pinia<br/>

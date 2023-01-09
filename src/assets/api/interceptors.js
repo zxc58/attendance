@@ -17,7 +17,8 @@ export const bringJWT = async (config) => {
         if (!requireNewTokenPromise) {
           requireNewTokenPromise = requireNewToken()
         }
-        const newAccessToken = await requireNewTokenPromise
+        const temp = requireNewTokenPromise
+        const newAccessToken = await temp
         requireNewTokenPromise = null
         config.headers.Authorization = `Bearer ${newAccessToken}`
       } else {
