@@ -1,10 +1,20 @@
 <script setup>
+import { ref } from 'vue'
 import { useUserStore } from '../stores/user'
 import { useAttendanceStore } from '../stores/attendance'
 import { storeToRefs } from 'pinia'
 const [userStore, attendanceStore] = [useUserStore(), useAttendanceStore()]
 const { userAvatar, userName } = storeToRefs(userStore)
 const { formatPunchIn, formatPunchOut } = storeToRefs(attendanceStore)
+const avatar = ref(null)
+
+// const afterChange = async () => {
+//   try {
+//   } catch (err) {
+//     console.error(err)
+//     flash({ variant: 'danger', message: 'update avatar unknown error' })
+//   }
+// }
 </script>
 
 <template>
@@ -13,6 +23,13 @@ const { formatPunchIn, formatPunchOut } = storeToRefs(attendanceStore)
       :src="userAvatar"
       class="img-fluid rounded-circle img-thumbnail d-over-bp"
       alt="Avatar"
+    /><br />
+    <input
+      type="file"
+      name="avatar"
+      ref="avatar"
+      class="d-none"
+      @change="afterChange"
     />
     <p class="display-6 mt-0 d-over-bp">{{ userName }}</p>
     <ul class="my-0 fw-bold fs-4">
@@ -24,6 +41,7 @@ const { formatPunchIn, formatPunchOut } = storeToRefs(attendanceStore)
 <style scoped>
 img {
   max-height: 300px;
+  cursor: pointer;
 }
 @media screen and (max-width: 768px) {
   ul {

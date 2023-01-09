@@ -159,6 +159,7 @@ export const getQrId = async (location) => {
     }
   }
 }
+
 // Admin
 export const getUnworking = async () => {
   try {
@@ -207,6 +208,7 @@ export const getAbsenteeism = async () => {
     }
   }
 }
+
 export const patchAttendance = async (attendanceId) => {
   try {
     const responseData = await api.patch(`/admin/attendances/${attendanceId}`)
