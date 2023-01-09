@@ -30,6 +30,10 @@ export const useUserStore = defineStore('user', () => {
       flash({ variant: 'danger', message: '發生未知錯誤，請重新嘗試' })
     }
   }
-
-  return { user, setUser, userName, userId, userAvatar, isAdmin }
+  function setAvatar(url) {
+    if (user.value) {
+      user.value.avatar = url
+    }
+  }
+  return { user, setUser, userName, userId, userAvatar, isAdmin, setAvatar }
 })
