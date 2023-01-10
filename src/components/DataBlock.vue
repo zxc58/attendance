@@ -9,7 +9,6 @@ const [userStore, attendanceStore] = [useUserStore(), useAttendanceStore()]
 const { userAvatar, userName } = storeToRefs(userStore)
 const { formatPunchIn, formatPunchOut } = storeToRefs(attendanceStore)
 const avatar = ref(null)
-const image = ref(userAvatar)
 const clickImage = () => avatar.value.click()
 
 const afterChange = async () => {
@@ -34,7 +33,6 @@ const afterChange = async () => {
 <template>
   <div class="col-md text-center">
     <img
-      ref="image"
       :src="userAvatar"
       class="img-fluid rounded-circle img-thumbnail d-over-bp"
       alt="Avatar"

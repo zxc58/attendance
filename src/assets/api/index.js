@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { flash } from '../helpers/flashHelper'
 import { bringJWT, responseHandler, axiosErrorHandler } from './interceptors'
+import router from '../../router'
 const backendURL =
   import.meta.env.VITE_APP_BACKEND_URL ?? 'http://localhost:3000'
 
@@ -43,6 +44,9 @@ export const fetchPersonalData = async () => {
     return responseData.employee
   } catch ({ status, message }) {
     switch (message) {
+      case 'canceled':
+        router.push('/login')
+        return undefined
       default:
         return Promise.reject({ status, message })
     }
@@ -58,6 +62,9 @@ export const fetchTodaysAttendance = async () => {
     return responseData.attendances
   } catch ({ status, message }) {
     switch (message) {
+      case 'canceled':
+        router.push('/login')
+        return undefined
       case 'You have not punched in yet':
         return null
       default:
@@ -75,6 +82,9 @@ export const fetchRecentAttendances = async () => {
     return responseData.attendances
   } catch ({ status, message }) {
     switch (message) {
+      case 'canceled':
+        router.push('/login')
+        return undefined
       default:
         return Promise.reject({ status, message })
     }
@@ -88,6 +98,9 @@ export const updatePersonalData = async ({ data }) => {
     return responseData.employee
   } catch ({ status, message }) {
     switch (message) {
+      case 'canceled':
+        router.push('/login')
+        return undefined
       default:
         return Promise.reject({ status, message })
     }
@@ -107,6 +120,9 @@ export const punchIn = async ({ punchIn, location }) => {
     return responseData.attendance
   } catch ({ status, message }) {
     switch (message) {
+      case 'canceled':
+        router.push('/login')
+        return undefined
       default:
         return Promise.reject({ status, message })
     }
@@ -126,6 +142,9 @@ export const punchOut = async ({ id, punchOut, location }) => {
     return responseData.attendance
   } catch ({ status, message }) {
     switch (message) {
+      case 'canceled':
+        router.push('/login')
+        return undefined
       default:
         return Promise.reject({ status, message })
     }
@@ -138,6 +157,9 @@ export const qrPunch = async (data) => {
     return responseData.message
   } catch ({ status, message }) {
     switch (message) {
+      case 'canceled':
+        router.push('/login')
+        return undefined
       case 'Id is expired':
         return false
       default:
@@ -154,6 +176,9 @@ export const getQrId = async (location) => {
     return responseData.punchQrId
   } catch ({ status, message }) {
     switch (message) {
+      case 'canceled':
+        router.push('/login')
+        return undefined
       default:
         return Promise.reject({ status, message })
     }
@@ -167,6 +192,9 @@ export const getUnworking = async () => {
     return responseData.employees
   } catch ({ status, message }) {
     switch (message) {
+      case 'canceled':
+        router.push('/login')
+        return undefined
       default:
         return Promise.reject({ status, message })
     }
@@ -179,6 +207,9 @@ export const getLockedAccount = async () => {
     return responseData.employees
   } catch ({ status, message }) {
     switch (message) {
+      case 'canceled':
+        router.push('/login')
+        return undefined
       default:
         return Promise.reject({ status, message })
     }
@@ -191,6 +222,9 @@ export const unlockedAccount = async (id) => {
     return responseData.employee
   } catch ({ status, message }) {
     switch (message) {
+      case 'canceled':
+        router.push('/login')
+        return undefined
       default:
         return Promise.reject({ status, message })
     }
@@ -203,6 +237,9 @@ export const getAbsenteeism = async () => {
     return responseData.attendances
   } catch ({ status, message }) {
     switch (message) {
+      case 'canceled':
+        router.push('/login')
+        return undefined
       default:
         return Promise.reject({ status, message })
     }
@@ -215,6 +252,9 @@ export const patchAttendance = async (attendanceId) => {
     return responseData
   } catch ({ status, message }) {
     switch (message) {
+      case 'canceled':
+        router.push('/login')
+        return undefined
       default:
         return Promise.reject({ status, message })
     }

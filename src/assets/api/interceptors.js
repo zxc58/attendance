@@ -6,6 +6,7 @@ const backendURL =
 let requireNewTokenPromise = null
 
 export const bringJWT = async (config) => {
+  const controller = new AbortController()
   try {
     const access_token = JSON.parse(localStorage.getItem('access_token'))
     if (access_token) {
@@ -27,7 +28,10 @@ export const bringJWT = async (config) => {
     }
     return config
   } catch (err) {
-    console.error(err)
+    const cfg = { ...config, signal: controller.signal }
+    controller.abort('Refresh JWT fail')
+    removeTokensAndRedirect()
+    return cfg
   }
 }
 export const axiosErrorHandler = (error) => {
@@ -41,6 +45,7 @@ export const axiosErrorHandler = (error) => {
 export const responseHandler = (response) => {
   return { ...response.data, status: response.status }
 }
+
 async function requireNewToken() {
   try {
     const { refreshToken } = JSON.parse(localStorage.getItem('refresh_token'))
@@ -55,6 +60,7 @@ async function requireNewToken() {
     localStorage.setItem('access_token', access_token)
     return accessToken
   } catch (axiosError) {
-    removeTokensAndRedirect()
+    const message = 'Refresh JWT fail (refresh token may been expired)'
+    return Promise.reject(new Error(message))
   }
 }
