@@ -1,6 +1,7 @@
 <script setup>
-import { useAttendanceStore } from '../stores/attendance'
 import { storeToRefs } from 'pinia'
+import store from '../stores'
+const { useAttendanceStore } = store
 const attendanceStore = useAttendanceStore()
 const { formatDetails } = storeToRefs(attendanceStore)
 </script>

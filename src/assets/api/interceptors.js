@@ -8,9 +8,10 @@ let requireNewTokenPromise = null
 export const bringJWT = async (config) => {
   const controller = new AbortController()
   try {
-    const access_token = JSON.parse(localStorage.getItem('access_token'))
-    if (access_token) {
-      const { accessTokenExpiredTime, accessToken } = access_token
+    const accessTokenJsonString = localStorage.getItem('access_token')
+    if (accessTokenJsonString) {
+      const accessTokenObject = JSON.parse(accessTokenJsonString)
+      const { accessTokenExpiredTime, accessToken } = accessTokenObject
       const isExpired = dayjsTaipei().isAfter(
         dayjsTaipei(accessTokenExpiredTime)
       )
@@ -34,21 +35,14 @@ export const bringJWT = async (config) => {
     return cfg
   }
 }
-export const axiosErrorHandler = (error) => {
-  const { message } = error.message
-  const { status, data } = error.response
-  return Promise.reject({
-    status,
-    message: data?.message ? data.message : message,
-  })
-}
-export const responseHandler = (response) => {
-  return { ...response.data, status: response.status }
-}
 
 async function requireNewToken() {
   try {
-    const { refreshToken } = JSON.parse(localStorage.getItem('refresh_token'))
+    const refresh_token = localStorage.getItem('refresh_token')
+    if (!refresh_token) {
+      throw new Error('No refresh token')
+    }
+    const { refreshToken } = JSON.parse(refresh_token)
     const response = await axios.post(`${backendURL}/auth/refresh`, {
       refreshToken,
     })
@@ -59,7 +53,7 @@ async function requireNewToken() {
     })
     localStorage.setItem('access_token', access_token)
     return accessToken
-  } catch (axiosError) {
+  } catch (error) {
     const message = 'Refresh JWT fail (refresh token may been expired)'
     return Promise.reject(new Error(message))
   }

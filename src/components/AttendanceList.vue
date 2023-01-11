@@ -1,8 +1,9 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { onMounted, onBeforeUnmount } from 'vue'
-import { useAttendanceStore } from '../stores/attendance'
+import store from '../stores'
 import dayjsTaipei, { getEndTime } from '../assets/helpers/timeHelper'
+const { useAttendanceStore } = store
 const attendanceStore = useAttendanceStore()
 const { setRecentAttendances } = attendanceStore
 const { attendanceList } = storeToRefs(attendanceStore)

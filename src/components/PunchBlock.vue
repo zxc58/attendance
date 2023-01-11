@@ -1,13 +1,13 @@
 <script setup>
+import { storeToRefs } from 'pinia'
+import { onMounted, onBeforeUnmount } from 'vue'
 import { flash } from '../assets/helpers/flashHelper'
 import AttendanceList from './AttendanceList.vue'
-import { useAttendanceStore } from '../stores/attendance'
-import { useLocationStore } from '../stores/location'
-import { storeToRefs } from 'pinia'
-import { punchIn as punchInApi, punchOut as punchOutApi } from '../assets/api'
+import store from '../stores'
+import api from '../assets/api'
 import dayjsTaipei, { getEndTime } from '../assets/helpers/timeHelper'
-import { onMounted, onBeforeUnmount } from 'vue'
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
+const { useAttendanceStore, useLocationStore } = store
 const [attendanceStore, locationStore] = [
   useAttendanceStore(),
   useLocationStore(),
@@ -18,9 +18,9 @@ const { todaysAttendance, leftTime, formatPunchIn } =
 const { getLocation, distance } = storeToRefs(locationStore)
 let timeOutId
 onMounted(() => {
-  ;(function a() {
-    setTodaysAttendance()
-    timeOutId = setTimeout(a, getEndTime().diff(dayjsTaipei(), 's') * 1000)
+  ;(async function refreshAttendance() {
+    setTodaysAttendance(null)
+    timeOutId = setTimeout(refreshAttendance, getEndTime().diff(dayjsTaipei()))
   })()
 })
 onBeforeUnmount(() => {
@@ -35,15 +35,11 @@ const punchIn = async () => {
     if (!punchIn || !getLocation.value) {
       throw new Error(`punchIn,location: [${!!punchIn},${!!getLocation.value}]`)
     }
-    const attendance = await punchInApi({
-      punchIn,
-      location: getLocation.value,
-    })
-    flash({ variant: 'success', message: '成功打卡' })
-    setTodaysAttendance(attendance)
+    const { data } = await api.user.punchInAPI(punchIn, getLocation.value)
+    flash('success', '成功打卡')
+    setTodaysAttendance(data)
   } catch (err) {
-    console.error(err)
-    flash({ variant: 'danger', message: '發生未知錯誤，打卡失敗' })
+    flash()
   }
 }
 const punchOut = async () => {
@@ -59,16 +55,11 @@ const punchOut = async () => {
       )
     }
 
-    const attendance = await punchOutApi({
-      id,
-      punchOut,
-      location: getLocation.value,
-    })
-    setTodaysAttendance(attendance)
-    flash({ variant: 'success', message: '成功打卡' })
+    const { data } = await api.user.punchOutAPI(id, punchOut, getLocation.value)
+    setTodaysAttendance(data)
+    flash('success', '成功打卡')
   } catch (error) {
-    flash({ variant: 'danger', message: '發生未知錯誤，打卡失敗' })
-    console.error(error)
+    flash()
   }
 }
 </script>

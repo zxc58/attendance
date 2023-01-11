@@ -1,15 +1,19 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { useUserStore } from '../stores/user'
 import { storeToRefs } from 'pinia'
 import { reactive } from 'vue'
+import store from '../stores'
 import UnworkEmployeesVue from '../components/admin/UnworkEmployees.vue'
 import LockedAccountsVue from '../components/admin/LockedAccounts.vue'
 import AbsenteeismEmployeesVue from '../components/admin/AbsenteeismEmployees.vue'
-const [router, userStore] = [useRouter(), useUserStore()]
 
+const { useUserStore } = store
+const [router, userStore] = [useRouter(), useUserStore()]
 const { isAdmin } = storeToRefs(userStore)
 const controller = reactive([false, false, true])
+if (!isAdmin.value) {
+  router.push('/')
+}
 
 const navChange = (index) => {
   controller.forEach((e, i, a) => {
@@ -19,9 +23,6 @@ const navChange = (index) => {
       a[i] = false
     }
   })
-}
-if (!isAdmin.value) {
-  router.push('/')
 }
 </script>
 
