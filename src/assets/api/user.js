@@ -1,6 +1,9 @@
 import axios from 'axios'
 import instance from './instance'
-
+import { useUserStore } from '../../stores/user'
+import { storeToRefs } from 'pinia'
+const userStore = useUserStore()
+const { userId } = storeToRefs(userStore)
 const backendURL =
   import.meta.env.VITE_APP_BACKEND_URL ?? 'http://localhost:3000'
 
@@ -13,54 +16,66 @@ export function fetchUserDataByJWT() {
 }
 
 export function personalDataAPI() {
-  const userId = localStorage.getItem('userId')
-  if (userId) {
-    throw new Error()
-  }
-  return instance.get(`/employees/${userId}`)
+  return instance.get(`/employees/${userId.value}`)
 }
 
 export function todaysAttendanceAPI() {
-  const userId = localStorage.getItem('userId')
-  return instance.get(`/employees/${userId}/attendances`, {
+  return instance.get(`/employees/${userId.value}/attendances`, {
     params: { date: 'today' },
   })
 }
-
+/**
+ *
+ * @returns
+ */
 export function recentAttendancesAPI() {
-  const userId = localStorage.getItem('userId')
-  return instance.get(`/employees/${userId}/attendances`, {
+  return instance.get(`/employees/${userId.value}/attendances`, {
     params: { date: 'recent' },
   })
 }
-
+/**
+ *
+ * @param {{password:string,phone:string,email:string}} data
+ * @returns
+ */
 export function updatePersonalDataAPI(data) {
-  const userId = localStorage.getItem('userId')
-  return instance.patch(`/employees/${userId}`, data)
+  return instance.patch(`/employees/${userId.value}`, data)
 }
-
+/**
+ *
+ * @param {Date} punchIn
+ * @param {{latitude:number,longitude:number,accuracy:number}} location
+ * @returns
+ */
 export function punchInAPI(punchIn, location) {
-  const userId = localStorage.getItem('userId')
   return instance.post(
-    `employees/${userId}/attendances`,
+    `employees/${userId.value}/attendances`,
     {
       punchIn,
     },
     { params: { location } }
   )
 }
-
-export function punchOutAPI(id, punchOut, location) {
-  const userId = localStorage.getItem('userId')
+/**
+ * @param { number | string } attendanceId
+ * @param {Date} punchOut
+ * @param {{latitude:number,longitude:number,accuracy:number}} location
+ * @returns
+ */
+export function punchOutAPI(attendanceId, punchOut, location) {
   return instance.patch(
-    `/employees/${userId}/attendances/${id}`,
+    `/employees/${userId.value}/attendances/${attendanceId}`,
     {
       punchOut,
     },
     { params: { location } }
   )
 }
-
+/**
+ *
+ * @param {{punch:Date,punchQrId:string}} data
+ * @returns
+ */
 export function qrPunchAPI(data) {
   return instance.post('/attendances/qrcode', data)
 }
