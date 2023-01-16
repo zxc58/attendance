@@ -1,11 +1,11 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { onMounted, onBeforeUnmount } from 'vue'
 import { flash } from '../assets/helpers/flashHelper'
 import AttendanceList from './AttendanceList.vue'
 import store from '../stores'
 import api from '../assets/api'
-import dayjsTaipei, { getEndTime } from '../assets/helpers/timeHelper'
+import dayjsTaipei from '../assets/helpers/timeHelper'
+
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
 const { useAttendanceStore, useLocationStore } = store
 const [attendanceStore, locationStore] = [
@@ -16,20 +16,11 @@ const { setTodaysAttendance } = attendanceStore
 const { todaysAttendance, leftTime, formatPunchIn } =
   storeToRefs(attendanceStore)
 const { getLocation, distance } = storeToRefs(locationStore)
-let timeOutId
-onMounted(() => {
-  ;(async function refreshAttendance() {
-    setTodaysAttendance(null)
-    timeOutId = setTimeout(refreshAttendance, getEndTime().diff(dayjsTaipei()))
-  })()
-})
-onBeforeUnmount(() => {
-  clearTimeout(timeOutId)
-})
+
 const punchIn = async () => {
   try {
     if (distance.value >= distanceLimit) {
-      return flash({ variant: 'warning', message: '請親自至公司操作' })
+      return flash('warning', '請親自至公司操作')
     }
     const punchIn = dayjsTaipei().startOf('minute').toDate()
     if (!punchIn || !getLocation.value) {
@@ -45,7 +36,7 @@ const punchIn = async () => {
 const punchOut = async () => {
   try {
     if (distance.value >= distanceLimit) {
-      return flash({ variant: 'warning', message: '請親自至公司操作' })
+      return flash('warning', '請親自至公司操作')
     }
     const id = todaysAttendance.value.id
     const punchOut = dayjsTaipei().startOf('minute').toDate()
