@@ -1,31 +1,31 @@
 <script setup>
 import { ref } from 'vue'
-import { useUserStore } from '../stores/user'
-import { useAttendanceStore } from '../stores/attendance'
 import { storeToRefs } from 'pinia'
+import store from '../stores'
 import { flash } from '../assets/helpers/flashHelper'
-import api from '../assets/api'
+import api from '../assets/api/instance'
+const { useUserStore, useAttendanceStore } = store
 const [userStore, attendanceStore] = [useUserStore(), useAttendanceStore()]
 const { userAvatar, userName } = storeToRefs(userStore)
 const { formatPunchIn, formatPunchOut } = storeToRefs(attendanceStore)
-const avatar = ref(null)
-const clickImage = () => avatar.value.click()
+const avatarInput = ref(null)
+const clickImage = () => avatarInput.value.click()
 
 const afterChange = async () => {
   try {
     var formData = new FormData()
-    var imagefile = avatar.value
+    var imagefile = avatarInput.value
     formData.append('image', imagefile.files[0])
     const userId = localStorage.getItem('userId')
-    const res = await api.post(`/employees/${userId}/avatar`, formData, {
+    const { avatar } = await api.post(`/employees/${userId}/avatar`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     })
-    userStore.setAvatar(res.avatar)
-    flash({ variant: 'success', message: '成功更新' })
+    userStore.setAvatar(avatar)
+    flash('success', '成功更新')
   } catch (err) {
-    console.error(err)
+    flash()
   }
 }
 </script>
@@ -41,7 +41,7 @@ const afterChange = async () => {
     <input
       type="file"
       name="avatar"
-      ref="avatar"
+      ref="avatarInput"
       class="d-none"
       @change="afterChange"
     />

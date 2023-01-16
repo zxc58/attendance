@@ -1,7 +1,5 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { fetchPersonalData } from '../assets/api'
-import { flash } from '../assets/helpers/flashHelper'
 import avatarUrl from '../assets/avatar.png'
 export const useUserStore = defineStore('user', () => {
   const user = ref(null)
@@ -19,16 +17,8 @@ export const useUserStore = defineStore('user', () => {
     return user.value?.isAdmin ?? false
   })
 
-  async function setUser(newUser) {
-    try {
-      if (!newUser) {
-        newUser = await fetchPersonalData()
-      }
-      user.value = newUser
-      return newUser
-    } catch (err) {
-      flash({ variant: 'danger', message: '發生未知錯誤，請重新嘗試' })
-    }
+  function setUser(newUser) {
+    user.value = newUser
   }
   function setAvatar(url) {
     if (user.value) {

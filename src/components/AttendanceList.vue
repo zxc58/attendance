@@ -1,16 +1,22 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { onMounted, onBeforeUnmount } from 'vue'
-import { useAttendanceStore } from '../stores/attendance'
+import store from '../stores'
 import dayjsTaipei, { getEndTime } from '../assets/helpers/timeHelper'
+import api from '../assets/api'
+const { useAttendanceStore } = store
 const attendanceStore = useAttendanceStore()
 const { setRecentAttendances } = attendanceStore
 const { attendanceList } = storeToRefs(attendanceStore)
 let timeOutId
 onMounted(() => {
-  ;(function b() {
-    setRecentAttendances()
-    timeOutId = setTimeout(b, getEndTime().diff(dayjsTaipei(), 's') * 1000)
+  ;(async function refreshRecentAttendances() {
+    const { data } = await api.user.recentAttendancesAPI()
+    setRecentAttendances(data)
+    timeOutId = setTimeout(
+      refreshRecentAttendances,
+      getEndTime().diff(dayjsTaipei())
+    )
   })()
 })
 onBeforeUnmount(() => {

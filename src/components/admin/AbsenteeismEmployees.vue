@@ -1,29 +1,27 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getAbsenteeism, patchAttendance } from '../../assets/api'
 import { flash } from '../../assets/helpers/flashHelper'
 import dayjsTaipei from '../../assets/helpers/timeHelper'
+import api from '../../assets/api'
 const absenteeismEmployees = ref([])
 onMounted(async () => {
   try {
-    const absenteeism = await getAbsenteeism()
-    absenteeismEmployees.value = absenteeism
+    const { data } = await api.admin.getAbsenteeismAPI()
+    absenteeismEmployees.value = data
   } catch (err) {
-    flash({ variant: 'danger', message: '發生未知錯誤' })
-    console.error(err)
+    flash()
   }
 })
 const modifyAttendance = async (attendanceId) => {
   try {
-    await patchAttendance(attendanceId)
+    await api.admin.patchAttendanceAPI(attendanceId)
     const deleteIndex = absenteeismEmployees.value.findIndex(
       (e) => e.attendanceId === attendanceId
     )
     absenteeismEmployees.value.splice(deleteIndex, 1)
-    flash({ variant: 'success', message: '成功修改' })
+    flash('success', '成功修改')
   } catch (err) {
-    flash({ variant: 'danger', message: '發生未知錯誤' })
-    console.error(err)
+    flash()
   }
 }
 </script>
