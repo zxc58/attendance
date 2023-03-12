@@ -44,7 +44,7 @@ const logOut = () => {
 <template>
   <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <div class="container-fluid">
-      <span class="navbar-brand fs-3 titan-logo">鈦坦科技</span>
+      <span class="navbar-brand fs-3 titan-logo">考勤系統</span>
       <button
         v-if="user"
         ref="buttonCollapse"

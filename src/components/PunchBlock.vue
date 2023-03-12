@@ -145,11 +145,8 @@ const punchOut = async () => {
         下班
       </button>
       <button
-        :class="
-          distance <= distanceLimit
-            ? 'btn btn-lg punch-btn px-1 btn-info'
-            : 'btn btn-lg punch-btn px-1 btn-secondary disabled ms-1'
-        "
+        v-bind:disabled="distance <= distanceLimit"
+        class="btn btn-lg punch-btn px-1 btn-info"
         @click="punchIn"
         v-else
       >
