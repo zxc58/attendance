@@ -3,7 +3,7 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import store from '../stores'
-import { removeTokensAndRedirect } from '../assets/helpers/jwtHelper'
+import { removeTokens } from '../assets/helpers/jwtHelper'
 const { useUserStore } = store
 const buttonCollapse = ref(null)
 const router = useRouter()
@@ -37,7 +37,7 @@ const directToManagement = () => {
   router.push('/admin')
 }
 const logOut = () => {
-  return removeTokensAndRedirect()
+  return removeTokens()
 }
 </script>
 
