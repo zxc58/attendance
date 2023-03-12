@@ -1,8 +1,10 @@
 <script setup>
-import { updatePersonalData } from '../assets/api'
-import { useUserStore } from '../stores/user'
 import { storeToRefs } from 'pinia'
+import store from '../stores'
+import api from '../assets/api'
 import { flash } from '../assets/helpers/flashHelper'
+
+const { useUserStore } = store
 const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
 const setting = async (e) => {
@@ -15,25 +17,19 @@ const setting = async (e) => {
       }
     })
     if (data.password !== data.ensurePassword) {
-      flash({ variant: 'danger', message: '請確定2組新密碼相同' })
+      flash('danger', '請確定2組新密碼相同')
       return
     }
-    const newUserData = await updatePersonalData({ data })
+    const newUserData = await api.user.updatePersonalDataAPI(data)
     userStore.setUser(newUserData)
-    inputs.forEach((element) => {
-      if (element.value) {
-        data[element.name] = element.value
-      }
-    })
     inputs.forEach((element) => {
       if (element.name === 'password' || element.name === 'ensurePassword') {
         element.value = ''
       }
     })
-    flash({ variant: 'success', message: '成功更新' })
+    flash('success', '成功更新')
   } catch (err) {
-    console.error(err)
-    flash({ variant: 'danger', message: '發生未知錯誤，更新失敗' })
+    flash()
   }
 }
 </script>

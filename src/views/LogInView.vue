@@ -1,16 +1,16 @@
 <script setup>
-import qricon from '../assets/qricon.png'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '../stores/user'
-import { useLocationStore } from '../stores/location'
-import { login, getQrId } from '../assets/api'
-import { useAttendanceStore } from '../stores/attendance'
+import { removeTokens } from '../assets/helpers/jwtHelper'
 import { storeToRefs } from 'pinia'
-import { flash } from '../assets/helpers/flashHelper'
 import QrcodeVue from 'qrcode.vue'
+import qricon from '../assets/qricon.png'
+import { useRouter } from 'vue-router'
+import store from '../stores'
+import api from '../assets/api'
+import { flash } from '../assets/helpers/flashHelper'
 import { storeJWT } from '../assets/helpers/jwtHelper'
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
+const { useUserStore, useLocationStore, useAttendanceStore } = store
 const qr = ref('')
 const [userStore, locationStore, router, attendanceStore] = [
   useUserStore(),
@@ -20,8 +20,7 @@ const [userStore, locationStore, router, attendanceStore] = [
 ]
 userStore.$patch({ user: null })
 attendanceStore.$patch({ todaysAttendance: null, recentAttendances: [] })
-localStorage.removeItem('access_token')
-localStorage.removeItem('refresh_token')
+removeTokens()
 const { getLocation, distance } = storeToRefs(locationStore)
 
 const inputs = [
@@ -52,49 +51,54 @@ const inputs = [
     placeholder: '長度7~14',
   },
 ]
-const submit = async (e) => {
+const login = async (e) => {
   try {
     const inputs = e.target.querySelectorAll('input')
     const data = {}
     inputs.forEach((element) => {
       data[element.name] = element.value
     })
-    const responseData = await login(data)
-    if (!responseData) {
-      return
-    }
+    const responseData = await api.user.loginAPI(data)
     storeJWT(responseData)
-    await userStore.setUser()
     router.push('/')
-  } catch (err) {
-    flash({ variant: 'danger', message: '發生未知錯誤' })
-    console.error(err)
+  } catch ({ message }) {
+    switch (message) {
+      case 'Wrong times over 5':
+        return flash('danger', '帳號已被鎖定')
+      case ('Password wrong', 'Account do not exist'):
+        return flash('danger', '帳號或密碼錯誤')
+      default:
+        return flash()
+    }
   }
 }
 
 const showQr = async () => {
-  if (!(distance.value <= distanceLimit)) {
-    return flash({
-      variant: 'warning',
-      message: '請親自至公司操作' + distance.value,
-    })
+  try {
+    if (!(distance.value <= distanceLimit)) {
+      return flash('warning', '請親自至公司操作')
+    }
+    const { punchQrId } = await api.user.getQrIdAPI(getLocation.value)
+    if (!punchQrId) {
+      throw new Error('Get QR code fail')
+    }
+    const qrURL = `${location.protocol}//${location.host}/attendance/qrcode?punchQrId=${punchQrId}`
+    qr.value = qrURL
+    window.addEventListener(
+      'click',
+      () => {
+        qr.value = ''
+      },
+      { once: true, capture: true }
+    )
+  } catch (err) {
+    flash()
   }
-  const punchQrId = await getQrId(getLocation.value)
-  const qrURL = `${location.protocol}//${location.host}/attendance/qrcode?punchQrId=${punchQrId}`
-
-  qr.value = qrURL
-  window.addEventListener(
-    'click',
-    () => {
-      qr.value = ''
-    },
-    { once: true, capture: true }
-  )
 }
 </script>
 
 <template>
-  <form class="container-md" @submit.prevent="submit">
+  <form class="container-md" @submit.prevent="login">
     <fieldset>
       <legend class="text-center display-5 my-0">登入</legend>
       <div class="d-over-bp">

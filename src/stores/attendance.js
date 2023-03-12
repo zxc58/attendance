@@ -1,8 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { fetchTodaysAttendance, fetchRecentAttendances } from '../assets/api'
 import dayjsTaipei, { countWorkingHour } from '../assets/helpers/timeHelper'
-import { flash } from '../assets/helpers/flashHelper'
 const requiredWorkingHour = Number(
   import.meta.env.VITE_APP_REQUIRED_WORKING_HOUR ?? 8
 )
@@ -85,38 +83,23 @@ export const useAttendanceStore = defineStore('attendance', () => {
     }
   })
 
-  async function setTodaysAttendance(newRecord) {
-    try {
-      if (!newRecord) {
-        newRecord = await fetchTodaysAttendance()
-      }
-      todaysAttendance.value = newRecord
-    } catch (err) {
-      flash({ variant: 'danger', message: '發生未知錯誤，請重新嘗試' })
-      console.error(err)
-    }
+  function setTodaysAttendance(newRecord) {
+    todaysAttendance.value = newRecord
   }
 
-  async function setRecentAttendances(newRecords) {
-    try {
-      if (!newRecords) {
-        newRecords = await fetchRecentAttendances()
-        newRecords = newRecords.map((e) => ({
-          dateId: e.id,
-          date: e.date,
-          day: e.day,
-          isHoliday: e.isHoliday,
-          attendanceId: e?.Attendances?.id,
-          punchIn: e?.Attendances?.punchIn,
-          punchOut: e?.Attendances?.punchOut,
-        }))
-      }
-      recentAttendances.value = newRecords
-    } catch (err) {
-      flash({ variant: 'danger', message: '發生未知錯誤，請重新嘗試' })
-      console.error(err)
-    }
+  function setRecentAttendances(newRecords) {
+    newRecords = newRecords.map((e) => ({
+      dateId: e.id,
+      date: e.date,
+      day: e.day,
+      isHoliday: e.isHoliday,
+      attendanceId: e?.Attendances?.id,
+      punchIn: e?.Attendances?.punchIn,
+      punchOut: e?.Attendances?.punchOut,
+    }))
+    recentAttendances.value = newRecords
   }
+
   function setDetails(dateId) {
     details.value = recentAttendances.value.find((e) => e.dateId === dateId)
   }

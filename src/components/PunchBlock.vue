@@ -1,13 +1,13 @@
 <script setup>
+import { storeToRefs } from 'pinia'
 import { flash } from '../assets/helpers/flashHelper'
 import AttendanceList from './AttendanceList.vue'
-import { useAttendanceStore } from '../stores/attendance'
-import { useLocationStore } from '../stores/location'
-import { storeToRefs } from 'pinia'
-import { punchIn as punchInApi, punchOut as punchOutApi } from '../assets/api'
-import dayjsTaipei, { getEndTime } from '../assets/helpers/timeHelper'
-import { onMounted, onBeforeUnmount } from 'vue'
+import store from '../stores'
+import api from '../assets/api'
+import dayjsTaipei from '../assets/helpers/timeHelper'
+
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
+const { useAttendanceStore, useLocationStore } = store
 const [attendanceStore, locationStore] = [
   useAttendanceStore(),
   useLocationStore(),
@@ -16,40 +16,27 @@ const { setTodaysAttendance } = attendanceStore
 const { todaysAttendance, leftTime, formatPunchIn } =
   storeToRefs(attendanceStore)
 const { getLocation, distance } = storeToRefs(locationStore)
-let timeOutId
-onMounted(() => {
-  ;(function a() {
-    setTodaysAttendance()
-    timeOutId = setTimeout(a, getEndTime().diff(dayjsTaipei(), 's') * 1000)
-  })()
-})
-onBeforeUnmount(() => {
-  clearTimeout(timeOutId)
-})
+
 const punchIn = async () => {
   try {
     if (distance.value >= distanceLimit) {
-      return flash({ variant: 'warning', message: '請親自至公司操作' })
+      return flash('warning', '請親自至公司操作')
     }
     const punchIn = dayjsTaipei().startOf('minute').toDate()
     if (!punchIn || !getLocation.value) {
       throw new Error(`punchIn,location: [${!!punchIn},${!!getLocation.value}]`)
     }
-    const attendance = await punchInApi({
-      punchIn,
-      location: getLocation.value,
-    })
-    flash({ variant: 'success', message: '成功打卡' })
-    setTodaysAttendance(attendance)
+    const { data } = await api.user.punchInAPI(punchIn, getLocation.value)
+    flash('success', '成功打卡')
+    setTodaysAttendance(data)
   } catch (err) {
-    console.error(err)
-    flash({ variant: 'danger', message: '發生未知錯誤，打卡失敗' })
+    flash()
   }
 }
 const punchOut = async () => {
   try {
     if (distance.value >= distanceLimit) {
-      return flash({ variant: 'warning', message: '請親自至公司操作' })
+      return flash('warning', '請親自至公司操作')
     }
     const id = todaysAttendance.value.id
     const punchOut = dayjsTaipei().startOf('minute').toDate()
@@ -59,16 +46,11 @@ const punchOut = async () => {
       )
     }
 
-    const attendance = await punchOutApi({
-      id,
-      punchOut,
-      location: getLocation.value,
-    })
-    setTodaysAttendance(attendance)
-    flash({ variant: 'success', message: '成功打卡' })
+    const { data } = await api.user.punchOutAPI(id, punchOut, getLocation.value)
+    setTodaysAttendance(data)
+    flash('success', '成功打卡')
   } catch (error) {
-    flash({ variant: 'danger', message: '發生未知錯誤，打卡失敗' })
-    console.error(error)
+    flash()
   }
 }
 </script>
@@ -163,11 +145,8 @@ const punchOut = async () => {
         下班
       </button>
       <button
-        :class="
-          distance <= distanceLimit
-            ? 'btn btn-lg punch-btn px-1 btn-info'
-            : 'btn btn-lg punch-btn px-1 btn-secondary disabled ms-1'
-        "
+        v-bind:disabled="distance <= distanceLimit"
+        class="btn btn-lg punch-btn px-1 btn-info"
         @click="punchIn"
         v-else
       >

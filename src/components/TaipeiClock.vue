@@ -1,7 +1,8 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { onMounted, onBeforeUnmount } from 'vue'
-import { useTimeStore } from '../stores/time'
+import store from '../stores'
+const { useTimeStore } = store
 const timeStore = useTimeStore()
 const { setTime } = timeStore
 const { formatTime } = storeToRefs(timeStore)

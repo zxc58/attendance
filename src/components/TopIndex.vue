@@ -1,9 +1,10 @@
 <script setup>
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { useUserStore } from '../stores/user'
-import { reactive, ref } from 'vue'
+import store from '../stores'
 import { removeTokensAndRedirect } from '../assets/helpers/jwtHelper'
+const { useUserStore } = store
 const buttonCollapse = ref(null)
 const router = useRouter()
 const [userStore] = [useUserStore()]
@@ -43,7 +44,7 @@ const logOut = () => {
 <template>
   <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <div class="container-fluid">
-      <span class="navbar-brand fs-3 titan-logo">鈦坦科技</span>
+      <span class="navbar-brand fs-3 titan-logo">考勤系統</span>
       <button
         v-if="user"
         ref="buttonCollapse"

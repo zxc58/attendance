@@ -1,26 +1,24 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getLockedAccount, unlockedAccount } from '../../assets/api'
+import api from '../../assets/api'
 import { flash } from '../../assets/helpers/flashHelper'
 const lockedAccount = ref([])
 onMounted(async () => {
   try {
-    const locked = await getLockedAccount()
-    lockedAccount.value = locked
+    const { data } = await api.admin.getLockedAccountAPI()
+    lockedAccount.value = data
   } catch (err) {
-    console.error(err)
-    flash({ variant: 'danger', message: '發生未知錯誤' })
+    flash()
   }
 })
-const callApi = async (id) => {
+const unLockAccount = async (id) => {
   try {
-    const data = await unlockedAccount(id)
+    const { data } = await api.admin.unlockedAPI(id)
     const deleteIndex = lockedAccount.value.findIndex((e) => e.id === data.id)
     lockedAccount.value.splice(deleteIndex, 1)
-    flash({ variant: 'success', message: '成功解鎖' })
+    flash('success', '成功解鎖')
   } catch (err) {
-    console.error(err)
-    flash({ variant: 'danger', message: '發生未知錯誤' })
+    flash()
   }
 }
 </script>
@@ -43,7 +41,7 @@ const callApi = async (id) => {
             class="my-0 btn btn-sm btn-warning rounded-pill"
             @click="
               () => {
-                callApi(row.id)
+                unLockAccount(row.id)
               }
             "
           >
