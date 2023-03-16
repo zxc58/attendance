@@ -4,12 +4,11 @@ import { onMounted, onBeforeUnmount } from 'vue'
 import store from '../stores'
 const { useTimeStore } = store
 const timeStore = useTimeStore()
-const { setTime } = timeStore
 const { formatTime } = storeToRefs(timeStore)
 let intervalID
 onMounted(() => {
-  setTime()
-  intervalID = setInterval(setTime, 1000 * 2)
+  timeStore.setTime()
+  intervalID = setInterval(timeStore.setTime, 1000 * 2)
 })
 onBeforeUnmount(() => {
   clearInterval(intervalID)

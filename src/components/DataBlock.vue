@@ -1,9 +1,10 @@
 <script setup>
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
+// import to from 'await-to-js'
 import store from '../stores'
-import { flash } from '../assets/helpers/flashHelper'
-import api from '../assets/api/instance'
+import { flash } from '../utils/helpers/flashHelper'
+import instance from '../utils/api/instance'
 const { useUserStore, useAttendanceStore } = store
 const [userStore, attendanceStore] = [useUserStore(), useAttendanceStore()]
 const { userAvatar, userName } = storeToRefs(userStore)
@@ -17,11 +18,15 @@ const afterChange = async () => {
     var imagefile = avatarInput.value
     formData.append('image', imagefile.files[0])
     const userId = localStorage.getItem('userId')
-    const { avatar } = await api.post(`/employees/${userId}/avatar`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
+    const { avatar } = await instance.post(
+      `/employees/${userId}/avatar`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
     userStore.setAvatar(avatar)
     flash('success', '成功更新')
   } catch (err) {

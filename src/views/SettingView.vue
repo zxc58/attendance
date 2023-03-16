@@ -1,36 +1,34 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import store from '../stores'
-import api from '../assets/api'
-import { flash } from '../assets/helpers/flashHelper'
+import to from 'await-to-js'
+import api from '../utils/api'
+import { flash } from '../utils/helpers/flashHelper'
 
 const { useUserStore } = store
 const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
 const setting = async (e) => {
-  try {
-    const data = {}
-    const inputs = e.target.querySelectorAll('input')
-    inputs.forEach((element) => {
-      if (element.value) {
-        data[element.name] = element.value
-      }
-    })
-    if (data.password !== data.ensurePassword) {
-      flash('danger', '請確定2組新密碼相同')
-      return
+  const data = {}
+  const inputs = e.target.querySelectorAll('input')
+  inputs.forEach((element) => {
+    if (element.value) {
+      data[element.name] = element.value
     }
-    const newUserData = await api.user.updatePersonalDataAPI(data)
-    userStore.setUser(newUserData)
-    inputs.forEach((element) => {
-      if (element.name === 'password' || element.name === 'ensurePassword') {
-        element.value = ''
-      }
-    })
-    flash('success', '成功更新')
-  } catch (err) {
-    flash()
+  })
+  if (data.password !== data.ensurePassword) {
+    flash('danger', '請確定2組新密碼相同')
+    return
   }
+  const [, newUserData] = to(await api.user.updatePersonalData(data))
+  if (!newUserData) return flash()
+  userStore.setUser(newUserData)
+  inputs.forEach((element) => {
+    if (element.name === 'password' || element.name === 'ensurePassword') {
+      element.value = ''
+    }
+  })
+  flash('success', '成功更新')
 }
 </script>
 

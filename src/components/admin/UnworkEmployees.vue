@@ -1,15 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import api from '../../assets/api'
-import { flash } from '../../assets/helpers/flashHelper'
+import to from 'await-to-js'
+import api from '../../utils/api'
 const unworkEmployees = ref([])
 onMounted(async () => {
-  try {
-    const { data } = await api.admin.getUnworkingAPI()
-    unworkEmployees.value = data
-  } catch (err) {
-    flash()
-  }
+  const [, { data }] = await to(api.admin.getUnworking())
+  if (!data) return
+  unworkEmployees.value = data
 })
 </script>
 

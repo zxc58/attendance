@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import dayjsTaipei, { countWorkingHour } from '../assets/helpers/timeHelper'
+import dayjsTaipei, { countWorkingHour } from '../utils/helpers/timeHelper'
 const requiredWorkingHour = Number(
   import.meta.env.VITE_APP_REQUIRED_WORKING_HOUR ?? 8
 )

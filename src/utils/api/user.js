@@ -1,35 +1,32 @@
 import axios from 'axios'
 import instance from './instance'
-import { useUserStore } from '../../stores/user'
-import { storeToRefs } from 'pinia'
-const userStore = useUserStore()
-const { userId } = storeToRefs(userStore)
 const backendURL =
   import.meta.env.VITE_APP_BACKEND_URL ?? 'http://localhost:3000'
 
-export function loginAPI(data) {
-  return axios.post(`${backendURL}/auth/login`, data)
+export function login(data) {
+  return axios.post(`${backendURL}/auth/login`, data, {
+    withCredentials: true,
+  })
 }
-
+export function logout() {
+  return instance.get('/auth/logout')
+}
 export function fetchUserDataByJWT() {
   return instance.get('auth/user')
 }
 
-export function personalDataAPI() {
-  return instance.get(`/employees/${userId.value}`)
+export function personalData(userId) {
+  return instance.get(`/employees/${userId}`)
 }
 
-export function todaysAttendanceAPI() {
-  return instance.get(`/employees/${userId.value}/attendances`, {
+export function todaysAttendance(userId) {
+  return instance.get(`/employees/${userId}/attendances`, {
     params: { date: 'today' },
   })
 }
-/**
- *
- * @returns
- */
-export function recentAttendancesAPI() {
-  return instance.get(`/employees/${userId.value}/attendances`, {
+
+export function recentAttendances(userId) {
+  return instance.get(`/employees/${userId}/attendances`, {
     params: { date: 'recent' },
   })
 }
@@ -38,8 +35,8 @@ export function recentAttendancesAPI() {
  * @param {{password:string,phone:string,email:string}} data
  * @returns
  */
-export function updatePersonalDataAPI(data) {
-  return instance.patch(`/employees/${userId.value}`, data)
+export function updatePersonalData(userId, data) {
+  return instance.patch(`/employees/${userId}`, data)
 }
 /**
  *
@@ -47,9 +44,9 @@ export function updatePersonalDataAPI(data) {
  * @param {{latitude:number,longitude:number,accuracy:number}} location
  * @returns
  */
-export function punchInAPI(punchIn, location) {
+export function punchIn(userId, punchIn, location) {
   return instance.post(
-    `employees/${userId.value}/attendances`,
+    `employees/${userId}/attendances`,
     {
       punchIn,
     },
@@ -62,9 +59,9 @@ export function punchInAPI(punchIn, location) {
  * @param {{latitude:number,longitude:number,accuracy:number}} location
  * @returns
  */
-export function punchOutAPI(attendanceId, punchOut, location) {
+export function punchOut(userId, attendanceId, punchOut, location) {
   return instance.patch(
-    `/employees/${userId.value}/attendances/${attendanceId}`,
+    `/employees/${userId}/attendances/${attendanceId}`,
     {
       punchOut,
     },
@@ -76,11 +73,11 @@ export function punchOutAPI(attendanceId, punchOut, location) {
  * @param {{punch:Date,punchQrId:string}} data
  * @returns
  */
-export function qrPunchAPI(data) {
+export function qrPunch(data) {
   return instance.post('/attendances/qrcode', data)
 }
 
-export function getQrIdAPI(location) {
+export function getQrId(location) {
   return axios.get(`${backendURL}/attendances/qrcode`, {
     params: { location },
   })

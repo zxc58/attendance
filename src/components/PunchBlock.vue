@@ -1,10 +1,11 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { flash } from '../assets/helpers/flashHelper'
+import to from 'await-to-js'
+import { flash } from '../utils/helpers/flashHelper'
 import AttendanceList from './AttendanceList.vue'
 import store from '../stores'
-import api from '../assets/api'
-import dayjsTaipei from '../assets/helpers/timeHelper'
+import api from '../utils/api'
+import dayjsTaipei from '../utils/helpers/timeHelper'
 
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
 const { useAttendanceStore, useLocationStore } = store
@@ -17,41 +18,30 @@ const { todaysAttendance, leftTime, formatPunchIn } =
   storeToRefs(attendanceStore)
 const { getLocation, distance } = storeToRefs(locationStore)
 
-const punchIn = async () => {
-  try {
-    if (distance.value >= distanceLimit) {
-      return flash('warning', '請親自至公司操作')
-    }
-    const punchIn = dayjsTaipei().startOf('minute').toDate()
-    if (!punchIn || !getLocation.value) {
-      throw new Error(`punchIn,location: [${!!punchIn},${!!getLocation.value}]`)
-    }
-    const { data } = await api.user.punchInAPI(punchIn, getLocation.value)
-    flash('success', '成功打卡')
-    setTodaysAttendance(data)
-  } catch (err) {
-    flash()
-  }
+async function punchIn() {
+  if (distance.value >= distanceLimit)
+    return flash('warning', '請親自至公司操作')
+  const punchIn = dayjsTaipei().startOf('minute').toDate()
+  if (!punchIn || !getLocation.value) return flash()
+  const [err, { data }] = await to(
+    api.user.punchIn(punchIn, getLocation.value)
+  )
+  if (err) return flash()
+  flash('success', '成功打卡')
+  setTodaysAttendance(data)
 }
-const punchOut = async () => {
-  try {
-    if (distance.value >= distanceLimit) {
-      return flash('warning', '請親自至公司操作')
-    }
-    const id = todaysAttendance.value.id
-    const punchOut = dayjsTaipei().startOf('minute').toDate()
-    if (!id || !punchOut || !getLocation.value) {
-      throw new Error(
-        `id,punchOut,location: [${!!id},${!!punchOut},${!!getLocation.value}]`
-      )
-    }
-
-    const { data } = await api.user.punchOutAPI(id, punchOut, getLocation.value)
-    setTodaysAttendance(data)
-    flash('success', '成功打卡')
-  } catch (error) {
-    flash()
-  }
+async function punchOut() {
+  if (distance.value >= distanceLimit)
+    return flash('warning', '請親自至公司操作')
+  const id = todaysAttendance.value.id
+  const punchOut = dayjsTaipei().startOf('minute').toDate()
+  if (!id || !punchOut || !getLocation.value) return flash()
+  const [err, { data }] = await to(
+    api.user.punchOut(id, punchOut, getLocation.value)
+  )
+  if (err) return flash()
+  setTodaysAttendance(data)
+  flash('success', '成功打卡')
 }
 </script>
 

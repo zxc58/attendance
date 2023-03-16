@@ -1,12 +1,13 @@
 <script setup>
-import store from './stores'
 import { onBeforeMount, onBeforeUnmount } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
-import api from './assets/api'
+import to from 'await-to-js'
+import store from './stores'
+import api from './utils/api'
 import TopIndex from './components/TopIndex.vue'
 import FlashAlert from './components/FlashAlert.vue'
-import { flash } from './assets/helpers/flashHelper'
-import { checkIsLogin } from './assets/helpers/jwtHelper'
+
+import { checkIsLogin } from './utils/helpers/jwtHelper'
 const { useUserStore, useLocationStore } = store
 const [userStore, locationStore, router] = [
   useUserStore(),
@@ -15,20 +16,14 @@ const [userStore, locationStore, router] = [
 ]
 let watchPositionId
 onBeforeMount(async () => {
-  try {
-    navigator.geolocation.watchPosition(locationStore.setLocation, null, {
-      timeout: 10 * 1000,
-      enableHighAccuracy: true,
-    })
-    const isLogin = checkIsLogin()
-    if (isLogin) {
-      router.push('/login')
-    }
-    const user = await api.user.fetchUserDataByJWT()
-    userStore.setUser(user)
-  } catch (err) {
-    flash()
-  }
+  navigator.geolocation.watchPosition(locationStore.setLocation, null, {
+    timeout: 10 * 1000,
+    enableHighAccuracy: true,
+  })
+  if (!checkIsLogin()) return router.push('/login')
+  const [, user] = await to(api.user.fetchUserDataByJWT())
+  if (!user) return
+  userStore.setUser(user)
 })
 onBeforeUnmount(() => {
   navigator.geolocation.clearWatch(watchPositionId)

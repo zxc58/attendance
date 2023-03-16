@@ -1,4 +1,5 @@
 import axios from 'axios'
+import to from 'await-to-js'
 import { removeTokens, storeJWT } from '../helpers/jwtHelper'
 import router from '../../router'
 
@@ -7,54 +8,51 @@ const backendURL =
 
 const instance = axios.create({
   baseURL: backendURL,
-  timeout: 3000,
+  timeout: 1000,
+  withCredentials: true,
 })
 
-instance.interceptors.request.use(useJWT, (err) => {
+instance.interceptors.request.use(carryJWT, (err) => {
   return Promise.reject(err)
 })
 
 instance.interceptors.response.use(
-  (response) => response.data,
+  (response) => response.data.data ?? response.data ?? response,
   responseErrorHandler
 )
 
 export default instance
 
-function useJWT(config) {
-  const access_token = localStorage.getItem('access_token')
-  if (!access_token) {
+function carryJWT(config) {
+  const accessToken = localStorage.getItem('access_token')
+  if (!accessToken) {
     const controller = new AbortController()
     const cfg = { ...config, signal: controller.signal }
-    controller.abort('Refresh JWT fail')
-    removeTokens()
+    controller.abort('Access token do not exsit')
     router.push('/login')
     return cfg
   }
-  config.headers.Authorization = `Bearer ${access_token}`
+  config.headers.Authorization = `Bearer ${accessToken}`
   return config
 }
 
 async function responseErrorHandler(error) {
   const originalConfig = error.config
   if (error?.response?.status) {
-    const refresh_token = localStorage.getItem('refresh_token')
     switch (error.response.status) {
       case 401:
-        if (!originalConfig._retry && refresh_token) {
-          originalConfig._retry = true
-          const { data } = await instance.post('/auth/refresh', {
-            refreshToken: refresh_token,
-          })
+        if (originalConfig.url !== '/auth/refresh') {
+          const [error, data] = await to(instance.post('/auth/refresh'))
+          if (error) {
+            removeTokens()
+            return router.push('/login')
+          }
           storeJWT(data)
           return instance.request(originalConfig)
-        } else {
-          removeTokens()
-          router.push('/login')
-          return Promise.reject(error.response.data)
         }
+        return Promise.reject(error)
       default:
-        return Promise.reject(error.response.data)
+        return Promise.reject(error)
     }
   }
   return Promise.reject(error)
