@@ -13,21 +13,16 @@ export const getEndTime = function () {
     .add(dividedHour, 'h')
 }
 export const countWorkingHour = ({ punchIn, punchOut, isHoliday, leaveId }) => {
-  if (isHoliday) {
-    return ['假日', 'secondary', false]
-  }
-  if (leaveId) {
-    return ['請假', 'info', false]
-  }
-  if (punchIn && !punchOut) {
-    return ['下班未打卡', 'warning', true]
-  }
-  if (!punchIn && !punchOut) {
-    return ['缺勤', 'danger', true]
-  }
+  if (isHoliday) return ['假日', 'secondary', false]
+
+  if (leaveId) return ['請假', 'info', false]
+
+  if (punchIn && !punchOut) return ['下班未打卡', 'warning', true]
+
+  if (!punchIn && !punchOut) return ['缺勤', 'danger', true]
+
   const hours = dayjs(punchOut).diff(dayjs(punchIn), 'h')
-  if (hours >= 8) {
-    return ['出勤', 'success', true]
-  }
+  if (hours >= 8) return ['出勤', 'success', true]
+
   return ['缺勤(時數)', 'warning', true]
 }

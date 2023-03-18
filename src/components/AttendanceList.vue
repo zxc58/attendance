@@ -5,25 +5,9 @@ import { onMounted, onBeforeUnmount } from 'vue'
 import store from '../stores'
 import dayjsTaipei, { getEndTime } from '../utils/helpers/timeHelper'
 import api from '../utils/api'
-
-const { useAttendanceStore } = store
-const attendanceStore = useAttendanceStore()
-const { setRecentAttendances } = attendanceStore
-const { attendanceList } = storeToRefs(attendanceStore)
-let timeOutId
-onMounted(() => {
-  ;(async function refreshRecentAttendances() {
-    const [, { data }] = await to(api.user.recentAttendances())
-    setRecentAttendances(data)
-    timeOutId = setTimeout(
-      refreshRecentAttendances,
-      getEndTime().diff(dayjsTaipei())
-    )
-  })()
-})
-onBeforeUnmount(() => {
-  clearTimeout(timeOutId)
-})
+import { recentAttendances } from '../utils/api/user'
+const userStore = store.useUserStore()
+const { attendanceHistoryRecord } = storeToRefs(userStore)
 </script>
 
 <template>
@@ -38,10 +22,9 @@ onBeforeUnmount(() => {
       </thead>
       <tbody>
         <tr
-          v-for="row in attendanceList"
+          v-for="row in attendanceHistoryRecord"
           :key="row.id"
           :class="row.class"
-          @click="row.showDetails"
         >
           <th scope="row">{{ row.date }}</th>
           <td>{{ row.day }}</td>

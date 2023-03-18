@@ -16,14 +16,15 @@ const [userStore, locationStore, router] = [
 ]
 let watchPositionId
 onBeforeMount(async () => {
-  navigator.geolocation.watchPosition(locationStore.setLocation, null, {
-    timeout: 10 * 1000,
-    enableHighAccuracy: true,
-  })
+  navigator.geolocation.watchPosition(
+    (e) => locationStore.$patch({ location: e.coords }),
+    null,
+    { timeout: 10 * 1000, enableHighAccuracy: true }
+  )
   if (!checkIsLogin()) return router.push('/login')
-  const [, user] = await to(api.user.fetchUserDataByJWT())
-  if (!user) return
-  userStore.setUser(user)
+  const [err, data] = await to(api.user.verifyJWT())
+  if (err) return
+  userStore.formatAndStoreApiData(data.user, data.attendances)
 })
 onBeforeUnmount(() => {
   navigator.geolocation.clearWatch(watchPositionId)

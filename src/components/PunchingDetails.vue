@@ -1,14 +1,11 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import store from '../stores'
-const { useAttendanceStore } = store
-const attendanceStore = useAttendanceStore()
-const { formatDetails } = storeToRefs(attendanceStore)
 </script>
 
 <template>
   <br />
-  <div
+  <!-- <div
     v-if="formatDetails"
     :class="`mt-1 col-md d-flex align-items-center rounded-pill bg-opacity-10 bg-${formatDetails.color}`"
   >
@@ -20,7 +17,7 @@ const { formatDetails } = storeToRefs(attendanceStore)
       <p>上班時間: {{ formatDetails.punchIn }}</p>
       <p>下班時間: {{ formatDetails.punchOut }}</p>
     </div>
-  </div>
+  </div> -->
 </template>
 <style scoped>
 .halfBlock {

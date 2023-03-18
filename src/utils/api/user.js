@@ -6,13 +6,16 @@ const backendURL =
 export function login(data) {
   return axios.post(`${backendURL}/auth/login`, data, {
     withCredentials: true,
+    headers: {
+      'X-Refresh-Token': 'true',
+    },
   })
 }
 export function logout() {
   return instance.get('/auth/logout')
 }
-export function fetchUserDataByJWT() {
-  return instance.get('auth/user')
+export function verifyJWT() {
+  return instance.get('/auth/verify')
 }
 
 export function personalData(userId) {

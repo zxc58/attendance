@@ -8,10 +8,10 @@ import PunchingDetails from '../components/PunchingDetails.vue'
 <template>
   <main>
     <div class="container-md">
-      <div class="row d-over-bp">
+      <!-- <div class="row d-over-bp">
         <TaipeiClock />
-      </div>
-      <div class="row">
+      </div> -->
+      <div class="row mt-1">
         <DataBlock />
         <PunchBlock />
       </div>

@@ -1,18 +1,21 @@
 <script setup>
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
-// import to from 'await-to-js'
 import store from '../stores'
 import { flash } from '../utils/helpers/flashHelper'
 import instance from '../utils/api/instance'
-const { useUserStore, useAttendanceStore } = store
-const [userStore, attendanceStore] = [useUserStore(), useAttendanceStore()]
-const { userAvatar, userName } = storeToRefs(userStore)
-const { formatPunchIn, formatPunchOut } = storeToRefs(attendanceStore)
-const avatarInput = ref(null)
-const clickImage = () => avatarInput.value.click()
+const { useUserStore } = store
+const [userStore] = [useUserStore()]
+const { userAvatar, userName, formattedPunchIn, formattedPunchOut } =
+  storeToRefs(userStore)
 
-const afterChange = async () => {
+const avatarInput = ref()
+
+function clickImage() {
+  avatarInput.value.click()
+}
+
+async function afterChange() {
   try {
     var formData = new FormData()
     var imagefile = avatarInput.value
@@ -27,7 +30,7 @@ const afterChange = async () => {
         },
       }
     )
-    userStore.setAvatar(avatar)
+    userStore.$patch((state) => (state.user.avatar = avatar))
     flash('success', '成功更新')
   } catch (err) {
     flash()
@@ -52,8 +55,8 @@ const afterChange = async () => {
     />
     <p class="display-6 mt-0 d-over-bp">{{ userName }}</p>
     <ul class="my-0 fw-bold fs-4">
-      <li class="text-success">上班時間: {{ formatPunchIn }}</li>
-      <li class="text-danger">下班時間: {{ formatPunchOut }}</li>
+      <li class="text-success">上班時間: {{ formattedPunchIn }}</li>
+      <li class="text-danger">下班時間: {{ formattedPunchOut }}</li>
     </ul>
   </div>
 </template>

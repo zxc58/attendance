@@ -25,14 +25,7 @@ export default instance
 
 function carryJWT(config) {
   const accessToken = localStorage.getItem('access_token')
-  if (!accessToken) {
-    const controller = new AbortController()
-    const cfg = { ...config, signal: controller.signal }
-    controller.abort('Access token do not exsit')
-    router.push('/login')
-    return cfg
-  }
-  config.headers.Authorization = `Bearer ${accessToken}`
+  if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`
   return config
 }
 
@@ -41,7 +34,7 @@ async function responseErrorHandler(error) {
   if (error?.response?.status) {
     switch (error.response.status) {
       case 401:
-        if (originalConfig.url !== '/auth/refresh') {
+        if (error.response.headers['x-refresh-token'] !== 'false') {
           const [error, data] = await to(instance.post('/auth/refresh'))
           if (error) {
             removeTokens()

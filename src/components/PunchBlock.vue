@@ -8,39 +8,36 @@ import api from '../utils/api'
 import dayjsTaipei from '../utils/helpers/timeHelper'
 
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
-const { useAttendanceStore, useLocationStore } = store
-const [attendanceStore, locationStore] = [
-  useAttendanceStore(),
-  useLocationStore(),
-]
-const { setTodaysAttendance } = attendanceStore
-const { todaysAttendance, leftTime, formatPunchIn } =
-  storeToRefs(attendanceStore)
-const { getLocation, distance } = storeToRefs(locationStore)
+const { useLocationStore, useUserStore } = store
+const [locationStore, userStore] = [useLocationStore(), useUserStore()]
+const { today, leftTime, formattedPunchIn, userId } = storeToRefs(userStore)
+const { getLocation, isInRange } = storeToRefs(locationStore)
 
 async function punchIn() {
-  if (distance.value >= distanceLimit)
-    return flash('warning', '請親自至公司操作')
+  if (!isInRange) return flash('warning', '請親自至公司操作')
   const punchIn = dayjsTaipei().startOf('minute').toDate()
   if (!punchIn || !getLocation.value) return flash()
-  const [err, { data }] = await to(
-    api.user.punchIn(punchIn, getLocation.value)
+  const [err, data] = await to(
+    api.user.punchIn(userId.value, punchIn, getLocation.value)
   )
   if (err) return flash()
   flash('success', '成功打卡')
-  setTodaysAttendance(data)
+  userStore.$patch(
+    (state) => (state.recentAttendance[0].punchIn = data.punchIn)
+  )
 }
 async function punchOut() {
-  if (distance.value >= distanceLimit)
-    return flash('warning', '請親自至公司操作')
-  const id = todaysAttendance.value.id
+  if (!isInRange) return flash('warning', '請親自至公司操作')
+  const attendanceId = today.value.id
   const punchOut = dayjsTaipei().startOf('minute').toDate()
-  if (!id || !punchOut || !getLocation.value) return flash()
-  const [err, { data }] = await to(
-    api.user.punchOut(id, punchOut, getLocation.value)
+  if (!attendanceId || !punchOut || !getLocation.value) return flash()
+  const [err, data] = await to(
+    api.user.punchOut(userId.value, attendanceId, punchOut, getLocation.value)
   )
   if (err) return flash()
-  setTodaysAttendance(data)
+  userStore.$patch((state) => {
+    state.recentAttendance[0].punchOut = data.punchOut
+  })
   flash('success', '成功打卡')
 }
 </script>
@@ -74,7 +71,7 @@ async function punchOut() {
             </div>
             <div class="modal-body py-0">
               <p class="mb-0 text-center">時間沒到</p>
-              <p class="mb-0 text-center">(上班時間: {{ formatPunchIn }})</p>
+              <p class="mb-0 text-center">(上班時間: {{ formattedPunchIn }})</p>
             </div>
             <div class="modal-footer">
               <button
@@ -96,24 +93,17 @@ async function punchOut() {
           </div>
         </div>
       </div>
-      <span
-        :class="
-          distance <= distanceLimit ? 'd-none' : 'd-over-bp fs-4 text-danger'
-        "
+      <span :class="isInRange ? 'd-none' : 'd-over-bp fs-4 text-danger'"
         >請至公司操作</span
       >
       <small
-        :class="
-          distance <= distanceLimit
-            ? 'd-none'
-            : 'text-center d-less-bp  text-danger'
-        "
+        :class="isInRange ? 'd-none' : 'text-center d-less-bp  text-danger'"
         >請至公司操作</small
       >
       <!-- button -->
       <button
         :class="
-          distance <= distanceLimit
+          isInRange
             ? 'btn btn-lg punch-btn px-1 btn-danger'
             : 'btn btn-lg punch-btn px-1 btn-secondary disabled ms-1'
         "
@@ -125,17 +115,17 @@ async function punchOut() {
       </button>
       <button
         :class="
-          distance <= distanceLimit
+          isInRange
             ? 'btn btn-lg punch-btn px-1 btn-success'
             : 'btn btn-lg punch-btn px-1 btn-secondary disabled ms-1'
         "
         @click="punchOut"
-        v-else-if="todaysAttendance"
+        v-else-if="today?.punchIn"
       >
         下班
       </button>
       <button
-        v-bind:disabled="distance <= distanceLimit"
+        v-bind:disabled="!isInRange"
         class="btn btn-lg punch-btn px-1 btn-info"
         @click="punchIn"
         v-else

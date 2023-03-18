@@ -4,9 +4,8 @@
  * @param {{accessToken:string}} data
  */
 export function storeJWT(data) {
-  const { accessToken: access_token } = data
-  if (access_token) {
-    localStorage.setItem('access_token', access_token)
+  if (data?.accessToken) {
+    localStorage.setItem('access_token', data.accessToken)
   }
 }
 

@@ -11,37 +11,41 @@ import { flash } from '../utils/helpers/flashHelper'
 import { storeJWT, removeTokens } from '../utils/helpers/jwtHelper'
 import { loginFormInputs } from '../assets/form/inputs'
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
-const { useUserStore, useLocationStore, useAttendanceStore } = store
+const { useUserStore, useLocationStore } = store
 const qr = ref('')
-const [userStore, locationStore, router, attendanceStore] = [
+const submitButtonRef = ref()
+const [userStore, locationStore, router] = [
   useUserStore(),
   useLocationStore(),
   useRouter(),
-  useAttendanceStore(),
 ]
-userStore.$patch({ user: null })
-attendanceStore.$patch({ todaysAttendance: null, recentAttendances: [] })
-removeTokens()
 const { getLocation, distance } = storeToRefs(locationStore)
 
 async function login(e) {
+  submitButtonRef.value.disabled = true
   const inputs = e.target.querySelectorAll('input')
   const data = {}
   inputs.forEach((element) => {
     data[element.name] = element.value
   })
-  const [err, responseData] = await to(api.user.login(data))
-  if (err) {
-    switch (err.message) {
+  const [error0, response] = await to(api.user.login(data))
+  submitButtonRef.value.disabled = false
+  if (error0) {
+    switch (error0.response.data.message) {
       case 'Wrong times over 5':
         return flash('danger', '帳號已被鎖定')
-      case ('Password wrong', 'Account do not exist'):
+      case 'Account do not exist':
+      case 'Password wrong':
         return flash('danger', '帳號或密碼錯誤')
       default:
         return flash()
     }
   }
-  storeJWT(responseData)
+  storeJWT(response.data.data)
+  userStore.formatAndStoreApiData(
+    response.data.data.user,
+    response.data.data.attendances
+  )
   router.push('/')
 }
 
@@ -63,7 +67,7 @@ const showQr = async () => {
 </script>
 
 <template>
-  <form class="container-md" @submit.prevent="login">
+  <form ref="formRef" class="container-md" @submit.prevent="login">
     <fieldset>
       <legend class="text-center display-5 my-0">登入</legend>
       <div class="d-over-bp">
@@ -99,7 +103,9 @@ const showQr = async () => {
       </div>
       <br />
       <div class="form-group text-center">
-        <button type="submit" class="btn btn-info">登入</button>
+        <button ref="submitButtonRef" type="submit" class="btn btn-info">
+          登入
+        </button>
       </div>
     </fieldset>
   </form>
