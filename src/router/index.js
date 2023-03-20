@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-
+import { checkIsLogin } from '../utils/helpers/jwtHelper'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -38,18 +38,13 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const isLogin = localStorage.getItem('access_token')
+  const isLogin = checkIsLogin()
   if (isLogin) {
-    if (to.path === '/login') {
-      return next('/')
-    }
-    return next()
-  } else {
-    if (to.path !== '/login') {
-      return next('/login')
-    }
+    if (to.path === '/login') return next('/')
     return next()
   }
+  if (to.path !== '/login') return next('/login')
+  return next()
 })
 
 export default router

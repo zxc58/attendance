@@ -1,57 +1,43 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { flash } from '../assets/helpers/flashHelper'
+import to from 'await-to-js'
+import { flash } from '../utils/helpers/flashHelper'
 import AttendanceList from './AttendanceList.vue'
 import store from '../stores'
-import api from '../assets/api'
-import dayjsTaipei from '../assets/helpers/timeHelper'
+import api from '../utils/api'
+import dayjsTaipei from '../utils/helpers/timeHelper'
 
-const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
-const { useAttendanceStore, useLocationStore } = store
-const [attendanceStore, locationStore] = [
-  useAttendanceStore(),
-  useLocationStore(),
-]
-const { setTodaysAttendance } = attendanceStore
-const { todaysAttendance, leftTime, formatPunchIn } =
-  storeToRefs(attendanceStore)
-const { getLocation, distance } = storeToRefs(locationStore)
+const { useLocationStore, useUserStore } = store
+const [locationStore, userStore] = [useLocationStore(), useUserStore()]
+const { today, leftTime, formattedPunchIn, userId } = storeToRefs(userStore)
+const { getLocation, isInRange } = storeToRefs(locationStore)
 
-const punchIn = async () => {
-  try {
-    if (distance.value >= distanceLimit) {
-      return flash('warning', '請親自至公司操作')
-    }
-    const punchIn = dayjsTaipei().startOf('minute').toDate()
-    if (!punchIn || !getLocation.value) {
-      throw new Error(`punchIn,location: [${!!punchIn},${!!getLocation.value}]`)
-    }
-    const { data } = await api.user.punchInAPI(punchIn, getLocation.value)
-    flash('success', '成功打卡')
-    setTodaysAttendance(data)
-  } catch (err) {
-    flash()
-  }
+async function punchIn() {
+  if (!isInRange) return flash('warning', '請親自至公司操作')
+  const punchIn = dayjsTaipei().startOf('minute').toDate()
+  if (!punchIn || !getLocation.value) return flash()
+  const [err, data] = await to(
+    api.user.punchIn(userId.value, punchIn, getLocation.value)
+  )
+  if (err) return flash()
+  flash('success', '成功打卡')
+  userStore.$patch(
+    (state) => (state.recentAttendance[0].punchIn = data.punchIn)
+  )
 }
-const punchOut = async () => {
-  try {
-    if (distance.value >= distanceLimit) {
-      return flash('warning', '請親自至公司操作')
-    }
-    const id = todaysAttendance.value.id
-    const punchOut = dayjsTaipei().startOf('minute').toDate()
-    if (!id || !punchOut || !getLocation.value) {
-      throw new Error(
-        `id,punchOut,location: [${!!id},${!!punchOut},${!!getLocation.value}]`
-      )
-    }
-
-    const { data } = await api.user.punchOutAPI(id, punchOut, getLocation.value)
-    setTodaysAttendance(data)
-    flash('success', '成功打卡')
-  } catch (error) {
-    flash()
-  }
+async function punchOut() {
+  if (!isInRange) return flash('warning', '請親自至公司操作')
+  const attendanceId = today.value.id
+  const punchOut = dayjsTaipei().startOf('minute').toDate()
+  if (!attendanceId || !punchOut || !getLocation.value) return flash()
+  const [err, data] = await to(
+    api.user.punchOut(userId.value, attendanceId, punchOut, getLocation.value)
+  )
+  if (err) return flash()
+  userStore.$patch((state) => {
+    state.recentAttendance[0].punchOut = data.punchOut
+  })
+  flash('success', '成功打卡')
 }
 </script>
 
@@ -84,7 +70,7 @@ const punchOut = async () => {
             </div>
             <div class="modal-body py-0">
               <p class="mb-0 text-center">時間沒到</p>
-              <p class="mb-0 text-center">(上班時間: {{ formatPunchIn }})</p>
+              <p class="mb-0 text-center">(上班時間: {{ formattedPunchIn }})</p>
             </div>
             <div class="modal-footer">
               <button
@@ -106,24 +92,17 @@ const punchOut = async () => {
           </div>
         </div>
       </div>
-      <span
-        :class="
-          distance <= distanceLimit ? 'd-none' : 'd-over-bp fs-4 text-danger'
-        "
+      <span :class="isInRange ? 'd-none' : 'd-over-bp fs-4 text-danger'"
         >請至公司操作</span
       >
       <small
-        :class="
-          distance <= distanceLimit
-            ? 'd-none'
-            : 'text-center d-less-bp  text-danger'
-        "
+        :class="isInRange ? 'd-none' : 'text-center d-less-bp  text-danger'"
         >請至公司操作</small
       >
       <!-- button -->
       <button
         :class="
-          distance <= distanceLimit
+          isInRange
             ? 'btn btn-lg punch-btn px-1 btn-danger'
             : 'btn btn-lg punch-btn px-1 btn-secondary disabled ms-1'
         "
@@ -135,17 +114,17 @@ const punchOut = async () => {
       </button>
       <button
         :class="
-          distance <= distanceLimit
+          isInRange
             ? 'btn btn-lg punch-btn px-1 btn-success'
             : 'btn btn-lg punch-btn px-1 btn-secondary disabled ms-1'
         "
         @click="punchOut"
-        v-else-if="todaysAttendance"
+        v-else-if="today?.punchIn"
       >
         下班
       </button>
       <button
-        v-bind:disabled="distance <= distanceLimit"
+        v-bind:disabled="!isInRange"
         class="btn btn-lg punch-btn px-1 btn-info"
         @click="punchIn"
         v-else

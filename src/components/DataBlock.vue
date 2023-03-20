@@ -1,32 +1,34 @@
 <script setup>
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
+import to from 'await-to-js'
 import store from '../stores'
-import { flash } from '../assets/helpers/flashHelper'
-import api from '../assets/api/instance'
-const { useUserStore, useAttendanceStore } = store
-const [userStore, attendanceStore] = [useUserStore(), useAttendanceStore()]
-const { userAvatar, userName } = storeToRefs(userStore)
-const { formatPunchIn, formatPunchOut } = storeToRefs(attendanceStore)
-const avatarInput = ref(null)
-const clickImage = () => avatarInput.value.click()
+import { flash } from '../utils/helpers/flashHelper'
+import instance from '../utils/api/instance'
+const { useUserStore } = store
+const [userStore] = [useUserStore()]
+const { userAvatar, userName, formattedPunchIn, formattedPunchOut } =
+  storeToRefs(userStore)
 
-const afterChange = async () => {
-  try {
-    var formData = new FormData()
-    var imagefile = avatarInput.value
-    formData.append('image', imagefile.files[0])
-    const userId = localStorage.getItem('userId')
-    const { avatar } = await api.post(`/employees/${userId}/avatar`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+const avatarInput = ref()
+
+function clickImage() {
+  avatarInput.value.click()
+}
+
+async function avatarOnChange() {
+  var formData = new FormData()
+  var imagefile = avatarInput.value
+  formData.append('image', imagefile.files[0])
+  const userId = localStorage.getItem('userId')
+  const [err, { avatar }] = await to(
+    instance.post(`/employees/${userId}/avatar`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     })
-    userStore.setAvatar(avatar)
-    flash('success', '成功更新')
-  } catch (err) {
-    flash()
-  }
+  )
+  if (err) return flash()
+  userStore.$patch((state) => (state.user.avatar = avatar))
+  flash('success', '成功更新')
 }
 </script>
 
@@ -37,18 +39,19 @@ const afterChange = async () => {
       class="img-fluid rounded-circle img-thumbnail d-over-bp"
       alt="Avatar"
       @click="clickImage"
-    /><br />
+    />
     <input
       type="file"
       name="avatar"
       ref="avatarInput"
       class="d-none"
-      @change="afterChange"
+      @change="avatarOnChange"
     />
     <p class="display-6 mt-0 d-over-bp">{{ userName }}</p>
+    <p class="my-0 fs-4">今日出勤</p>
     <ul class="my-0 fw-bold fs-4">
-      <li class="text-success">上班時間: {{ formatPunchIn }}</li>
-      <li class="text-danger">下班時間: {{ formatPunchOut }}</li>
+      <li class="text-success">上班時間: {{ formattedPunchIn }}</li>
+      <li class="text-danger">下班時間: {{ formattedPunchOut }}</li>
     </ul>
   </div>
 </template>

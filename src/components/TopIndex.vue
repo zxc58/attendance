@@ -3,7 +3,9 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import store from '../stores'
-import { removeTokensAndRedirect } from '../assets/helpers/jwtHelper'
+import api from '../utils/api'
+import to from 'await-to-js'
+import { removeTokens } from '../utils/helpers/jwtHelper'
 const { useUserStore } = store
 const buttonCollapse = ref(null)
 const router = useRouter()
@@ -13,7 +15,7 @@ const { user, isAdmin } = storeToRefs(userStore)
 const navItem = reactive([
   {
     name: '考勤',
-    onclick: () => {
+    onclick() {
       if (window.innerWidth < 768) {
         buttonCollapse.value.click()
       }
@@ -22,7 +24,7 @@ const navItem = reactive([
   },
   {
     name: '設定',
-    onclick: () => {
+    onclick() {
       if (window.innerWidth < 768) {
         buttonCollapse.value.click()
       }
@@ -36,8 +38,12 @@ const directToManagement = () => {
   }
   router.push('/admin')
 }
-const logOut = () => {
-  return removeTokensAndRedirect()
+async function logOut() {
+  const [err] = await to(api.user.logout())
+  if (err) return
+  userStore.$reset()
+  removeTokens()
+  router.push('/login')
 }
 </script>
 
@@ -65,7 +71,9 @@ const logOut = () => {
             v-for="item in navItem"
             :key="item.name"
           >
-            <a class="nav-link fs-5" @click="item.onclick">{{ item.name }} </a>
+            <a class="nav-link fs-5" @click="item.onclick($event)"
+              >{{ item.name }}
+            </a>
           </li>
           <li class="nav-item text-center px-1" v-if="isAdmin">
             <a class="nav-link fs-5" @click="directToManagement">管理</a>

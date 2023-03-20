@@ -3,10 +3,9 @@ import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { reactive } from 'vue'
 import store from '../stores'
-import UnworkEmployeesVue from '../components/admin/UnworkEmployees.vue'
-import LockedAccountsVue from '../components/admin/LockedAccounts.vue'
-import AbsenteeismEmployeesVue from '../components/admin/AbsenteeismEmployees.vue'
-
+import UnworkEmployees from '../components/admin/UnworkEmployees.vue'
+import LockedAccounts from '../components/admin/LockedAccounts.vue'
+import AbsenteeismEmployees from '../components/admin/AbsenteeismEmployees.vue'
 const { useUserStore } = store
 const [router, userStore] = [useRouter(), useUserStore()]
 const { isAdmin } = storeToRefs(userStore)
@@ -79,9 +78,9 @@ const navChange = (index) => {
       </div>
       <br />
       <div class="overflow-auto">
-        <LockedAccountsVue v-if="controller[0]" />
-        <UnworkEmployeesVue v-if="controller[1]" />
-        <AbsenteeismEmployeesVue v-if="controller[2]" />
+        <LockedAccounts v-if="controller[0]" />
+        <UnworkEmployees v-if="controller[1]" />
+        <AbsenteeismEmployees v-if="controller[2]" />
       </div>
     </div>
   </main>
