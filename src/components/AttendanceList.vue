@@ -1,27 +1,8 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { onMounted, onBeforeUnmount } from 'vue'
 import store from '../stores'
-import dayjsTaipei, { getEndTime } from '../assets/helpers/timeHelper'
-import api from '../assets/api'
-const { useAttendanceStore } = store
-const attendanceStore = useAttendanceStore()
-const { setRecentAttendances } = attendanceStore
-const { attendanceList } = storeToRefs(attendanceStore)
-let timeOutId
-onMounted(() => {
-  ;(async function refreshRecentAttendances() {
-    const { data } = await api.user.recentAttendancesAPI()
-    setRecentAttendances(data)
-    timeOutId = setTimeout(
-      refreshRecentAttendances,
-      getEndTime().diff(dayjsTaipei())
-    )
-  })()
-})
-onBeforeUnmount(() => {
-  clearTimeout(timeOutId)
-})
+const userStore = store.useUserStore()
+const { attendanceHistoryRecord } = storeToRefs(userStore)
 </script>
 
 <template>
@@ -36,10 +17,9 @@ onBeforeUnmount(() => {
       </thead>
       <tbody>
         <tr
-          v-for="row in attendanceList"
+          v-for="row in attendanceHistoryRecord"
           :key="row.id"
           :class="row.class"
-          @click="row.showDetails"
         >
           <th scope="row">{{ row.date }}</th>
           <td>{{ row.day }}</td>
@@ -61,6 +41,7 @@ div {
 thead th {
   position: sticky;
   top: 0;
+  z-index: 999;
 }
 @media screen and (max-width: 768px) {
   div {

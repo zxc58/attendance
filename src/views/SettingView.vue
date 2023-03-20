@@ -1,36 +1,35 @@
 <script setup>
+import { ref, reactive, toRaw } from 'vue'
+import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import store from '../stores'
-import api from '../assets/api'
-import { flash } from '../assets/helpers/flashHelper'
-
-const { useUserStore } = store
-const userStore = useUserStore()
+import to from 'await-to-js'
+import api from '../utils/api'
+import { flash } from '../utils/helpers/flashHelper'
+const userStore = store.useUserStore()
+const router = useRouter()
 const { user } = storeToRefs(userStore)
-const setting = async (e) => {
-  try {
-    const data = {}
-    const inputs = e.target.querySelectorAll('input')
-    inputs.forEach((element) => {
-      if (element.value) {
-        data[element.name] = element.value
-      }
-    })
-    if (data.password !== data.ensurePassword) {
-      flash('danger', '請確定2組新密碼相同')
-      return
-    }
-    const newUserData = await api.user.updatePersonalDataAPI(data)
-    userStore.setUser(newUserData)
-    inputs.forEach((element) => {
-      if (element.name === 'password' || element.name === 'ensurePassword') {
-        element.value = ''
-      }
-    })
-    flash('success', '成功更新')
-  } catch (err) {
-    flash()
-  }
+const formInputsRef = reactive({
+  phone: user.value.phone,
+  email: user.value.email,
+  password: '',
+  ensurePassword: '',
+})
+const submitButtonRef = ref()
+async function setting() {
+  submitButtonRef.value.disabled = true
+  const userId = userStore.userId
+  const data = toRaw(formInputsRef)
+  if (data.password !== data.ensurePassword)
+    return flash(('danger', '請確定2組新密碼相同'))
+  if (!data.password) delete data.password
+  delete data.ensurePassword
+  const [, newUserData] = await to(api.user.updatePersonalData(userId, data))
+  submitButtonRef.value.disabled = false
+  if (!newUserData) return flash()
+  userStore.formatAndStoreApiData(newUserData)
+  flash('success', '成功更新')
+  router.push('/')
 }
 </script>
 
@@ -42,9 +41,8 @@ const setting = async (e) => {
       <div class="form-group">
         <label for="phoneInput" class="form-label">新電話號碼</label>
         <input
-          :value="user.phone"
+          v-model="formInputsRef.phone"
           class="form-control"
-          name="phone"
           type="text"
           minlength="5"
           maxlength="20"
@@ -56,9 +54,8 @@ const setting = async (e) => {
       <div class="form-group">
         <label for="emailInput" class="form-label mt-4">新Email</label>
         <input
-          :value="user.email"
+          v-model="formInputsRef.email"
           class="form-control"
-          name="email"
           type="email"
           id="emailInput"
           aria-describedby="emailHelp"
@@ -68,9 +65,9 @@ const setting = async (e) => {
       <div class="form-group">
         <label for="passwordInput" class="form-label mt-4">新密碼</label>
         <input
+          v-model="formInputsRef.password"
           minlength="7"
           maxlength="14"
-          name="password"
           type="password"
           class="form-control"
           id="passwordInput"
@@ -83,9 +80,9 @@ const setting = async (e) => {
           >確認密碼</label
         >
         <input
+          v-model="formInputsRef.ensurePassword"
           minlength="7"
           maxlength="14"
-          name="ensurePassword"
           type="password"
           class="form-control"
           id="ensurePasswordInput"
@@ -94,7 +91,9 @@ const setting = async (e) => {
       </div>
       <br />
       <div class="form-group text-center">
-        <button type="submit" class="btn btn-lg btn-info">套用</button>
+        <button ref="submitButtonRef" type="submit" class="btn btn-lg btn-info">
+          套用
+        </button>
       </div>
     </fieldset>
   </form>

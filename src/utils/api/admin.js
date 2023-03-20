@@ -1,22 +1,24 @@
 import instance from './instance'
 
-export function getUnworkingAPI() {
+export function getUnworking() {
   return instance.get('/admin/employees/unworking')
 }
 
-export const getLockedAccountAPI = () => instance.get('/admin/employees/locked')
+export function getLockedAccount() {
+  return instance.get('/admin/employees/locked')
+}
 /**
  * @param { number|string } id  Id of employee
  * @returns
  */
-export function unlockedAPI(id) {
+export function unlocked(id) {
   return instance.patch(`/admin/employees/${id}/unlock`)
 }
 /**
  *
  * @returns
  */
-export function getAbsenteeismAPI() {
+export function getAbsenteeism() {
   return instance.get(`/admin/employees/absenteeism`)
 }
 /**
@@ -24,6 +26,6 @@ export function getAbsenteeismAPI() {
  * @param { number | string } attendanceId Id of the attendance record
  * @returns
  */
-export function patchAttendanceAPI(attendanceId) {
+export function patchAttendance(attendanceId) {
   return instance.patch(`/admin/attendances/${attendanceId}`)
 }

@@ -1,11 +1,12 @@
+import cloneDeep from 'lodash.clonedeep'
 import { useUserStore } from './user'
 import { useLocationStore } from './location'
-import { useAttendanceStore } from './attendance'
-import { useTimeStore } from './time'
-const store = {
-  useAttendanceStore,
-  useLocationStore,
-  useTimeStore,
-  useUserStore,
-}
+const store = { useLocationStore, useUserStore }
 export default store
+
+export const middlewares = {
+  createReset({ store }) {
+    const initialState = cloneDeep(store.$state)
+    store.$reset = () => store.$patch(cloneDeep(initialState))
+  },
+}
