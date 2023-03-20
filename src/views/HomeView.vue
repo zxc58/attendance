@@ -1,5 +1,4 @@
 <script setup>
-import TaipeiClock from '../components/TaipeiClock.vue'
 import PunchBlock from '../components/PunchBlock.vue'
 import DataBlock from '../components/DataBlock.vue'
 import PunchingDetails from '../components/PunchingDetails.vue'
@@ -8,9 +7,6 @@ import PunchingDetails from '../components/PunchingDetails.vue'
 <template>
   <main>
     <div class="container-md">
-      <!-- <div class="row d-over-bp">
-        <TaipeiClock />
-      </div> -->
       <div class="row mt-1">
         <DataBlock />
         <PunchBlock />

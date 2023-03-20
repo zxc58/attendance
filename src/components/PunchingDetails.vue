@@ -1,7 +1,4 @@
-<script setup>
-import { storeToRefs } from 'pinia'
-import store from '../stores'
-</script>
+<script setup></script>
 
 <template>
   <br />

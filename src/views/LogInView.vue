@@ -8,7 +8,7 @@ import qricon from '../assets/qricon.png'
 import store from '../stores'
 import api from '../utils/api'
 import { flash } from '../utils/helpers/flashHelper'
-import { storeJWT, removeTokens } from '../utils/helpers/jwtHelper'
+import { storeJWT } from '../utils/helpers/jwtHelper'
 import { loginFormInputs } from '../assets/form/inputs'
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
 const { useUserStore, useLocationStore } = store

@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
+import to from 'await-to-js'
 import store from '../stores'
 import { flash } from '../utils/helpers/flashHelper'
 import instance from '../utils/api/instance'
@@ -15,26 +16,19 @@ function clickImage() {
   avatarInput.value.click()
 }
 
-async function afterChange() {
-  try {
-    var formData = new FormData()
-    var imagefile = avatarInput.value
-    formData.append('image', imagefile.files[0])
-    const userId = localStorage.getItem('userId')
-    const { avatar } = await instance.post(
-      `/employees/${userId}/avatar`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    )
-    userStore.$patch((state) => (state.user.avatar = avatar))
-    flash('success', '成功更新')
-  } catch (err) {
-    flash()
-  }
+async function avatarOnChange() {
+  var formData = new FormData()
+  var imagefile = avatarInput.value
+  formData.append('image', imagefile.files[0])
+  const userId = localStorage.getItem('userId')
+  const [err, { avatar }] = await to(
+    instance.post(`/employees/${userId}/avatar`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  )
+  if (err) return flash()
+  userStore.$patch((state) => (state.user.avatar = avatar))
+  flash('success', '成功更新')
 }
 </script>
 
@@ -45,15 +39,16 @@ async function afterChange() {
       class="img-fluid rounded-circle img-thumbnail d-over-bp"
       alt="Avatar"
       @click="clickImage"
-    /><br />
+    />
     <input
       type="file"
       name="avatar"
       ref="avatarInput"
       class="d-none"
-      @change="afterChange"
+      @change="avatarOnChange"
     />
     <p class="display-6 mt-0 d-over-bp">{{ userName }}</p>
+    <p class="my-0 fs-4">今日出勤</p>
     <ul class="my-0 fw-bold fs-4">
       <li class="text-success">上班時間: {{ formattedPunchIn }}</li>
       <li class="text-danger">下班時間: {{ formattedPunchOut }}</li>

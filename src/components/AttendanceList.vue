@@ -1,11 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import to from 'await-to-js'
-import { onMounted, onBeforeUnmount } from 'vue'
 import store from '../stores'
-import dayjsTaipei, { getEndTime } from '../utils/helpers/timeHelper'
-import api from '../utils/api'
-import { recentAttendances } from '../utils/api/user'
 const userStore = store.useUserStore()
 const { attendanceHistoryRecord } = storeToRefs(userStore)
 </script>

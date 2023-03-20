@@ -1,8 +1,5 @@
 import { ref, computed } from 'vue'
-import to from 'await-to-js'
-
 import { defineStore } from 'pinia'
-import api from '../utils/api'
 import avatarUrl from '../assets/avatar.png'
 import dayjsTaipei, { countWorkingHour } from '../utils/helpers/timeHelper'
 const requiredWorkingHour = Number(

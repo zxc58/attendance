@@ -7,7 +7,6 @@ import store from '../stores'
 import api from '../utils/api'
 import dayjsTaipei from '../utils/helpers/timeHelper'
 
-const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
 const { useLocationStore, useUserStore } = store
 const [locationStore, userStore] = [useLocationStore(), useUserStore()]
 const { today, leftTime, formattedPunchIn, userId } = storeToRefs(userStore)
