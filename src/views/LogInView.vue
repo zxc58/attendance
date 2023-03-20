@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive, toRaw } from 'vue'
 import { useRouter } from 'vue-router'
 import QrcodeVue from 'qrcode.vue'
 import { storeToRefs } from 'pinia'
@@ -9,8 +9,8 @@ import store from '../stores'
 import api from '../utils/api'
 import { flash } from '../utils/helpers/flashHelper'
 import { storeJWT } from '../utils/helpers/jwtHelper'
-import { loginFormInputs } from '../assets/form/inputs'
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
+const formInputsRef = reactive({ account: '', password: '' })
 const { useUserStore, useLocationStore } = store
 const qr = ref('')
 const submitButtonRef = ref()
@@ -21,17 +21,13 @@ const [userStore, locationStore, router] = [
 ]
 const { getLocation, distance } = storeToRefs(locationStore)
 
-async function login(e) {
+async function login() {
   submitButtonRef.value.disabled = true
-  const inputs = e.target.querySelectorAll('input')
-  const data = {}
-  inputs.forEach((element) => {
-    data[element.name] = element.value
-  })
-  const [error0, response] = await to(api.user.login(data))
+  const formInputs = toRaw(formInputsRef)
+  const [error, data] = await to(api.user.login(formInputs))
   submitButtonRef.value.disabled = false
-  if (error0) {
-    switch (error0.response.data.message) {
+  if (error) {
+    switch (error.response.data.message) {
       case 'Wrong times over 5':
         return flash('danger', '帳號已被鎖定')
       case 'Account do not exist':
@@ -41,15 +37,12 @@ async function login(e) {
         return flash()
     }
   }
-  storeJWT(response.data.data)
-  userStore.formatAndStoreApiData(
-    response.data.data.user,
-    response.data.data.attendances
-  )
+  storeJWT(data)
+  userStore.formatAndStoreApiData(data.user, data.attendances)
   router.push('/')
 }
 
-const showQr = async () => {
+async function showQr() {
   if (!(distance.value <= distanceLimit))
     return flash('warning', '請親自至公司操作')
   const [, { punchQrId }] = await to(api.user.getQrId(getLocation.value))
@@ -86,23 +79,33 @@ const showQr = async () => {
           {{ distance <= distanceLimit ? '掃描打卡' : '請至公司取得qr code' }}
         </span>
       </div>
-      <div class="form-group" v-for="input in loginFormInputs" :key="input.key">
-        <label :for="input.id" :class="input.labelClass">{{
-          input.label
-        }}</label>
+      <div class="form-group">
+        <label for="accountInput" class="form-label mt-4">帳號</label>
         <input
-          :minlength="input.minLength"
-          :maxlength="input.maxLength"
-          :name="input.name"
-          :required="input.isRequired"
-          :type="input.type"
-          :class="input.inputClass"
-          :id="input.id"
-          :placeholder="input.placeholder"
+          v-model="formInputsRef.account"
+          id="accountInput"
+          class="form-control"
+          type="text"
+          maxlength="14"
+          minlength="5"
+          placeholder="5~14碼帳號"
+          required
         />
       </div>
-      <br />
-      <div class="form-group text-center">
+      <div class="form-group">
+        <label for="passwordInput" class="form-label mt-4">密碼</label>
+        <input
+          v-model="formInputsRef.password"
+          id="passwordInput"
+          class="form-control"
+          type="password"
+          maxlength="14"
+          minlength="7"
+          placeholder="7~14碼密碼"
+          required
+        />
+      </div>
+      <div class="mt-1 form-group text-center">
         <button ref="submitButtonRef" type="submit" class="btn btn-info">
           登入
         </button>

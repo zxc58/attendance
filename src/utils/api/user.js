@@ -1,15 +1,7 @@
-import axios from 'axios'
 import instance from './instance'
-const backendURL =
-  import.meta.env.VITE_APP_BACKEND_URL ?? 'http://localhost:3000'
 
 export function login(data) {
-  return axios.post(`${backendURL}/auth/login`, data, {
-    withCredentials: true,
-    headers: {
-      'X-Refresh-Token': 'true',
-    },
-  })
+  return instance.post(`/auth/login`, data)
 }
 export function logout() {
   return instance.get('/auth/logout')
@@ -17,11 +9,9 @@ export function logout() {
 export function verifyJWT() {
   return instance.get('/auth/verify')
 }
-
 export function personalData(userId) {
   return instance.get(`/employees/${userId}`)
 }
-
 export function todaysAttendance(userId) {
   return instance.get(`/employees/${userId}/attendances`, {
     params: { date: 'today' },
@@ -81,7 +71,7 @@ export function qrPunch(data) {
 }
 
 export function getQrId(location) {
-  return axios.get(`${backendURL}/attendances/qrcode`, {
+  return instance.get(`/attendances/qrcode`, {
     params: { location },
   })
 }

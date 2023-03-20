@@ -1,6 +1,5 @@
 /**
  * Store accessToken in localStorage as named "access_token"
- * and store refreshToken as named "refreshToken"
  * @param {{accessToken:string}} data
  */
 export function storeJWT(data) {
@@ -10,7 +9,7 @@ export function storeJWT(data) {
 }
 
 /**
- * Will remove "access_token" and "refresh_token" in localStorage
+ * Will remove "access_token" in localStorage
  */
 export function removeTokens() {
   localStorage.removeItem('access_token')
@@ -18,9 +17,8 @@ export function removeTokens() {
 
 /**
  *
- * @returns {boolean} Does localStorage cantain "access_token" and "refresh_token"
+ * @returns {boolean} Does localStorage cantain "access_token"
  */
 export function checkIsLogin() {
-  const accessToken = localStorage.getItem('access_token')
-  return !!accessToken
+  return !!localStorage.getItem('access_token')
 }
