@@ -9,21 +9,43 @@ import store from '../stores'
 import api from '../utils/api'
 import { flash } from '../utils/helpers/flashHelper'
 import { storeJWT } from '../utils/helpers/jwtHelper'
-const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
-const formInputsRef = reactive({ account: '', password: '' })
+const formModel = reactive({ account: '', password: '' })
+const formRef = ref()
+const formRules = reactive({
+  account: [
+    { required: true, message: 'Please input account', trigger: 'blur' },
+    {
+      min: 5,
+      max: 14,
+      message: 'Length should be 5 to 14',
+      trigger: ['blur', 'change'],
+    },
+  ],
+  password: [
+    { required: true, message: 'Please input password', trigger: 'blur' },
+    {
+      min: 7,
+      max: 14,
+      message: 'Length should be 7 to 14',
+      trigger: ['blur', 'change'],
+    },
+  ],
+})
 const { useUserStore, useLocationStore } = store
-const qr = ref('')
+const qr = ref()
 const submitButtonRef = ref()
 const [userStore, locationStore, router] = [
   useUserStore(),
   useLocationStore(),
   useRouter(),
 ]
-const { getLocation, distance } = storeToRefs(locationStore)
+const { getLocation, isInRange } = storeToRefs(locationStore)
 
 async function login() {
+  const [, result] = await to(formRef.value.validate())
+  if (!result) return
   submitButtonRef.value.disabled = true
-  const formInputs = toRaw(formInputsRef)
+  const formInputs = toRaw(formModel)
   const [error, data] = await to(api.user.login(formInputs))
   submitButtonRef.value.disabled = false
   if (error) {
@@ -43,8 +65,7 @@ async function login() {
 }
 
 async function showQr() {
-  if (!(distance.value <= distanceLimit))
-    return flash('warning', '請親自至公司操作')
+  if (!isInRange) return flash('warning', '請親自至公司操作')
   const [, { punchQrId }] = await to(api.user.getQrId(getLocation.value))
   if (!punchQrId) return
   const qrURL = `${location.protocol}//${location.host}/attendance/qrcode?punchQrId=${punchQrId}`
@@ -60,58 +81,52 @@ async function showQr() {
 </script>
 
 <template>
-  <form ref="formRef" class="container-md" @submit.prevent="login">
-    <fieldset>
-      <legend class="text-center display-5 my-0">登入</legend>
-      <div class="d-over-bp">
-        <qrcode-vue
-          v-if="qr"
-          class="qr-code"
-          :value="qr"
-          :size="400"
-          level="H"
-        ></qrcode-vue>
-        <img @click="showQr" :src="qricon" alt="qr" />
-        <span
-          :class="distance <= distanceLimit ? 'text-info' : 'text-secondary'"
-          v-if="!qr"
-        >
-          {{ distance <= distanceLimit ? '掃描打卡' : '請至公司取得qr code' }}
-        </span>
-      </div>
-      <div class="form-group">
-        <label for="accountInput" class="form-label mt-4">帳號</label>
-        <input
-          v-model="formInputsRef.account"
-          id="accountInput"
-          class="form-control"
-          type="text"
-          maxlength="14"
-          minlength="5"
-          placeholder="5~14碼帳號"
-          required
-        />
-      </div>
-      <div class="form-group">
-        <label for="passwordInput" class="form-label mt-4">密碼</label>
-        <input
-          v-model="formInputsRef.password"
-          id="passwordInput"
-          class="form-control"
-          type="password"
-          maxlength="14"
-          minlength="7"
-          placeholder="7~14碼密碼"
-          required
-        />
-      </div>
-      <div class="mt-1 form-group text-center">
-        <button ref="submitButtonRef" type="submit" class="btn btn-info">
-          登入
-        </button>
-      </div>
-    </fieldset>
-  </form>
+  <el-row type="flex" justify="center">
+    <el-col :span="12">
+      <p>Sign in</p>
+      <qrcode-vue
+        v-if="qr"
+        class="qr-code"
+        :value="qr"
+        :size="400"
+        level="H"
+      ></qrcode-vue>
+      <img @click="showQr" :src="qricon" alt="qr" />
+      <span :class="isInRange ? 'text-info' : 'text-secondary'" v-if="!qr">
+        {{ isInRange ? '掃描打卡' : '請至公司取得qr code' }}
+      </span>
+      <el-form
+        :rules="formRules"
+        status-icon
+        ref="formRef"
+        label-position="top"
+        :model="formModel"
+        @submit.prevent="login"
+      >
+        <el-form-item label="Account" prop="account">
+          <el-input v-model="formModel.account" maxlength="14" />
+        </el-form-item>
+        <el-form-item label="Password" prop="password">
+          <el-input
+            v-model="formModel.password"
+            type="password"
+            show-password
+            maxlength="14"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            round
+            ref="submitButtonRef"
+            native-type="submit"
+            type="primary"
+          >
+            Sign in
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-col></el-row
+  >
 </template>
 
 <style scoped>
@@ -133,5 +148,6 @@ img:hover {
   background-color: antiquewhite;
   border-width: 1px;
   border-radius: 10px;
+  z-index: 1;
 }
 </style>

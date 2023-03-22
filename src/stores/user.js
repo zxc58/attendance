@@ -54,7 +54,7 @@ export const useUserStore = defineStore('user', () => {
         date: dayjsTaipei(element.date).format('MM月DD日'),
         day: `星期${element.day}`,
         status,
-        class: `table-${color}${details ? ' row-details' : ''}`,
+        class: color,
       }
     })
     list.shift()

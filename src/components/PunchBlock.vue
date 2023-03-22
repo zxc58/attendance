@@ -2,7 +2,7 @@
 import { storeToRefs } from 'pinia'
 import to from 'await-to-js'
 import { flash } from '../utils/helpers/flashHelper'
-import AttendanceList from './AttendanceList.vue'
+import AttendanceTable from './AttendanceTable.vue'
 import store from '../stores'
 import api from '../utils/api'
 import dayjsTaipei from '../utils/helpers/timeHelper'
@@ -43,7 +43,7 @@ async function punchOut() {
 
 <template>
   <div class="col-md">
-    <AttendanceList />
+    <AttendanceTable />
 
     <div class="d-grid gap-2 d-md-block text-end">
       <!-- modal -->
