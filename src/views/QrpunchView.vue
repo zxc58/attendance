@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import to from 'await-to-js'
 import api from '../utils/api'
-import { flash } from '../utils/helpers/flashHelper'
 import dayjsTaipei from '../utils/helpers/timeHelper'
 const [route, router] = [useRoute(), useRouter()]
 const status = ref(null)
@@ -14,7 +13,7 @@ onMounted(async () => {
   ]
   const data = { punch, punchQrId }
   const [, message] = await to(api.user.qrPunch(data))
-  if (!message) return flash()
+  if (!message) return
   status.value = '打卡成功 2秒後跳轉'
   setTimeout(() => {
     router.push('/')

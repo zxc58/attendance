@@ -1,10 +1,12 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import store from '../stores'
+import { useWindowSize } from '@vueuse/core'
+const { width } = useWindowSize()
 const userStore = store.useUserStore()
 const { attendanceHistoryRecord } = storeToRefs(userStore)
 const tableRowClassName = ({ row }) => (row.class ? `${row.class}-row` : '')
-
+const headerCellStyle = { backgroundColor: 'black', color: 'white' }
 const tableRowKey = (row) => row.id
 </script>
 
@@ -12,11 +14,11 @@ const tableRowKey = (row) => row.id
   <el-table
     :data="attendanceHistoryRecord"
     :border="true"
-    height="450"
+    :height="width >= 768 ? '700px' : '400px'"
     style="width: 100%"
     :row-class-name="tableRowClassName"
     :row-key="tableRowKey"
-    header-row-class-name="table-header"
+    :header-cell-style="headerCellStyle"
   >
     <el-table-column prop="date" label="日期" />
     <el-table-column prop="day" label="星期" />
@@ -24,9 +26,6 @@ const tableRowKey = (row) => row.id
   </el-table>
 </template>
 <style>
-.table-header th {
-  font-weight: bold;
-}
 .el-table .warning-row {
   --el-table-tr-bg-color: var(--el-color-warning-light-7);
 }

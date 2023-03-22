@@ -7,7 +7,6 @@ import to from 'await-to-js'
 import qricon from '../assets/qricon.png'
 import store from '../stores'
 import api from '../utils/api'
-import { flash } from '../utils/helpers/flashHelper'
 import { storeJWT } from '../utils/helpers/jwtHelper'
 const formModel = reactive({ account: '', password: '' })
 const formRef = ref()
@@ -31,12 +30,13 @@ const formRules = reactive({
     },
   ],
 })
-const { useUserStore, useLocationStore } = store
+const { useUserStore, useLocationStore, useAlertStore } = store
 const qr = ref()
 const submitButtonRef = ref()
-const [userStore, locationStore, router] = [
+const [userStore, locationStore, alertStore, router] = [
   useUserStore(),
   useLocationStore(),
+  useAlertStore(),
   useRouter(),
 ]
 const { getLocation, isInRange } = storeToRefs(locationStore)
@@ -48,15 +48,16 @@ async function login() {
   const formInputs = toRaw(formModel)
   const [error, data] = await to(api.user.login(formInputs))
   submitButtonRef.value.disabled = false
+  formModel.password = ''
   if (error) {
     switch (error.response.data.message) {
       case 'Wrong times over 5':
-        return flash('danger', '帳號已被鎖定')
+        return alertStore.show('帳號已被鎖定')
       case 'Account do not exist':
       case 'Password wrong':
-        return flash('danger', '帳號或密碼錯誤')
+        return alertStore.show('帳號或密碼錯誤')
       default:
-        return flash()
+        return alertStore.show()
     }
   }
   storeJWT(data)
@@ -65,7 +66,7 @@ async function login() {
 }
 
 async function showQr() {
-  if (!isInRange) return flash('warning', '請親自至公司操作')
+  if (!isInRange) return
   const [, { punchQrId }] = await to(api.user.getQrId(getLocation.value))
   if (!punchQrId) return
   const qrURL = `${location.protocol}//${location.host}/attendance/qrcode?punchQrId=${punchQrId}`
@@ -81,9 +82,17 @@ async function showQr() {
 </script>
 
 <template>
-  <el-row type="flex" justify="center">
-    <el-col :span="12">
-      <p>Sign in</p>
+  <h2 style="text-align: center">Sign in</h2>
+
+  <el-row style="justify-content: center">
+    <el-form
+      :rules="formRules"
+      status-icon
+      ref="formRef"
+      label-position="top"
+      :model="formModel"
+      @submit.prevent="login"
+    >
       <qrcode-vue
         v-if="qr"
         class="qr-code"
@@ -95,43 +104,37 @@ async function showQr() {
       <span :class="isInRange ? 'text-info' : 'text-secondary'" v-if="!qr">
         {{ isInRange ? '掃描打卡' : '請至公司取得qr code' }}
       </span>
-      <el-form
-        :rules="formRules"
-        status-icon
-        ref="formRef"
-        label-position="top"
-        :model="formModel"
-        @submit.prevent="login"
-      >
-        <el-form-item label="Account" prop="account">
-          <el-input v-model="formModel.account" maxlength="14" />
-        </el-form-item>
-        <el-form-item label="Password" prop="password">
-          <el-input
-            v-model="formModel.password"
-            type="password"
-            show-password
-            maxlength="14"
-          />
-        </el-form-item>
-        <el-form-item>
-          <el-button
-            round
-            ref="submitButtonRef"
-            native-type="submit"
-            type="primary"
-          >
-            Sign in
-          </el-button>
-        </el-form-item>
-      </el-form>
-    </el-col></el-row
-  >
+      <el-form-item label="Account" prop="account">
+        <el-input v-model="formModel.account" maxlength="14" />
+      </el-form-item>
+      <el-form-item label="Password" prop="password">
+        <el-input
+          v-model="formModel.password"
+          type="password"
+          show-password
+          maxlength="14"
+        />
+      </el-form-item>
+      <el-form-item>
+        <el-button
+          round
+          ref="submitButtonRef"
+          native-type="submit"
+          type="primary"
+        >
+          Sign in
+        </el-button>
+      </el-form-item>
+    </el-form>
+  </el-row>
 </template>
 
 <style scoped>
-form {
-  max-width: 600px;
+.el-alert {
+  background-color: aqua;
+}
+.el-form {
+  width: 600px;
 }
 img {
   max-width: 20px;

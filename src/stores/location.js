@@ -1,11 +1,14 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import getDistance from 'geolib/es/getDistance'
+import { useGeolocation } from '@vueuse/core'
+
 const companyLatitude = Number(import.meta.env.VITE_APP_COMPANY_LATITUDE)
 const companyLongitude = Number(import.meta.env.VITE_APP_COMPANY_LONGITUDE)
 const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
+
 export const useLocationStore = defineStore('location', () => {
-  const location = ref()
+  const location = useGeolocation().coords
 
   const distance = computed(() => {
     if (!location.value) return NaN

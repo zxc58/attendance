@@ -1,23 +1,24 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import to from 'await-to-js'
-import { flash } from '../../utils/helpers/flashHelper'
 import dayjsTaipei from '../../utils/helpers/timeHelper'
 import api from '../../utils/api'
+import store from '../../stores'
 const absenteeismEmployees = ref([])
+const { useAlertStore } = store
+const alertStore = useAlertStore()
 onMounted(async () => {
   const [, { data }] = await to(api.admin.getAbsenteeism())
-  if (!data) return
+  if (!data) return alertStore.show()
   absenteeismEmployees.value = data
 })
 async function modifyAttendance(attendanceId) {
   const [err] = await to(api.admin.patchAttendance(attendanceId))
-  if (err) return
+  if (err) return alertStore.show()
   const deleteIndex = absenteeismEmployees.value.findIndex(
     (e) => e.attendanceId === attendanceId
   )
   absenteeismEmployees.value.splice(deleteIndex, 1)
-  flash('success', '成功修改')
 }
 </script>
 

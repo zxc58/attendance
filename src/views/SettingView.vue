@@ -5,7 +5,6 @@ import { storeToRefs } from 'pinia'
 import store from '../stores'
 import to from 'await-to-js'
 import api from '../utils/api'
-import { flash } from '../utils/helpers/flashHelper'
 const userStore = store.useUserStore()
 const router = useRouter()
 const { user } = storeToRefs(userStore)
@@ -20,15 +19,13 @@ async function setting() {
   submitButtonRef.value.disabled = true
   const userId = userStore.userId
   const data = toRaw(formInputsRef)
-  if (data.password !== data.ensurePassword)
-    return flash(('danger', '請確定2組新密碼相同'))
+  if (data.password !== data.ensurePassword) return
   if (!data.password) delete data.password
   delete data.ensurePassword
   const [, newUserData] = await to(api.user.updatePersonalData(userId, data))
   submitButtonRef.value.disabled = false
-  if (!newUserData) return flash()
+  if (!newUserData) return
   userStore.formatAndStoreApiData(newUserData)
-  flash('success', '成功更新')
   router.push('/')
 }
 </script>

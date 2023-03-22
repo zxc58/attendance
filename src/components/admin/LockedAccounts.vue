@@ -2,19 +2,20 @@
 import { ref, onMounted } from 'vue'
 import to from 'await-to-js'
 import api from '../../utils/api'
-import { flash } from '../../utils/helpers/flashHelper'
+import store from '../../stores'
 const lockedAccount = ref([])
+const { useAlertStore } = store
+const alertStore = useAlertStore()
 onMounted(async () => {
   const [, { data }] = to(await api.admin.getLockedAccount())
-  if (!data) return
+  if (!data) return alertStore.show()
   lockedAccount.value = data
 })
 async function unLockAccount(id) {
   const [, { data }] = await to(api.admin.unlocked(id))
-  if (!data) return
+  if (!data) return alertStore.show()
   const deleteIndex = lockedAccount.value.findIndex((e) => e.id === data.id)
   lockedAccount.value.splice(deleteIndex, 1)
-  flash('success', '成功解鎖')
 }
 </script>
 
