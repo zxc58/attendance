@@ -7,38 +7,39 @@ import api from '../utils/api'
 import dayjsTaipei from '../utils/helpers/timeHelper'
 const dialogVisiable = ref(false)
 const { useLocationStore, useUserStore, useAlertStore } = store
-const [locationStore, userStore, alertStore] = [
-  useLocationStore(),
-  useUserStore(),
-  useAlertStore(),
-]
+const locationStore = useLocationStore()
+const userStore = useUserStore()
+const alertStore = useAlertStore()
 const { today, leftTime, formattedPunchIn, userId } = storeToRefs(userStore)
 const { getLocation, isInRange } = storeToRefs(locationStore)
 
 async function punchIn() {
-  if (!isInRange) return
+  if (!isInRange) return alertStore.show()
   const punchIn = dayjsTaipei().startOf('minute').toDate()
-  if (!punchIn || !getLocation.value) return
+  if (!punchIn || !getLocation.value) return alertStore.show()
   const [err, data] = await to(
     api.user.punchIn(userId.value, punchIn, getLocation.value)
   )
-  if (err) return alertStore.show()
+  if (err) return alertStore.show('伺服器錯誤，請稍後嘗試')
   userStore.$patch(
-    (state) => (state.recentAttendance[0].punchIn = data.punchIn)
+    (state) =>
+      (state.recentAttendance[0] = { ...state.recentAttendance[0], ...data })
   )
+  return alertStore.show('打卡成功', 'success')
 }
 async function punchOut() {
-  if (!isInRange) return
+  if (!isInRange) return alertStore.show()
   const attendanceId = today.value.id
   const punchOut = dayjsTaipei().startOf('minute').toDate()
-  if (!attendanceId || !punchOut || !getLocation.value) return
+  if (!attendanceId || !punchOut || !getLocation.value) return alertStore.show()
   const [err, data] = await to(
     api.user.punchOut(userId.value, attendanceId, punchOut, getLocation.value)
   )
-  if (err) return alertStore.show()
+  if (err) return alertStore.show('伺服器錯誤，請稍後嘗試')
   userStore.$patch((state) => {
     state.recentAttendance[0].punchOut = data.punchOut
   })
+  return alertStore.show('打卡成功', 'success')
 }
 </script>
 
@@ -61,12 +62,7 @@ async function punchOut() {
           <el-button @click="dialogVisiable = false">關閉</el-button>
           <el-button
             type="danger"
-            @click="
-              () => {
-                punchOut()
-                dialogVisiable = false
-              }
-            "
+            @click="punchOut().finally(() => (dialogVisiable = false))"
           >
             下班
           </el-button>
@@ -77,6 +73,7 @@ async function punchOut() {
       :disabled="!isInRange"
       :type="isInRange ? 'danger' : 'info'"
       v-if="leftTime"
+      size="large"
       @click="dialogVisiable = true"
     >
       下班
@@ -84,6 +81,7 @@ async function punchOut() {
     <el-button
       v-else-if="today?.punchIn"
       :disabled="!isInRange"
+      size="large"
       :type="isInRange ? 'success' : 'info'"
       @click="punchOut"
     >

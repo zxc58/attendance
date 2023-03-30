@@ -1,9 +1,7 @@
 <script setup>
 import PunchBlock from '../components/PunchBlock.vue'
 import DataBlock from '../components/DataBlock.vue'
-import PunchingDetails from '../components/PunchingDetails.vue'
 import AttendanceTable from '../components/AttendanceTable.vue'
-import TopCarousel from '../components/TopCarousel.vue'
 </script>
 
 <template>

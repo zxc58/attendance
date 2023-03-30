@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import 'element-plus/theme-chalk/display.css'
 import to from 'await-to-js'

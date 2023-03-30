@@ -48,7 +48,7 @@ export const useUserStore = defineStore('user', () => {
     if (!recentAttendance.value) return []
     const list = recentAttendance.value.map((element, index) => {
       if (index === 0) return {}
-      const [status, color, details] = countWorkingHour(element)
+      const [status, color] = countWorkingHour(element)
       return {
         id: element.dateId,
         date: dayjsTaipei(element.date).format('MM月DD日'),

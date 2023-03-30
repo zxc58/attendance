@@ -42,9 +42,9 @@ const [userStore, locationStore, alertStore, router] = [
 const { getLocation, isInRange } = storeToRefs(locationStore)
 
 async function login() {
-  const [, result] = await to(formRef.value.validate())
-  if (!result) return
   submitButtonRef.value.disabled = true
+  const [, result] = await to(formRef.value.validate())
+  if (!result) return (submitButtonRef.value.disabled = false)
   const formInputs = toRaw(formModel)
   const [error, data] = await to(api.user.login(formInputs))
   submitButtonRef.value.disabled = false
@@ -87,11 +87,11 @@ async function showQr() {
   <el-row style="justify-content: center">
     <el-form
       :rules="formRules"
-      status-icon
       ref="formRef"
-      label-position="top"
       :model="formModel"
       @submit.prevent="login"
+      label-position="top"
+      status-icon
     >
       <qrcode-vue
         v-if="qr"
@@ -105,7 +105,7 @@ async function showQr() {
         {{ isInRange ? '掃描打卡' : '請至公司取得qr code' }}
       </span>
       <el-form-item label="Account" prop="account">
-        <el-input v-model="formModel.account" maxlength="14" />
+        <el-input type="text" v-model="formModel.account" maxlength="14" />
       </el-form-item>
       <el-form-item label="Password" prop="password">
         <el-input

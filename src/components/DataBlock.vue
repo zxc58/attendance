@@ -49,4 +49,8 @@ async function updateAvatar() {
   </ul>
 </template>
 
-<style scoped></style>
+<style scoped>
+.el-avatar {
+  cursor: pointer;
+}
+</style>

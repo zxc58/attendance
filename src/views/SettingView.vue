@@ -5,21 +5,62 @@ import { storeToRefs } from 'pinia'
 import store from '../stores'
 import to from 'await-to-js'
 import api from '../utils/api'
-const userStore = store.useUserStore()
-const router = useRouter()
+const [userStore, router] = [store.useUserStore(), useRouter()]
 const { user } = storeToRefs(userStore)
-const formInputsRef = reactive({
-  phone: user.value.phone,
-  email: user.value.email,
+
+const formModel = reactive({
+  phone: user.value?.phone,
+  email: user.value?.email,
   password: '',
   ensurePassword: '',
 })
+const formRef = ref()
+const formRules = reactive({
+  phone: [
+    { required: true, message: 'Phone cannot be empty', trigger: 'blur' },
+    {
+      max: 20,
+      message: 'Length should be 5 to 20',
+      trigger: ['blur', 'change'],
+    },
+  ],
+  email: [
+    { required: true, message: 'Email cannot be empty', trigger: 'blur' },
+    {
+      max: 40,
+      message: 'Length should be  40',
+      trigger: ['blur', 'change'],
+    },
+  ],
+  password: [
+    {
+      min: 7,
+      max: 14,
+      message: 'Length should be 7 to 14',
+      trigger: ['blur', 'change'],
+    },
+  ],
+  ensurePassword: [
+    {
+      validator(rule, value, callback) {
+        return value !== formModel.password
+          ? formModel.password
+            ? callback(new Error('Please input password again'))
+            : callback(new Error('Please type password first'))
+          : callback()
+      },
+      trigger: ['blur', 'change'],
+    },
+  ],
+})
+
 const submitButtonRef = ref()
 async function setting() {
   submitButtonRef.value.disabled = true
+  const [, result] = await to(formRef.value.validate())
+  if (!result) return (submitButtonRef.value.disabled = false)
   const userId = userStore.userId
-  const data = toRaw(formInputsRef)
-  if (data.password !== data.ensurePassword) return
+  const data = toRaw(formModel)
   if (!data.password) delete data.password
   delete data.ensurePassword
   const [, newUserData] = await to(api.user.updatePersonalData(userId, data))
@@ -31,73 +72,55 @@ async function setting() {
 </script>
 
 <template>
-  <form class="container" @submit.prevent="setting">
-    <fieldset>
-      <div class="text-center display-5">設定資料</div>
-      <hr />
-      <div class="form-group">
-        <label for="phoneInput" class="form-label">新電話號碼</label>
-        <input
-          v-model="formInputsRef.phone"
-          class="form-control"
-          type="text"
-          minlength="5"
-          maxlength="20"
-          id="phoneInput"
-          aria-describedby="phoneHelp"
-          placeholder="新號碼"
-        />
-      </div>
-      <div class="form-group">
-        <label for="emailInput" class="form-label mt-4">新Email</label>
-        <input
-          v-model="formInputsRef.email"
-          class="form-control"
-          type="email"
-          id="emailInput"
-          aria-describedby="emailHelp"
-          placeholder="新Email"
-        />
-      </div>
-      <div class="form-group">
-        <label for="passwordInput" class="form-label mt-4">新密碼</label>
-        <input
-          v-model="formInputsRef.password"
-          minlength="7"
-          maxlength="14"
+  <h5 style="text-align: center">設定資料</h5>
+  <el-row style="justify-content: center">
+    <el-form
+      ref="formRef"
+      @submit.prevent="setting"
+      :model="formModel"
+      :rules="formRules"
+      status-icon
+      label-position="top"
+    >
+      <el-form-item label="New phone" prop="phone">
+        <el-input type="text" v-model="formModel.phone" maxlength="20" />
+      </el-form-item>
+      <el-form-item label="New email" prop="email">
+        <el-input type="text" v-model="formModel.email" maxlength="40" />
+      </el-form-item>
+      <el-form-item label="New password" prop="password">
+        <el-input
           type="password"
-          class="form-control"
-          id="passwordInput"
-          aria-describedby="passwordHelp"
-          placeholder="新密碼 7~14"
+          show-password
+          v-model="formModel.password"
+          maxlength="14"
         />
-      </div>
-      <div class="form-group">
-        <label for="ensurePasswordInput" class="form-label mt-4"
-          >確認密碼</label
+      </el-form-item>
+      <el-form-item label="Ensure new password" prop="ensurePassword">
+        <el-input
+          type="password"
+          show-password
+          v-model="formModel.ensurePassword"
+          maxlength="14"
+        />
+      </el-form-item>
+
+      <el-form-item>
+        <el-button
+          round
+          ref="submitButtonRef"
+          type="primary"
+          native-type="submit"
         >
-        <input
-          v-model="formInputsRef.ensurePassword"
-          minlength="7"
-          maxlength="14"
-          type="password"
-          class="form-control"
-          id="ensurePasswordInput"
-          placeholder="確定密碼"
-        />
-      </div>
-      <br />
-      <div class="form-group text-center">
-        <button ref="submitButtonRef" type="submit" class="btn btn-lg btn-info">
           套用
-        </button>
-      </div>
-    </fieldset>
-  </form>
+        </el-button>
+      </el-form-item>
+    </el-form>
+  </el-row>
 </template>
 
 <style scoped>
-form {
-  max-width: 600px;
+.el-form {
+  width: 600px;
 }
 </style>
