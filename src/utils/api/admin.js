@@ -23,9 +23,9 @@ export function getAbsenteeism() {
 }
 /**
  *
- * @param { number | string } attendanceId Id of the attendance record
+ * @param { {dateId:number|string,employeeId:number|string} } data
  * @returns
  */
-export function patchAttendance(attendanceId) {
-  return instance.patch(`/admin/attendances/${attendanceId}`)
+export function patchAttendance(data) {
+  return instance.patch(`/admin/attendances`, data)
 }
