@@ -20,7 +20,7 @@ onBeforeMount(async () => {
   if (!checkIsLogin()) return router.push('/login')
   const [err, data] = await to(api.user.verifyJWT())
   if (err) return
-  userStore.formatAndStoreApiData(data.user, data.attendances)
+  userStore.formatAndStoreApiData(data.employee, data.attendances)
 })
 </script>
 

@@ -61,7 +61,7 @@ async function login() {
     }
   }
   storeJWT(data)
-  userStore.formatAndStoreApiData(data.user, data.attendances)
+  userStore.formatAndStoreApiData(data.employee, data.attendances)
   router.push('/')
 }
 

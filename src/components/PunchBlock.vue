@@ -4,7 +4,6 @@ import { storeToRefs } from 'pinia'
 import to from 'await-to-js'
 import store from '../stores'
 import api from '../utils/api'
-import dayjsTaipei from '../utils/helpers/timeHelper'
 const dialogVisiable = ref(false)
 const { useLocationStore, useUserStore, useAlertStore } = store
 const locationStore = useLocationStore()
@@ -15,10 +14,9 @@ const { getLocation, isInRange } = storeToRefs(locationStore)
 
 async function punchIn() {
   if (!isInRange) return alertStore.show()
-  const punchIn = dayjsTaipei().startOf('minute').toDate()
-  if (!punchIn || !getLocation.value) return alertStore.show()
+  if (!getLocation.value) return alertStore.show()
   const [err, data] = await to(
-    api.user.punchIn(userId.value, punchIn, getLocation.value)
+    api.user.punchIn(userId.value, getLocation.value)
   )
   if (err) return alertStore.show('伺服器錯誤，請稍後嘗試')
   userStore.$patch(
@@ -30,10 +28,9 @@ async function punchIn() {
 async function punchOut() {
   if (!isInRange) return alertStore.show()
   const attendanceId = today.value.id
-  const punchOut = dayjsTaipei().startOf('minute').toDate()
-  if (!attendanceId || !punchOut || !getLocation.value) return alertStore.show()
+  if (!attendanceId || !getLocation.value) return alertStore.show()
   const [err, data] = await to(
-    api.user.punchOut(userId.value, attendanceId, punchOut, getLocation.value)
+    api.user.punchOut(userId.value, attendanceId, getLocation.value)
   )
   if (err) return alertStore.show('伺服器錯誤，請稍後嘗試')
   userStore.$patch((state) => {

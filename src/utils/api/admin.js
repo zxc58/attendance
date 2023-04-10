@@ -19,7 +19,7 @@ export function unlocked(id) {
  * @returns
  */
 export function getAbsenteeism() {
-  return instance.get(`/admin/employees/absenteeism`)
+  return instance.get(`/admin/employees/absent`)
 }
 /**
  *
