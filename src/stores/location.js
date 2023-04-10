@@ -21,9 +21,9 @@ export const useLocationStore = defineStore('location', () => {
   })
   const isInRange = computed(() => distance.value <= distanceLimit)
   const getLocation = computed(() => {
-    if (!location.value) return
+    if (!location.value) return undefined
     const { accuracy, latitude, longitude } = location.value
-    if (!accuracy || !latitude || !longitude) return
+    if (!accuracy || !latitude || !longitude) return undefined
     return { accuracy, latitude, longitude }
   })
   return {

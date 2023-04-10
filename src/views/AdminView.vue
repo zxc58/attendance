@@ -6,15 +6,16 @@ import store from '../stores'
 import api from '../utils/api'
 import to from 'await-to-js'
 import dayjs from '../utils/helpers/timeHelper'
-const { useUserStore } = store
-const [router, userStore] = [useRouter(), useUserStore()]
+const { useUserStore, useAlertStore } = store
+const router = useRouter()
+const [userStore, alertStore] = [useUserStore(), useAlertStore()]
 const [absentEmployees, bannedAccounts] = [reactive([]), reactive([])]
 const activeName = ref('absentEmployees')
 onMounted(async () => {
   if (!userStore.isAdmin) return router.push('/')
-  const [err, data] = await to(api.admin.getAbsenteeism())
+  const [, data] = await to(api.admin.getAbsenteeism())
   if (data) absentEmployees.push(...data)
-  const [err1, data1] = await to(api.admin.getLockedAccount())
+  const [, data1] = await to(api.admin.getLockedAccount())
   if (data1) bannedAccounts.push(...data1)
 })
 const table1Columns = [
@@ -27,26 +28,28 @@ const table2Columns = [
   { label: '帳號', prop: 'account' },
   { label: '名字', prop: 'name' },
 ]
-function a1(e) {
+function formatFunction1(e) {
   return {
     ...e,
     date: dayjs(e.date).format('YYYY-MM-DD'),
-    punchIn: e.punchIn ? dayjs.tz(e.punchIn).format('DD日hh:mm') : '--',
-    punchOut: e.punchOut ? dayjs.tz(e.punchOut).format('DD日hh:mm') : '--',
+    punchIn: e.punchIn ? dayjs.tz(dayjs(e.punchIn)).format('DD日HH:mm') : '--',
+    punchOut: e.punchOut
+      ? dayjs.tz(dayjs(e.punchOut)).format('DD日HH:mm')
+      : '--',
   }
 }
 async function permitAccount(row) {
-  if (row.id) return
+  if (row.id) return alertStore.show()
   const [err] = await to(api.admin.unlocked(row.id))
-  if (err) return
+  if (err) return alertStore.show()
   const index = bannedAccounts.findIndex((e) => e.id === row.id)
   bannedAccounts.splice(index, 1)
 }
 async function patchAttendance(row) {
   const { dateId, employeeId } = row
-  if (!dateId || !employeeId) return
+  if (!dateId || !employeeId) return alertStore.show()
   const [err] = await to(api.admin.patchAttendance({ dateId, employeeId }))
-  if (err) return
+  if (err) return alertStore.show()
   const index = absentEmployees.findIndex(
     (e) => e.dateId === dateId && e.employeeId === employeeId
   )
@@ -62,7 +65,7 @@ async function patchAttendance(row) {
           v-slot="tableSlot"
           :data="absentEmployees"
           :columns="table1Columns"
-          :format-function="a1"
+          :format-function="formatFunction1"
         >
           <el-button
             type="success"

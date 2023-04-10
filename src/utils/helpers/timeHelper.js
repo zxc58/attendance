@@ -7,7 +7,8 @@ dayjs.tz.setDefault('Asia/Taipei')
 const dividedHour = Number(import.meta.env.VITE_APP_DIVIDED_HOUR ?? 5)
 export default dayjs
 export const getEndTime = function () {
-  return dayjs()
+  return dayjs
+    .tz(dayjs())
     .add(24 - dividedHour, 'h')
     .startOf('day')
     .add(dividedHour, 'h')

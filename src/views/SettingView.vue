@@ -5,7 +5,8 @@ import { storeToRefs } from 'pinia'
 import store from '../stores'
 import to from 'await-to-js'
 import api from '../utils/api'
-const [userStore, router] = [store.useUserStore(), useRouter()]
+const [userStore, alertStore] = [store.useUserStore(), store.useAlertStore()]
+const router = useRouter()
 const { user } = storeToRefs(userStore)
 
 const formModel = reactive({
@@ -63,9 +64,9 @@ async function setting() {
   const data = toRaw(formModel)
   if (!data.password) delete data.password
   delete data.ensurePassword
-  const [, newUserData] = await to(api.user.updatePersonalData(userId, data))
+  const [err, newUserData] = await to(api.user.updatePersonalData(userId, data))
   submitButtonRef.value.disabled = false
-  if (!newUserData) return
+  if (err) return alertStore.show()
   userStore.formatAndStoreApiData(newUserData)
   router.push('/')
 }

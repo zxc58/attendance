@@ -19,7 +19,7 @@ const { alertContent } = storeToRefs(alertStore)
 onBeforeMount(async () => {
   if (!checkIsLogin()) return router.push('/login')
   const [err, data] = await to(api.user.verifyJWT())
-  if (err) return
+  if (err) return router.push('/login')
   userStore.formatAndStoreApiData(data.employee, data.attendances)
 })
 </script>

@@ -7,9 +7,9 @@ const [route, router] = [useRoute(), useRouter()]
 const status = ref(null)
 onMounted(async () => {
   const punchQrId = route.query.punchQrId
-  if (!punchQrId) return
-  const [, message] = await to(api.user.qrPunch({ punchQrId }))
-  if (!message) return
+  if (!punchQrId) return router.push('/')
+  const [err] = await to(api.user.qrPunch({ punchQrId }))
+  if (err) return (status.value = '打卡失敗 2秒後跳轉')
   status.value = '打卡成功 2秒後跳轉'
   setTimeout(() => router.push('/'), 2 * 1000)
 })

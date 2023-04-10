@@ -2,8 +2,8 @@
 import { useRouter, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import store from '../stores'
-import api from '../utils/api'
-import to from 'await-to-js'
+// import api from '../utils/api'
+// import to from 'await-to-js'
 import { removeTokens } from '../utils/helpers/jwtHelper'
 import { useWindowSize } from '@vueuse/core'
 
@@ -12,9 +12,9 @@ const { useUserStore } = store
 const [userStore, router, route] = [useUserStore(), useRouter(), useRoute()]
 const { user, isAdmin } = storeToRefs(userStore)
 
-async function logOut() {
-  const [err] = await to(api.user.logout())
-  if (err) return
+function logOut() {
+  // const [err] = await to(api.user.logout())
+  // if (err) return
   userStore.$reset()
   removeTokens()
   router.push('/login')

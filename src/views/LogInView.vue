@@ -66,18 +66,15 @@ async function login() {
 }
 
 async function showQr() {
-  if (!isInRange) return
-  const [, { punchQrId }] = await to(api.user.getQrId(getLocation.value))
-  if (!punchQrId) return
-  const qrURL = `${location.protocol}//${location.host}/attendance/qrcode?punchQrId=${punchQrId}`
+  if (!isInRange) return alertStore.show('請至公司附近操作')
+  const [, data] = await to(api.user.getQrId(getLocation.value))
+  if (!data.punchQrId) return alertStore.show()
+  const qrURL = `${location.protocol}//${location.host}/attendance/qrcode?punchQrId=${data.punchQrId}`
   qr.value = qrURL
-  window.addEventListener(
-    'click',
-    () => {
-      qr.value = ''
-    },
-    { once: true, capture: true }
-  )
+  window.addEventListener('click', () => (qr.value = ''), {
+    once: true,
+    capture: true,
+  })
 }
 </script>
 
