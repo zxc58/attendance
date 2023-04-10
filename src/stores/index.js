@@ -1,7 +1,8 @@
 import cloneDeep from 'lodash.clonedeep'
 import { useUserStore } from './user'
 import { useLocationStore } from './location'
-const store = { useLocationStore, useUserStore }
+import { useAlertStore } from './alert'
+const store = { useLocationStore, useUserStore, useAlertStore }
 export default store
 
 export const middlewares = {

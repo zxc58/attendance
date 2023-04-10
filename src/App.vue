@@ -1,40 +1,39 @@
 <script setup>
-import { onBeforeMount, onBeforeUnmount } from 'vue'
+import { onBeforeMount } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
+import 'element-plus/theme-chalk/display.css'
 import to from 'await-to-js'
 import store from './stores'
 import api from './utils/api'
 import TopIndex from './components/TopIndex.vue'
-import FlashAlert from './components/FlashAlert.vue'
 
 import { checkIsLogin } from './utils/helpers/jwtHelper'
-const { useUserStore, useLocationStore } = store
-const [userStore, locationStore, router] = [
+import { storeToRefs } from 'pinia'
+const { useUserStore, useAlertStore } = store
+const [userStore, alertStore, router] = [
   useUserStore(),
-  useLocationStore(),
+  useAlertStore(),
   useRouter(),
 ]
-let watchPositionId
+const { alertContent } = storeToRefs(alertStore)
 onBeforeMount(async () => {
-  navigator.geolocation.watchPosition(
-    (e) => locationStore.$patch({ location: e.coords }),
-    null,
-    { timeout: 10 * 1000, enableHighAccuracy: true }
-  )
   if (!checkIsLogin()) return router.push('/login')
   const [err, data] = await to(api.user.verifyJWT())
-  if (err) return
-  userStore.formatAndStoreApiData(data.user, data.attendances)
-})
-onBeforeUnmount(() => {
-  navigator.geolocation.clearWatch(watchPositionId)
+  if (err) return router.push('/login')
+  userStore.formatAndStoreApiData(data.employee, data.attendances)
 })
 </script>
 
 <template>
-  <FlashAlert />
-  <TopIndex />
-  <RouterView />
+  <FlashAlert v-if="alertContent" />
+  <el-container>
+    <el-header style="padding-right: 0px; padding-left: 0px">
+      <TopIndex />
+    </el-header>
+    <el-main>
+      <RouterView />
+    </el-main>
+  </el-container>
 </template>
 
 <style>

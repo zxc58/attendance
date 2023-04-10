@@ -37,14 +37,10 @@ export function updatePersonalData(userId, data) {
  * @param {{latitude:number,longitude:number,accuracy:number}} location
  * @returns
  */
-export function punchIn(userId, punchIn, location) {
-  return instance.post(
-    `employees/${userId}/attendances`,
-    {
-      punchIn,
-    },
-    { params: { location } }
-  )
+export function punchIn(userId, location) {
+  return instance.post(`employees/${userId}/attendances`, {
+    params: { location },
+  })
 }
 /**
  * @param { number | string } attendanceId
@@ -52,18 +48,14 @@ export function punchIn(userId, punchIn, location) {
  * @param {{latitude:number,longitude:number,accuracy:number}} location
  * @returns
  */
-export function punchOut(userId, attendanceId, punchOut, location) {
-  return instance.patch(
-    `/employees/${userId}/attendances/${attendanceId}`,
-    {
-      punchOut,
-    },
-    { params: { location } }
-  )
+export function punchOut(userId, attendanceId, location) {
+  return instance.patch(`/employees/${userId}/attendances/${attendanceId}`, {
+    params: { location },
+  })
 }
 /**
  *
- * @param {{punch:Date,punchQrId:string}} data
+ * @param {{punchQrId:string}} data
  * @returns
  */
 export function qrPunch(data) {

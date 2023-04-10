@@ -1,46 +1,20 @@
 <script setup>
-import { reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import store from '../stores'
-import api from '../utils/api'
-import to from 'await-to-js'
+// import api from '../utils/api'
+// import to from 'await-to-js'
 import { removeTokens } from '../utils/helpers/jwtHelper'
+import { useWindowSize } from '@vueuse/core'
+
+const { width } = useWindowSize()
 const { useUserStore } = store
-const buttonCollapse = ref(null)
-const router = useRouter()
-const [userStore] = [useUserStore()]
+const [userStore, router, route] = [useUserStore(), useRouter(), useRoute()]
 const { user, isAdmin } = storeToRefs(userStore)
 
-const navItem = reactive([
-  {
-    name: '考勤',
-    onclick() {
-      if (window.innerWidth < 768) {
-        buttonCollapse.value.click()
-      }
-      router.push('/')
-    },
-  },
-  {
-    name: '設定',
-    onclick() {
-      if (window.innerWidth < 768) {
-        buttonCollapse.value.click()
-      }
-      router.push('/setting')
-    },
-  },
-])
-const directToManagement = () => {
-  if (window.innerWidth < 768) {
-    buttonCollapse.value.click()
-  }
-  router.push('/admin')
-}
-async function logOut() {
-  const [err] = await to(api.user.logout())
-  if (err) return
+function logOut() {
+  // const [err] = await to(api.user.logout())
+  // if (err) return
   userStore.$reset()
   removeTokens()
   router.push('/login')
@@ -48,51 +22,34 @@ async function logOut() {
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-    <div class="container-fluid">
-      <span class="navbar-brand fs-3 titan-logo">考勤系統</span>
-      <button
-        v-if="user"
-        ref="buttonCollapse"
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#pageList"
-        aria-controls="pageList"
-        aria-expanded="true"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="navbar-collapse collapse" id="pageList" v-if="user">
-        <ul class="navbar-nav me-auto ms-auto">
-          <li
-            class="nav-item text-center px-1"
-            v-for="item in navItem"
-            :key="item.name"
-          >
-            <a class="nav-link fs-5" @click="item.onclick($event)"
-              >{{ item.name }}
-            </a>
-          </li>
-          <li class="nav-item text-center px-1" v-if="isAdmin">
-            <a class="nav-link fs-5" @click="directToManagement">管理</a>
-          </li>
-        </ul>
-        <ul class="navbar-nav">
-          <li class="nav-item text-center logout-btn">
-            <a class="nav-link" @click="logOut">登出</a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+  <el-menu
+    style="align-items: center"
+    router
+    :default-active="route.path"
+    :ellipsis="false"
+    mode="horizontal"
+    background-color="#545c64"
+    text-color="#fff"
+    active-text-color="#ffd04b"
+  >
+    <el-menu-item class="logo" v-if="width >= 768 || !user"
+      >出勤系統</el-menu-item
+    >
+    <el-menu-item index="/" v-if="user">出勤</el-menu-item>
+    <el-menu-item index="/setting" v-if="user">設定</el-menu-item>
+    <el-menu-item index="/admin" v-if="isAdmin">管理</el-menu-item>
+    <div style="flex-grow: 1" />
+    <el-button @click="logOut" v-if="user">登出</el-button>
+  </el-menu>
 </template>
-<style>
-.titan-logo {
-  user-select: none;
+<style scoped>
+.logo {
+  font-size: 2rem;
+  color: white;
+  pointer-events: none;
 }
-a {
-  cursor: pointer;
+
+.flex-grow {
+  flex-grow: 1;
 }
 </style>
