@@ -37,6 +37,9 @@ onBeforeMount(async () => {
 </template>
 
 <style>
+body {
+  margin: 0px;
+}
 ::-webkit-scrollbar {
   width: 7px;
 }

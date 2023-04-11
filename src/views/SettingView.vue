@@ -55,17 +55,17 @@ const formRules = reactive({
   ],
 })
 
-const submitButtonRef = ref()
+const disableBtn = ref(false)
 async function setting() {
-  submitButtonRef.value.disabled = true
+  disableBtn.value = true
   const [, result] = await to(formRef.value.validate())
-  if (!result) return (submitButtonRef.value.disabled = false)
+  if (!result) return (disableBtn.value = false)
   const userId = userStore.userId
   const data = toRaw(formModel)
   if (!data.password) delete data.password
   delete data.ensurePassword
   const [err, newUserData] = await to(api.user.updatePersonalData(userId, data))
-  submitButtonRef.value.disabled = false
+  disableBtn.value = false
   if (err) return alertStore.show()
   userStore.formatAndStoreApiData(newUserData)
   router.push('/')
@@ -73,7 +73,7 @@ async function setting() {
 </script>
 
 <template>
-  <h5 style="text-align: center">設定資料</h5>
+  <div style="font-size: 2rem; text-align: center">設定資料</div>
   <el-row style="justify-content: center">
     <el-form
       ref="formRef"
@@ -109,7 +109,7 @@ async function setting() {
       <el-form-item>
         <el-button
           round
-          ref="submitButtonRef"
+          :disabled="disableBtn"
           type="primary"
           native-type="submit"
         >

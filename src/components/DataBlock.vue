@@ -37,11 +37,11 @@ async function updateAvatar() {
     <input
       type="file"
       ref="avatarInput"
-      class="d-none"
+      style="display: none"
       @change="updateAvatar"
     />
-    <h1>{{ userName }}</h1>
-    <h5>今日出勤</h5>
+    <div style="font-size: 2rem">{{ userName }}</div>
+    <div>今日出勤</div>
   </div>
   <ul style="margin-bottom: 0px">
     <li>上班時間: {{ formattedPunchIn }}</li>

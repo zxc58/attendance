@@ -32,7 +32,7 @@ const formRules = reactive({
 })
 const { useUserStore, useLocationStore, useAlertStore } = store
 const qr = ref()
-const submitButtonRef = ref()
+const buttonDisabled = ref(false)
 const [userStore, locationStore, alertStore, router] = [
   useUserStore(),
   useLocationStore(),
@@ -42,12 +42,12 @@ const [userStore, locationStore, alertStore, router] = [
 const { getLocation, isInRange } = storeToRefs(locationStore)
 
 async function login() {
-  submitButtonRef.value.disabled = true
+  buttonDisabled.value = true
   const [, result] = await to(formRef.value.validate())
-  if (!result) return (submitButtonRef.value.disabled = false)
+  if (!result) return (buttonDisabled.value = false)
   const formInputs = toRaw(formModel)
   const [error, data] = await to(api.user.login(formInputs))
-  submitButtonRef.value.disabled = false
+  buttonDisabled.value = false
   formModel.password = ''
   if (error) {
     switch (error.response.data.message) {
@@ -79,7 +79,7 @@ async function showQr() {
 </script>
 
 <template>
-  <h2 style="text-align: center">Sign in</h2>
+  <div style="text-align: center; font-size: 2rem">Sign in</div>
 
   <el-row style="justify-content: center">
     <el-form
@@ -114,8 +114,8 @@ async function showQr() {
       </el-form-item>
       <el-form-item>
         <el-button
+          :disabled="buttonDisabled"
           round
-          ref="submitButtonRef"
           native-type="submit"
           type="primary"
         >
