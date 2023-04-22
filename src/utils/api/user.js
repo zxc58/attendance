@@ -12,16 +12,9 @@ export function verifyJWT() {
 export function personalData(userId) {
   return instance.get(`/employees/${userId}`)
 }
-export function todaysAttendance(userId) {
-  return instance.get(`/employees/${userId}/attendances`, {
-    params: { date: 'today' },
-  })
-}
 
 export function recentAttendances(userId) {
-  return instance.get(`/employees/${userId}/attendances`, {
-    params: { date: 'recent' },
-  })
+  return instance.get(`/employees/${userId}/attendances`)
 }
 /**
  *
