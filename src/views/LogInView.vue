@@ -7,116 +7,131 @@ import to from 'await-to-js'
 import qricon from '../assets/qricon.png'
 import store from '../stores'
 import api from '../utils/api'
-import { flash } from '../utils/helpers/flashHelper'
 import { storeJWT } from '../utils/helpers/jwtHelper'
-const distanceLimit = Number(import.meta.env.VITE_APP_DISTANCE_LIMIT ?? 400)
-const formInputsRef = reactive({ account: '', password: '' })
-const { useUserStore, useLocationStore } = store
-const qr = ref('')
-const submitButtonRef = ref()
-const [userStore, locationStore, router] = [
+const formModel = reactive({ account: '', password: '' })
+const formRef = ref()
+const formRules = reactive({
+  account: [
+    { required: true, message: 'Please input account', trigger: 'blur' },
+    {
+      min: 5,
+      max: 14,
+      message: 'Length should be 5 to 14',
+      trigger: ['blur', 'change'],
+    },
+  ],
+  password: [
+    { required: true, message: 'Please input password', trigger: 'blur' },
+    {
+      min: 7,
+      max: 14,
+      message: 'Length should be 7 to 14',
+      trigger: ['blur', 'change'],
+    },
+  ],
+})
+const { useUserStore, useLocationStore, useAlertStore } = store
+const qr = ref()
+const buttonDisabled = ref(false)
+const [userStore, locationStore, alertStore, router] = [
   useUserStore(),
   useLocationStore(),
+  useAlertStore(),
   useRouter(),
 ]
-const { getLocation, distance } = storeToRefs(locationStore)
+const { getLocation, isInRange } = storeToRefs(locationStore)
 
 async function login() {
-  submitButtonRef.value.disabled = true
-  const formInputs = toRaw(formInputsRef)
+  buttonDisabled.value = true
+  const [, result] = await to(formRef.value.validate())
+  if (!result) return (buttonDisabled.value = false)
+  const formInputs = toRaw(formModel)
   const [error, data] = await to(api.user.login(formInputs))
-  submitButtonRef.value.disabled = false
+  buttonDisabled.value = false
+  formModel.password = ''
   if (error) {
     switch (error.response.data.message) {
       case 'Wrong times over 5':
-        return flash('danger', '帳號已被鎖定')
+        return alertStore.show('帳號已被鎖定')
       case 'Account do not exist':
       case 'Password wrong':
-        return flash('danger', '帳號或密碼錯誤')
+        return alertStore.show('帳號或密碼錯誤')
       default:
-        return flash()
+        return alertStore.show()
     }
   }
   storeJWT(data)
-  userStore.formatAndStoreApiData(data.user, data.attendances)
+  userStore.formatAndStoreApiData(data.employee, data.attendances)
   router.push('/')
 }
 
 async function showQr() {
-  if (!(distance.value <= distanceLimit))
-    return flash('warning', '請親自至公司操作')
-  const [, { punchQrId }] = await to(api.user.getQrId(getLocation.value))
-  if (!punchQrId) return
-  const qrURL = `${location.protocol}//${location.host}/attendance/qrcode?punchQrId=${punchQrId}`
+  if (!isInRange) return alertStore.show('請至公司附近操作')
+  const [, data] = await to(api.user.getQrId(getLocation.value))
+  if (!data.punchQrId) return alertStore.show()
+  const qrURL = `${location.protocol}//${location.host}/attendance/qrcode?punchQrId=${data.punchQrId}`
   qr.value = qrURL
-  window.addEventListener(
-    'click',
-    () => {
-      qr.value = ''
-    },
-    { once: true, capture: true }
-  )
+  window.addEventListener('click', () => (qr.value = ''), {
+    once: true,
+    capture: true,
+  })
 }
 </script>
 
 <template>
-  <form ref="formRef" class="container-md" @submit.prevent="login">
-    <fieldset>
-      <legend class="text-center display-5 my-0">登入</legend>
-      <div class="d-over-bp">
-        <qrcode-vue
-          v-if="qr"
-          class="qr-code"
-          :value="qr"
-          :size="400"
-          level="H"
-        ></qrcode-vue>
-        <img @click="showQr" :src="qricon" alt="qr" />
-        <span
-          :class="distance <= distanceLimit ? 'text-info' : 'text-secondary'"
-          v-if="!qr"
-        >
-          {{ distance <= distanceLimit ? '掃描打卡' : '請至公司取得qr code' }}
-        </span>
-      </div>
-      <div class="form-group">
-        <label for="accountInput" class="form-label mt-4">帳號</label>
-        <input
-          v-model="formInputsRef.account"
-          id="accountInput"
-          class="form-control"
-          type="text"
-          maxlength="14"
-          minlength="5"
-          placeholder="5~14碼帳號"
-          required
-        />
-      </div>
-      <div class="form-group">
-        <label for="passwordInput" class="form-label mt-4">密碼</label>
-        <input
-          v-model="formInputsRef.password"
-          id="passwordInput"
-          class="form-control"
+  <div style="text-align: center; font-size: 2rem">Sign in</div>
+
+  <el-row style="justify-content: center">
+    <el-form
+      :rules="formRules"
+      ref="formRef"
+      :model="formModel"
+      @submit.prevent="login"
+      label-position="top"
+      status-icon
+    >
+      <qrcode-vue
+        v-if="qr"
+        class="qr-code"
+        :value="qr"
+        :size="400"
+        level="H"
+      ></qrcode-vue>
+      <img @click="showQr" :src="qricon" alt="qr" />
+      <span :class="isInRange ? 'text-info' : 'text-secondary'" v-if="!qr">
+        {{ isInRange ? '掃描打卡' : '請至公司取得qr code' }}
+      </span>
+      <el-form-item label="Account" prop="account">
+        <el-input type="text" v-model="formModel.account" maxlength="14" />
+      </el-form-item>
+      <el-form-item label="Password" prop="password">
+        <el-input
+          v-model="formModel.password"
           type="password"
+          show-password
           maxlength="14"
-          minlength="7"
-          placeholder="7~14碼密碼"
-          required
         />
-      </div>
-      <div class="mt-1 form-group text-center">
-        <button ref="submitButtonRef" type="submit" class="btn btn-info">
-          登入
-        </button>
-      </div>
-    </fieldset>
-  </form>
+      </el-form-item>
+      <el-form-item>
+        <el-button
+          :disabled="buttonDisabled"
+          round
+          native-type="submit"
+          type="primary"
+        >
+          Sign in
+        </el-button>
+      </el-form-item>
+    </el-form>
+  </el-row>
 </template>
 
 <style scoped>
-form {
-  max-width: 600px;
+.el-alert {
+  background-color: aqua;
+}
+.el-form {
+  width: 600px;
 }
 img {
   max-width: 20px;
@@ -133,5 +148,6 @@ img:hover {
   background-color: antiquewhite;
   border-width: 1px;
   border-radius: 10px;
+  z-index: 1;
 }
 </style>

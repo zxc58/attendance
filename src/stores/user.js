@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import avatarUrl from '../assets/avatar.png'
-import dayjsTaipei, { countWorkingHour } from '../utils/helpers/timeHelper'
+import dayjs, { countWorkingHour } from '../utils/helpers/timeHelper'
 const requiredWorkingHour = Number(
   import.meta.env.VITE_APP_REQUIRED_WORKING_HOUR ?? 8
 )
@@ -21,24 +21,26 @@ export const useUserStore = defineStore('user', () => {
     recentAttendance.value ? recentAttendance.value[0] : undefined
   )
   const formattedPunchOut = computed(() => {
-    if (!today.value) return
+    if (!today.value) return undefined
     const { punchOut } = today.value
-    if (!punchOut) return
-    return dayjsTaipei(punchOut).format('HH:mm')
+    if (!punchOut) return undefined
+    return dayjs.tz(dayjs(punchOut)).format('HH:mm')
   })
   const formattedPunchIn = computed(() => {
-    if (!today.value) return
+    if (!today.value) return undefined
     const { punchIn } = today.value
-    if (!punchIn) return
-    return dayjsTaipei(punchIn).format('HH:mm')
+    if (!punchIn) return undefined
+    return dayjs.tz(dayjs(punchIn)).format('HH:mm')
   })
   const leftTime = computed(() => {
-    if (!today.value) return
+    if (!today.value) return undefined
     const { punchIn } = today.value
-    if (!punchIn) return
-    const now = dayjsTaipei()
-    const timeToPunchOut = dayjsTaipei(punchIn).add(requiredWorkingHour, 'hour')
-    if (now.isAfter(timeToPunchOut)) return
+    if (!punchIn) return undefined
+    const now = dayjs.tz(dayjs())
+    const timeToPunchOut = dayjs
+      .tz(dayjs(punchIn))
+      .add(requiredWorkingHour, 'hour')
+    if (now.isAfter(timeToPunchOut)) return undefined
     const left = timeToPunchOut.diff(now, 'm')
     if (left === 0) return '不到一分鐘'
     if (left >= 10) return '還不到下班時間'
@@ -48,13 +50,13 @@ export const useUserStore = defineStore('user', () => {
     if (!recentAttendance.value) return []
     const list = recentAttendance.value.map((element, index) => {
       if (index === 0) return {}
-      const [status, color, details] = countWorkingHour(element)
+      const [status, color] = countWorkingHour(element)
       return {
         id: element.dateId,
-        date: dayjsTaipei(element.date).format('MM月DD日'),
+        date: dayjs.tz(element.date).format('MM月DD日'),
         day: `星期${element.day}`,
         status,
-        class: `table-${color}${details ? ' row-details' : ''}`,
+        class: color,
       }
     })
     list.shift()
@@ -89,24 +91,3 @@ export const useUserStore = defineStore('user', () => {
     formatAndStoreApiData,
   }
 })
-/*
-const todaysAttendance = ref(null)
-  const details = ref(null)
-  const recentAttendances = ref(null)
-
-    const formatDetails = computed(() => {
-    if (!details?.value) {
-      return null
-    }
-    const [status, color] = countWorkingHour(details.value)
-    const { punchIn, punchOut, date, day } = details.value
-    return {
-      punchIn: punchIn ? dayjsTaipei(punchIn).format('HH:mm') : '無紀錄',
-      punchOut: punchOut ? dayjsTaipei(punchOut).format('HH:mm') : '無紀錄',
-      date: dayjsTaipei(date).format('YYYY年MM月DD日'),
-      day: `星期${day}`,
-      status,
-      color,
-    }
-  })
-*/
